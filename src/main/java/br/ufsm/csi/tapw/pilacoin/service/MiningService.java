@@ -1,8 +1,8 @@
 package br.ufsm.csi.tapw.pilacoin.service;
 
-import br.ufsm.csi.tapw.pilacoin.constants.Properties;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
-import br.ufsm.csi.tapw.pilacoin.model.PilaCoin;
+import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
+import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,12 +18,13 @@ import java.util.Random;
 
 @Service
 public class MiningService implements Runnable, Observer<Difficulty> {
+    private final QueueService queueService;
     private final PilaCoinService pilaCoinService;
-
     private final SharedUtil sharedUtil;
     private Difficulty difficulty;
 
-    public MiningService(PilaCoinService pilaCoinService, SharedUtil sharedUtil) {
+    public MiningService(QueueService queueService, PilaCoinService pilaCoinService, SharedUtil sharedUtil) {
+        this.queueService = queueService;
         this.pilaCoinService = pilaCoinService;
         this.sharedUtil = sharedUtil;
     }
@@ -31,12 +32,10 @@ public class MiningService implements Runnable, Observer<Difficulty> {
     @Override
     @SneakyThrows
     public void run() {
-        BigInteger hash;
         MessageDigest md = MessageDigest.getInstance("SHA-256");
-        String json = "";
-        PilaCoin pilaCoin = PilaCoin.builder()
+        PilaCoinJson pilaCoin = PilaCoinJson.builder()
                 .chaveCriador(this.sharedUtil.getPublicKey().toString().getBytes(StandardCharsets.UTF_8))
-                .nomeCriador(Properties.USERNAME)
+                .nomeCriador(this.sharedUtil.getProperties().USERNAME)
                 .build();
         int count = 0;
         Random random = new Random();
@@ -50,14 +49,17 @@ public class MiningService implements Runnable, Observer<Difficulty> {
             pilaCoin.setNonce(new BigInteger(md.digest(byteArray)).abs().toString());
             pilaCoin.setDataCriacao(new Date(System.currentTimeMillis()));
 
-            json = ow.writeValueAsString(pilaCoin);
-            hash = new BigInteger(md.digest(json.getBytes(StandardCharsets.UTF_8))).abs();
+            String json = ow.writeValueAsString(pilaCoin);
 
             count++;
 
-            if (hash.compareTo(this.difficulty.getDificuldade()) < 0) {
-                System.out.println(json);
+            if (CryptoUtil.compareHash(json, this.difficulty.getDificuldade())) {
+                System.out.printf("Encontrado Pila depois de %d tentativas%n", count);
+
                 this.pilaCoinService.save(pilaCoin);
+
+                this.queueService.publishPilaCoin(pilaCoin);
+
                 count = 0;
             }
         }

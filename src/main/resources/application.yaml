@@ -14,7 +14,10 @@ spring:
       ddl-auto: create
 
 queue:
-  pilacoin.valid.name: pila-minerado
+  minerado: pila-minerado
   msgs: clients-msgs
   errors: clients-errors
   dificuldade: dificuldade
+
+pilacoin:
+  username: londeroedu

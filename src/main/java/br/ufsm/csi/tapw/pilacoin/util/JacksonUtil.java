@@ -16,4 +16,11 @@ public class JacksonUtil {
 
         return mapper.readValue(jsonString, clazz);
     }
+
+    @SneakyThrows
+    public static <T> String toString(T object) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        return mapper.writeValueAsString(object);
+    }
 }

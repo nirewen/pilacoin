@@ -1,9 +1,9 @@
 package br.ufsm.csi.tapw.pilacoin.service;
 
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
-import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.types.Observable;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
+import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -14,16 +14,19 @@ import java.util.List;
 
 @Service
 public class DifficultyService implements Observable<Difficulty> {
+    private final QueueService queueService;
     private final PilaCoinService pilaCoinService;
     private final SharedUtil sharedUtil;
-
+    private final List<Observer<Difficulty>> observers = new ArrayList<>();
     private Difficulty currentDifficulty;
     private boolean started = false;
-    private List<Observer<Difficulty>> observers = new ArrayList<>();
 
-    public DifficultyService(PilaCoinService pilaCoinService, SharedUtil sharedUtil) {
+    public DifficultyService(QueueService queueService, PilaCoinService pilaCoinService, ValidationService validationService, SharedUtil sharedUtil) {
+        this.queueService = queueService;
         this.pilaCoinService = pilaCoinService;
         this.sharedUtil = sharedUtil;
+
+        this.subscribe(validationService);
     }
 
     @RabbitListener(queues = "${queue.dificuldade}")
@@ -54,7 +57,7 @@ public class DifficultyService implements Observable<Difficulty> {
     private void startMining() {
         this.started = true;
 
-        MiningService miningService = new MiningService(this.pilaCoinService, this.sharedUtil);
+        MiningService miningService = new MiningService(this.queueService, this.pilaCoinService, this.sharedUtil);
 
         this.subscribe(miningService);
         miningService.update(this.currentDifficulty);
