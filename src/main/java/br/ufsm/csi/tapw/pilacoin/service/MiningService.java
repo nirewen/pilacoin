@@ -2,11 +2,10 @@ package br.ufsm.csi.tapw.pilacoin.service;
 
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
-import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
-import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
+import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
+import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
@@ -34,12 +33,11 @@ public class MiningService implements Runnable, Observer<Difficulty> {
     public void run() {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         PilaCoinJson pilaCoin = PilaCoinJson.builder()
-                .chaveCriador(this.sharedUtil.getPublicKey().toString().getBytes(StandardCharsets.UTF_8))
-                .nomeCriador(this.sharedUtil.getProperties().USERNAME)
-                .build();
+            .chaveCriador(this.sharedUtil.getPublicKey().toString().getBytes(StandardCharsets.UTF_8))
+            .nomeCriador(this.sharedUtil.getProperties().USERNAME)
+            .build();
         int count = 0;
         Random random = new Random();
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         System.out.println("Minerando...");
 
         while (true) {
@@ -49,7 +47,7 @@ public class MiningService implements Runnable, Observer<Difficulty> {
             pilaCoin.setNonce(new BigInteger(md.digest(byteArray)).abs().toString());
             pilaCoin.setDataCriacao(new Date(System.currentTimeMillis()));
 
-            String json = ow.writeValueAsString(pilaCoin);
+            String json = JacksonUtil.toString(pilaCoin);
 
             count++;
 

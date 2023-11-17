@@ -26,7 +26,7 @@ public class SharedUtil {
     @PostConstruct
     private void loadKeypair() {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(1024);
+        keyPairGenerator.initialize(512);
 
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 

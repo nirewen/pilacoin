@@ -13,7 +13,7 @@ public class PilaCoinService {
         this.pilaCoinRepository = pilaCoinRepository;
     }
 
-    public void save(PilaCoinJson pilaCoinJSON) {
+    public PilaCoin save(PilaCoinJson pilaCoinJSON) {
         PilaCoin pilaCoin = PilaCoin.builder()
             .chaveCriador(pilaCoinJSON.getChaveCriador())
             .nomeCriador(pilaCoinJSON.getNomeCriador())
@@ -22,5 +22,7 @@ public class PilaCoinService {
             .build();
 
         this.pilaCoinRepository.save(pilaCoin);
+
+        return pilaCoin;
     }
 }
