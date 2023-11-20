@@ -16,16 +16,16 @@ import java.util.List;
 public class DifficultyService implements Observable<Difficulty> {
     private final QueueService queueService;
     private final PilaCoinService pilaCoinService;
-    private final SharedUtil sharedUtil;
+
     private final List<Observer<Difficulty>> observers = new ArrayList<>();
     private Difficulty currentDifficulty;
     private boolean started = false;
 
-    public DifficultyService(QueueService queueService, PilaCoinService pilaCoinService, ValidationService validationService, SharedUtil sharedUtil) {
+    public DifficultyService(QueueService queueService, PilaCoinService pilaCoinService, ValidationService validationService) {
         this.queueService = queueService;
         this.pilaCoinService = pilaCoinService;
-        this.sharedUtil = sharedUtil;
 
+        this.subscribe(pilaCoinService);
         this.subscribe(validationService);
     }
 
@@ -57,10 +57,7 @@ public class DifficultyService implements Observable<Difficulty> {
     private void startMining() {
         this.started = true;
 
-        MiningService miningService = new MiningService(this.queueService, this.pilaCoinService, this.sharedUtil);
-
-        this.subscribe(miningService);
-        miningService.update(this.currentDifficulty);
+        MiningService miningService = new MiningService(this.queueService, this.pilaCoinService);
 
         new Thread(miningService).start();
     }

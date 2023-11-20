@@ -19,8 +19,8 @@ public class QueueService {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void publishPilaCoin(PilaCoinJson pilaCoinJSON) {
-        this.rabbitTemplate.convertAndSend(filaMinerado, JacksonUtil.toString(pilaCoinJSON));
+    public void publishPilaCoin(PilaCoinJson pilaCoinJson) {
+        this.rabbitTemplate.convertAndSend(filaMinerado, JacksonUtil.toString(pilaCoinJson));
     }
 
     @RabbitListener(queues = "${pilacoin.username}")
