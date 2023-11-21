@@ -29,6 +29,11 @@ public class ValidationService implements Observer<Difficulty> {
         }
 
         PilaCoinJson json = JacksonUtil.convert(pilaCoinJson, PilaCoinJson.class);
+
+        if (json == null) {
+            return;
+        }
+
         boolean valid = CryptoUtil.compareHash(pilaCoinJson, this.difficulty.getDificuldade());
 
         if (json.getNomeCriador().equals(this.sharedUtil.getProperties().getUsername()) || !valid) {
