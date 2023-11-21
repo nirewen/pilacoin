@@ -15,6 +15,7 @@ spring:
 
 queue:
   minerado: pila-minerado
+  validado: pila-validado
   msgs: clients-msgs
   errors: clients-errors
   dificuldade: dificuldade

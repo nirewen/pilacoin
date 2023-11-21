@@ -2,6 +2,7 @@ package br.ufsm.csi.tapw.pilacoin.service;
 
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
+import br.ufsm.csi.tapw.pilacoin.model.json.PilaValidado;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
@@ -12,9 +13,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ValidationService implements Observer<Difficulty> {
+    private final QueueService queueService;
+    private final SharedUtil sharedUtil;
     private Difficulty difficulty;
-    private QueueService queueService;
-    private SharedUtil sharedUtil;
 
     public ValidationService(QueueService queueService, SharedUtil sharedUtil) {
         this.queueService = queueService;
@@ -28,19 +29,25 @@ public class ValidationService implements Observer<Difficulty> {
         }
 
         PilaCoinJson json = JacksonUtil.convert(pilaCoinJson, PilaCoinJson.class);
+        boolean valid = CryptoUtil.compareHash(pilaCoinJson, this.difficulty.getDificuldade());
 
-        if (json.getNomeCriador().equals(this.sharedUtil.getProperties().getUsername())) {
+        if (json.getNomeCriador().equals(this.sharedUtil.getProperties().getUsername()) || !valid) {
             this.queueService.publishPilaCoin(json);
 
             return;
         }
 
-        boolean valid = CryptoUtil.compareHash(pilaCoinJson, this.difficulty.getDificuldade());
+        PilaValidado pilaValidado = PilaValidado.builder()
+            .nomeValidador(this.sharedUtil.getProperties().getUsername())
+            .chavePublicaValidador(this.sharedUtil.getPublicKey().getEncoded())
+            .assinaturaPilaCoin(CryptoUtil.sign(pilaCoinJson, this.sharedUtil.getPrivateKey()))
+            .pilaCoinJson(pilaCoinJson)
+            .build();
 
-        if (valid) {
-            System.out.println("PILA VALIDADO");
-            System.out.println(json);
-        }
+        this.queueService.validarPilaCoin(pilaValidado);
+
+        System.out.println("PILA VALIDADO!");
+        System.out.println(json.getNomeCriador());
     }
 
     @Override

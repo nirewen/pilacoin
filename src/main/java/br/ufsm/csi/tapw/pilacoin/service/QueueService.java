@@ -3,6 +3,7 @@ package br.ufsm.csi.tapw.pilacoin.service;
 import br.ufsm.csi.tapw.pilacoin.model.PilaCoin;
 import br.ufsm.csi.tapw.pilacoin.model.json.MessageJson;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
+import br.ufsm.csi.tapw.pilacoin.model.json.PilaValidado;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -17,6 +18,8 @@ public class QueueService {
 
     @Value("${queue.minerado}")
     private String filaMinerado;
+    @Value("${queue.validado}")
+    private String filaValidado;
 
     public QueueService(RabbitTemplate rabbitTemplate, PilaCoinService pilaCoinService) {
         this.rabbitTemplate = rabbitTemplate;
@@ -25,6 +28,10 @@ public class QueueService {
 
     public void publishPilaCoin(PilaCoinJson pilaCoinJson) {
         this.rabbitTemplate.convertAndSend(filaMinerado, JacksonUtil.toString(pilaCoinJson));
+    }
+
+    public void validarPilaCoin(PilaValidado pilaValidado) {
+        this.rabbitTemplate.convertAndSend(filaValidado, JacksonUtil.toString(pilaValidado));
     }
 
     @RabbitListener(queues = "${pilacoin.username}")
