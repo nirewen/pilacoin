@@ -49,7 +49,7 @@ public class ValidationService implements Observer<Difficulty> {
             .pilaCoinJson(pilaCoinJson)
             .build();
 
-        this.queueService.validarPilaCoin(pilaValidado);
+        this.queueService.publishPilaValidado(pilaValidado);
 
         System.out.println("PILA VALIDADO!");
         System.out.println(json.getNomeCriador());

@@ -30,7 +30,7 @@ public class QueueService {
         this.rabbitTemplate.convertAndSend(filaMinerado, JacksonUtil.toString(pilaCoinJson));
     }
 
-    public void validarPilaCoin(PilaValidado pilaValidado) {
+    public void publishPilaValidado(PilaValidado pilaValidado) {
         this.rabbitTemplate.convertAndSend(filaValidado, JacksonUtil.toString(pilaValidado));
     }
 
