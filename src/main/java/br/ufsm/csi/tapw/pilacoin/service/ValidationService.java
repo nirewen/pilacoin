@@ -41,8 +41,7 @@ public class ValidationService implements Observer<Difficulty> {
 
         if (valid) {
             System.out.println("PILA VALIDADO");
-
-
+            System.out.println(json);
         }
     }
 

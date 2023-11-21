@@ -1,5 +1,6 @@
 package br.ufsm.csi.tapw.pilacoin.model.json;
 
+import br.ufsm.csi.tapw.pilacoin.model.PilaCoin;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,6 @@ public class PilaCoinJson {
     private Date dataCriacao;
     private byte[] chaveCriador;
     private String nomeCriador;
-    private String status;
+    private PilaCoin.Status status;
     private String nonce;
 }

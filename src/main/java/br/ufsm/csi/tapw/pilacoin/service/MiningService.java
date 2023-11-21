@@ -23,14 +23,17 @@ public class MiningService implements Runnable {
         while (true) {
             count++;
 
-            PilaCoinJson pilaCoin = this.pilaCoinService.generatePilaCoin();
+            try {
+                PilaCoinJson pilaCoin = this.pilaCoinService.generatePilaCoin();
 
-            if (pilaCoin != null) {
-                System.out.printf("Encontrado Pila depois de %d tentativas%n", count);
+                if (pilaCoin != null) {
+                    System.out.printf("Encontrado Pila depois de %d tentativas%n", count);
 
-                this.queueService.publishPilaCoin(pilaCoin);
+                    this.queueService.publishPilaCoin(pilaCoin);
 
-                count = 0;
+                    count = 0;
+                }
+            } catch (Exception ignored) {
             }
         }
     }

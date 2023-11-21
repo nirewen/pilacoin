@@ -1,5 +1,7 @@
 package br.ufsm.csi.tapw.pilacoin.service;
 
+import br.ufsm.csi.tapw.pilacoin.model.PilaCoin;
+import br.ufsm.csi.tapw.pilacoin.model.json.MessageJson;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -11,12 +13,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class QueueService {
     private final RabbitTemplate rabbitTemplate;
+    private final PilaCoinService pilaCoinService;
 
     @Value("${queue.minerado}")
     private String filaMinerado;
 
-    public QueueService(RabbitTemplate rabbitTemplate) {
+    public QueueService(RabbitTemplate rabbitTemplate, PilaCoinService pilaCoinService) {
         this.rabbitTemplate = rabbitTemplate;
+        this.pilaCoinService = pilaCoinService;
     }
 
     public void publishPilaCoin(PilaCoinJson pilaCoinJson) {
@@ -25,6 +29,32 @@ public class QueueService {
 
     @RabbitListener(queues = "${pilacoin.username}")
     public void receiveResponse(@Payload String response) {
-        System.out.println(response);
+        MessageJson message = JacksonUtil.convert(response, MessageJson.class);
+
+        System.out.println(message);
+
+        if (message.getMsg().startsWith("Pila validado com sucesso.")) {
+            PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
+
+            if (pilaCoin != null) {
+                pilaCoin.setStatus(PilaCoin.Status.AG_CONSOLIDACAO);
+
+                this.pilaCoinService.save(pilaCoin);
+            }
+
+            return;
+        }
+
+        if (message.getMsg().startsWith("Pila validado por mais da metade dos peers.")) {
+            PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
+
+            if (pilaCoin != null) {
+                pilaCoin.setStatus(PilaCoin.Status.AG_BLOCO);
+
+                this.pilaCoinService.save(pilaCoin);
+            }
+
+            return;
+        }
     }
 }

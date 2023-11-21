@@ -37,8 +37,13 @@ public class PilaCoinService implements Observer<Difficulty> {
             .nomeCriador(pilaCoinJson.getNomeCriador())
             .nonce(pilaCoinJson.getNonce())
             .dataCriacao(pilaCoinJson.getDataCriacao())
+            .status(pilaCoinJson.getStatus())
             .build();
 
+        return this.save(pilaCoin);
+    }
+
+    public PilaCoin save(PilaCoin pilaCoin) {
         return this.pilaCoinRepository.save(pilaCoin);
     }
 
@@ -47,6 +52,7 @@ public class PilaCoinService implements Observer<Difficulty> {
         PilaCoinJson pilaCoin = PilaCoinJson.builder()
             .chaveCriador(this.sharedUtil.getPublicKey().toString().getBytes(StandardCharsets.UTF_8))
             .nomeCriador(this.sharedUtil.getProperties().USERNAME)
+            .status(PilaCoin.Status.AG_VALIDACAO)
             .build();
 
         byte[] byteArray = new byte[256 / 8];
@@ -64,6 +70,16 @@ public class PilaCoinService implements Observer<Difficulty> {
         }
 
         return null;
+    }
+
+    public PilaCoin findByNonce(String nonce) {
+        return this.pilaCoinRepository.findByNonce(nonce);
+    }
+
+    public void changeStatus(PilaCoin pilaCoin, PilaCoin.Status status) {
+        pilaCoin.setStatus(status);
+
+        this.pilaCoinRepository.save(pilaCoin);
     }
 
     @Override
