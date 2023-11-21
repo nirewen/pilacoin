@@ -23,7 +23,7 @@ public class ValidationService implements Observer<Difficulty> {
 
     @RabbitListener(queues = "${queue.minerado}")
     public void validatePila(@Payload String pilaCoinJson) {
-        if (this.difficulty == null) {
+        if (this.difficulty == null || pilaCoinJson == null || pilaCoinJson.isEmpty()) {
             return;
         }
 

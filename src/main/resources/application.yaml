@@ -20,4 +20,5 @@ queue:
   dificuldade: dificuldade
 
 pilacoin:
+  home: ../pilacoin
   username: londeroedu
