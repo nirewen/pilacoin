@@ -4,7 +4,6 @@ import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.types.Observable;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
-import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
@@ -21,12 +20,13 @@ public class DifficultyService implements Observable<Difficulty> {
     private Difficulty currentDifficulty;
     private boolean started = false;
 
-    public DifficultyService(QueueService queueService, PilaCoinService pilaCoinService, ValidationService validationService) {
+    public DifficultyService(QueueService queueService, PilaCoinService pilaCoinService, ValidationService validationService, BlockService blockService) {
         this.queueService = queueService;
         this.pilaCoinService = pilaCoinService;
 
         this.subscribe(pilaCoinService);
         this.subscribe(validationService);
+        this.subscribe(blockService);
     }
 
     @RabbitListener(queues = "${queue.dificuldade}")
@@ -49,7 +49,7 @@ public class DifficultyService implements Observable<Difficulty> {
 
         if (!this.observers.isEmpty()) {
             this.observers.forEach(observer ->
-                observer.update(this.currentDifficulty)
+                    observer.update(this.currentDifficulty)
             );
         }
     }

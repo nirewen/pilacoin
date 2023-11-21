@@ -22,7 +22,7 @@ public class ValidationService implements Observer<Difficulty> {
         this.sharedUtil = sharedUtil;
     }
 
-    @RabbitListener(queues = "${queue.minerado}")
+    @RabbitListener(queues = "${queue.pila.minerado}")
     public void validatePila(@Payload String pilaCoinJson) {
         if (this.difficulty == null || pilaCoinJson == null || pilaCoinJson.isEmpty()) {
             return;
@@ -43,11 +43,11 @@ public class ValidationService implements Observer<Difficulty> {
         }
 
         PilaValidado pilaValidado = PilaValidado.builder()
-            .nomeValidador(this.sharedUtil.getProperties().getUsername())
-            .chavePublicaValidador(this.sharedUtil.getPublicKey().getEncoded())
-            .assinaturaPilaCoin(CryptoUtil.sign(pilaCoinJson, this.sharedUtil.getPrivateKey()))
-            .pilaCoinJson(pilaCoinJson)
-            .build();
+                .nomeValidador(this.sharedUtil.getProperties().getUsername())
+                .chavePublicaValidador(this.sharedUtil.getPublicKey().getEncoded())
+                .assinaturaPilaCoin(CryptoUtil.sign(pilaCoinJson, this.sharedUtil.getPrivateKey()))
+                .pilaCoinJson(pilaCoinJson)
+                .build();
 
         this.queueService.publishPilaValidado(pilaValidado);
 

@@ -14,8 +14,13 @@ spring:
       ddl-auto: update
 
 queue:
-  minerado: pila-minerado
-  validado: pila-validado
+  pila:
+    minerado: pila-minerado
+    validado: pila-validado
+  bloco:
+    descobre: descobre-bloco
+    minerado: bloco-minerado
+    validado: bloco-validado
   msgs: clients-msgs
   errors: clients-errors
   dificuldade: dificuldade

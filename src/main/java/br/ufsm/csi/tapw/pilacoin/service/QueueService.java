@@ -16,9 +16,9 @@ public class QueueService {
     private final RabbitTemplate rabbitTemplate;
     private final PilaCoinService pilaCoinService;
 
-    @Value("${queue.minerado}")
+    @Value("${queue.pila.minerado}")
     private String filaMinerado;
-    @Value("${queue.validado}")
+    @Value("${queue.pila.validado}")
     private String filaValidado;
 
     public QueueService(RabbitTemplate rabbitTemplate, PilaCoinService pilaCoinService) {
