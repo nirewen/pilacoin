@@ -51,7 +51,7 @@ public class PilaCoinService implements Observer<Difficulty> {
     public PilaCoinJson generatePilaCoin() {
         PilaCoinJson pilaCoin = PilaCoinJson.builder()
             .chaveCriador(this.sharedUtil.getPublicKey().toString().getBytes(StandardCharsets.UTF_8))
-            .nomeCriador(this.sharedUtil.getProperties().USERNAME)
+            .nomeCriador(this.sharedUtil.getProperties().getUsername())
             .status(PilaCoin.Status.AG_VALIDACAO)
             .build();
 

@@ -10,8 +10,6 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-
 @Service
 public class ValidationService implements Observer<Difficulty> {
     private Difficulty difficulty;
@@ -31,7 +29,7 @@ public class ValidationService implements Observer<Difficulty> {
 
         PilaCoinJson json = JacksonUtil.convert(pilaCoinJson, PilaCoinJson.class);
 
-        if (Arrays.toString(json.getChaveCriador()).equals(this.sharedUtil.getPublicKey().toString())) {
+        if (json.getNomeCriador().equals(this.sharedUtil.getProperties().getUsername())) {
             this.queueService.publishPilaCoin(json);
 
             return;
