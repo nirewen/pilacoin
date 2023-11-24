@@ -59,7 +59,7 @@ public class MiningService implements Observer<Difficulty> {
         @SneakyThrows
         public void run() {
             int count = 0;
-            Logger.log("Minerando...");
+            Logger.logBox("Minerando...");
 
             while (true) {
                 count++;
@@ -68,7 +68,11 @@ public class MiningService implements Observer<Difficulty> {
                     PilaCoinJson pilaCoin = pilaCoinService.generatePilaCoin(this.difficulty);
 
                     if (pilaCoin != null) {
-                        Logger.log(String.format("Encontrado Pila depois de %d tentativas", count));
+                        Logger.logBox(STR. """
+                            PILA MINERADO
+                            ---
+                            Em \{ count } tentativas
+                            """ );
 
                         queueService.publishPilaCoin(pilaCoin);
 

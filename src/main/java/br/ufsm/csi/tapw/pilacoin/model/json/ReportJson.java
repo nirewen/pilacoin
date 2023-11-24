@@ -16,23 +16,25 @@ public class ReportJson {
     public Boolean validouBloco;
     public Boolean transferiuPila;
 
+    public boolean compareTo(ReportJson otherReport) {
+        return this.nomeUsuario.equals(otherReport.nomeUsuario)
+            && this.minerouPila.equals(otherReport.minerouPila)
+            && this.validouPila.equals(otherReport.validouPila)
+            && this.minerouBloco.equals(otherReport.minerouBloco)
+            && this.validouBloco.equals(otherReport.validouBloco)
+            && this.transferiuPila.equals(otherReport.transferiuPila);
+    }
+
     public void printReport() {
-        Logger.logBox("""
-            Relatório                    %s
-            Nome de usuário: %s
-            Minerou pila: %s
-            Validou pila: %s
-            Minerou bloco: %s
-            Validou bloco: %s
-            Transferiu pila: %s
-            """.formatted(
-            new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date(this.geradoEm)),
-            this.nomeUsuario,
-            this.minerouPila ? "Sim" : "Não",
-            this.validouPila ? "Sim" : "Não",
-            this.minerouBloco ? "Sim" : "Não",
-            this.validouBloco ? "Sim" : "Não",
-            this.transferiuPila ? "Sim" : "Não"
-        ));
+        Logger.logBox(STR. """
+            REPORT                  \{ new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date(geradoEm)) }
+            ---
+            Nome de usuário: \{ nomeUsuario }
+            Minerou pila: \{ minerouPila ? "Sim" : "Não" }
+            Validou pila: \{ validouPila ? "Sim" : "Não" }
+            Minerou bloco: \{ minerouBloco ? "Sim" : "Não" }
+            Validou bloco: \{ validouBloco ? "Sim" : "Não" }
+            Transferiu pila: \{ transferiuPila ? "Sim" : "Não" }
+            """ );
     }
 }

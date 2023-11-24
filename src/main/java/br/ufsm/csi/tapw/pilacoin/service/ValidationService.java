@@ -52,7 +52,11 @@ public class ValidationService implements Observer<Difficulty> {
 
         this.queueService.publishPilaValidado(pilaValidado);
 
-        Logger.log("[PILA VALIDADO] " + pilaCoinJson.getNomeCriador());
+        Logger.logBox(STR. """
+            PILA VALIDADO
+            ---
+            \{ pilaCoinJson.getNomeCriador() }
+            """ );
     }
 
     @Override

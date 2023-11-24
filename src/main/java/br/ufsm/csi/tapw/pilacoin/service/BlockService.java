@@ -53,7 +53,11 @@ public class BlockService implements Observer<Difficulty> {
             }
         }
 
-        Logger.log(String.format("Bloco minerado em %d tentativas ", count));
+        Logger.logBox(STR. """
+            BLOCO MINERADO
+            ---
+            Em \{ count } tentativas
+            """ );
     }
 
     @RabbitListener(queues = "${queue.bloco.minerado}")

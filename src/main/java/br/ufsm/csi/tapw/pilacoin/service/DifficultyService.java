@@ -43,7 +43,7 @@ public class DifficultyService implements Observable<Difficulty> {
     }
 
     private void updateDifficulty(Difficulty diff) {
-        Logger.log("Dificuldade atual: " + diff.getDificuldade());
+        Logger.logBox("DIFICULDADE\n---\n" + diff.getDificuldade());
 
         currentDifficulty = diff;
 

@@ -21,6 +21,8 @@ public class QueueService {
     private final PilaCoinService pilaCoinService;
     private final SharedUtil sharedUtil;
 
+    private ReportJson lastReport;
+
     public QueueService(RabbitTemplate rabbitTemplate, PilaCoinService pilaCoinService, SharedUtil sharedUtil) {
         this.rabbitTemplate = rabbitTemplate;
         this.pilaCoinService = pilaCoinService;
@@ -71,7 +73,7 @@ public class QueueService {
                 break;
             }
             case Fila.PILA_VALIDADO: {
-                Logger.log("[ERRO] " + message.getErro());
+                Logger.logBox("ERRO\n---\n" + message.getErro());
 
                 break;
             }
@@ -87,10 +89,19 @@ public class QueueService {
             return;
         }
 
-        reports.stream()
+        ReportJson newReport = reports.stream()
             .filter((r) -> r.getNomeUsuario() != null)
             .filter((r) -> r.getNomeUsuario().equals(this.sharedUtil.getProperties().getUsername()))
-            .forEach(ReportJson::printReport);
+            .findFirst()
+            .orElse(null);
+
+        if (newReport != null) {
+            if (this.lastReport == null || !newReport.compareTo(this.lastReport)) {
+                this.lastReport = newReport;
+
+                newReport.printReport();
+            }
+        }
     }
 
     public void publishPilaCoin(PilaCoinJson pilaCoinJson) {
