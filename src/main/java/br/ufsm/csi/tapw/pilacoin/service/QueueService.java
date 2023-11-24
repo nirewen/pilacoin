@@ -19,60 +19,74 @@ public class QueueService {
     private final RabbitTemplate rabbitTemplate;
     private final PilaCoinService pilaCoinService;
 
-    @Value("${queue.pila.minerado}")
-    private String filaMinerado;
-    @Value("${queue.pila.validado}")
-    private String filaValidado;
-
     public QueueService(RabbitTemplate rabbitTemplate, PilaCoinService pilaCoinService) {
         this.rabbitTemplate = rabbitTemplate;
         this.pilaCoinService = pilaCoinService;
     }
 
     public void publishPilaCoin(PilaCoinJson pilaCoinJson) {
-        this.rabbitTemplate.convertAndSend(filaMinerado, JacksonUtil.toString(pilaCoinJson));
+        this.rabbitTemplate.convertAndSend(Fila.PILA_MINERADO, JacksonUtil.toString(pilaCoinJson));
     }
 
     public void publishPilaValidado(PilaValidado pilaValidado) {
-        this.rabbitTemplate.convertAndSend(filaValidado, JacksonUtil.toString(pilaValidado));
+        this.rabbitTemplate.convertAndSend(Fila.PILA_VALIDADO, JacksonUtil.toString(pilaValidado));
     }
 
     @RabbitListener(queues = "${pilacoin.username}")
     public void receiveResponse(@Payload String response) {
         MessageJson message = JacksonUtil.convert(response, MessageJson.class);
 
-        Logger.log(response);
-
         if (Objects.isNull(message)) {
             return;
         }
 
         if (message.getErro() != null) {
-            Logger.log("[ERRO] " + response);
+            this.handleError(message);
 
             return;
         }
 
-        if (message.getQueue().equals(filaMinerado)) {
-            PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
+        switch (message.getQueue()) {
+            case Fila.PILA_MINERADO: {
+                PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
 
-            if (pilaCoin != null) {
                 this.pilaCoinService.changeStatus(pilaCoin, PilaCoin.Status.VALIDO);
+
+                break;
             }
+            case Fila.PILA_VALIDADO: {
+                PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
 
-            return;
-        }
-
-        if (message.getQueue().equals(filaValidado)) {
-            PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
-
-            if (pilaCoin != null) {
                 this.pilaCoinService.changeStatus(pilaCoin, PilaCoin.Status.AG_BLOCO);
-            }
 
-            return;
+                break;
+            }
         }
 
         Logger.log(response);
+    }
+
+    private void handleError(MessageJson message) {
+        switch (message.getQueue()) {
+            case Fila.PILA_MINERADO: {
+                PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
+
+                this.pilaCoinService.changeStatus(pilaCoin, PilaCoin.Status.INVALIDO);
+
+                break;
+            }
+            case Fila.PILA_VALIDADO: {
+                Logger.log("[ERRO] " + message.getErro());
+
+                break;
+            }
+        }
+    }
+
+    private class Fila {
+        @Value("${queue.pila.minerado}")
+        public static final String PILA_MINERADO = "${queue.pila.minerado}";
+        @Value("${queue.pila.validado}")
+        public static final String PILA_VALIDADO = "${queue.pila.validado}";
     }
 }

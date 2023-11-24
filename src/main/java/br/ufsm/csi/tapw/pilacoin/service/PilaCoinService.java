@@ -75,6 +75,10 @@ public class PilaCoinService {
     }
 
     public void changeStatus(PilaCoin pilaCoin, PilaCoin.Status status) {
+        if (pilaCoin == null || status == null) {
+            return;
+        }
+        
         pilaCoin.setStatus(status);
 
         this.pilaCoinRepository.save(pilaCoin);
