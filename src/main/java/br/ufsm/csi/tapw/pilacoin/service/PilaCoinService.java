@@ -10,21 +10,15 @@ import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import java.util.Random;
 
 @Service
 public class PilaCoinService {
     private final PilaCoinRepository pilaCoinRepository;
     private final SharedUtil sharedUtil;
-    private final Random random = new Random(System.currentTimeMillis());
-    private final MessageDigest md = MessageDigest.getInstance("SHA-256");
 
-    public PilaCoinService(PilaCoinRepository pilaCoinRepository, SharedUtil sharedUtil) throws NoSuchAlgorithmException {
+    public PilaCoinService(PilaCoinRepository pilaCoinRepository, SharedUtil sharedUtil) {
         this.pilaCoinRepository = pilaCoinRepository;
         this.sharedUtil = sharedUtil;
     }
@@ -53,10 +47,7 @@ public class PilaCoinService {
             .status(PilaCoin.Status.AG_VALIDACAO)
             .build();
 
-        byte[] byteArray = new byte[256 / 8];
-
-        this.random.nextBytes(byteArray);
-        pilaCoin.setNonce(new BigInteger(md.digest(byteArray)).abs().toString());
+        pilaCoin.setNonce(CryptoUtil.getRandomNonce());
         pilaCoin.setDataCriacao(new Date(System.currentTimeMillis()));
 
         String json = JacksonUtil.toString(pilaCoin);
@@ -78,7 +69,7 @@ public class PilaCoinService {
         if (pilaCoin == null || status == null) {
             return;
         }
-        
+
         pilaCoin.setStatus(status);
 
         this.pilaCoinRepository.save(pilaCoin);

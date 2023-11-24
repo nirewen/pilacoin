@@ -10,4 +10,17 @@ public class Logger {
     public static void log(String message) {
         getInstance().info(message);
     }
+
+    public static void logBox(String message) {
+        String[] lines = message.split("\n");
+        Integer boxWidth = 48;
+
+        getInstance().info("╭" + "─".repeat(boxWidth + 2) + "╮");
+
+        for (String line : lines) {
+            getInstance().info("│ " + String.format("%-" + boxWidth + "s", line) + " │");
+        }
+
+        getInstance().info("╰" + "─".repeat(boxWidth + 2) + "╯");
+    }
 }

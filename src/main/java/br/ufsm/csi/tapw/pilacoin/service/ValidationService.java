@@ -50,8 +50,6 @@ public class ValidationService implements Observer<Difficulty> {
             .pilaCoinJson(pilaCoinJson)
             .build();
 
-        Logger.log(JacksonUtil.toString(pilaValidado));
-
         this.queueService.publishPilaValidado(pilaValidado);
 
         Logger.log("[PILA VALIDADO] " + pilaCoinJson.getNomeCriador());

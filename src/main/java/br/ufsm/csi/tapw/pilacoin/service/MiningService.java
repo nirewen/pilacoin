@@ -32,12 +32,19 @@ public class MiningService implements Observer<Difficulty> {
         }
 
         IntStream.range(0, this.sharedUtil.getProperties().getMiningThreads()).forEach((i) -> {
-            Thread t = new Thread(new MinerRunnable(subject));
+            try {
+                Thread t = new Thread(new MinerRunnable(subject));
 
-            t.setName("MiningThread " + i);
-            t.start();
+                t.setName("MiningThread " + i);
 
-            this.threads.add(t);
+                Thread.sleep(100);
+
+                t.start();
+
+                this.threads.add(t);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
