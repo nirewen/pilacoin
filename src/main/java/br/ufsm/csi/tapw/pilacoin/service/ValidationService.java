@@ -24,21 +24,21 @@ public class ValidationService implements Observer<Difficulty> {
     }
 
     @RabbitListener(queues = "${queue.pila.minerado}")
-    public void validatePila(@Payload String pilaCoinJson) {
-        if (this.difficulty == null || pilaCoinJson == null || pilaCoinJson.isEmpty()) {
+    public void validatePila(@Payload String json) {
+        if (this.difficulty == null || json == null || json.isEmpty()) {
             return;
         }
 
-        PilaCoinJson json = JacksonUtil.convert(pilaCoinJson, PilaCoinJson.class);
+        PilaCoinJson pilaCoinJson = JacksonUtil.convert(json, PilaCoinJson.class);
 
-        if (json == null) {
+        if (pilaCoinJson == null) {
             return;
         }
 
-        boolean valid = CryptoUtil.compareHash(pilaCoinJson, this.difficulty.getDificuldade());
+        boolean valid = CryptoUtil.compareHash(json, this.difficulty.getDificuldade());
 
-        if (json.getNomeCriador().equals(this.sharedUtil.getProperties().getUsername()) || !valid) {
-            this.queueService.publishPilaCoin(json);
+        if (pilaCoinJson.getNomeCriador().equals(this.sharedUtil.getProperties().getUsername()) || !valid) {
+            this.queueService.publishPilaCoin(pilaCoinJson);
 
             return;
         }
@@ -46,13 +46,15 @@ public class ValidationService implements Observer<Difficulty> {
         PilaValidado pilaValidado = PilaValidado.builder()
             .nomeValidador(this.sharedUtil.getProperties().getUsername())
             .chavePublicaValidador(this.sharedUtil.getPublicKey().getEncoded())
-            .assinaturaPilaCoin(CryptoUtil.sign(pilaCoinJson, this.sharedUtil.getPrivateKey()))
+            .assinaturaPilaCoin(CryptoUtil.sign(json, this.sharedUtil.getPrivateKey()))
             .pilaCoinJson(pilaCoinJson)
             .build();
 
+        Logger.log(JacksonUtil.toString(pilaValidado));
+
         this.queueService.publishPilaValidado(pilaValidado);
 
-        Logger.log("[PILA VALIDADO] " + json.getNomeCriador());
+        Logger.log("[PILA VALIDADO] " + pilaCoinJson.getNomeCriador());
     }
 
     @Override
