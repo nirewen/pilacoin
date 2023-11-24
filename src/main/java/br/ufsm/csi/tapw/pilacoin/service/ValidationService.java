@@ -6,6 +6,7 @@ import br.ufsm.csi.tapw.pilacoin.model.json.PilaValidado;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
+import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -43,16 +44,15 @@ public class ValidationService implements Observer<Difficulty> {
         }
 
         PilaValidado pilaValidado = PilaValidado.builder()
-                .nomeValidador(this.sharedUtil.getProperties().getUsername())
-                .chavePublicaValidador(this.sharedUtil.getPublicKey().getEncoded())
-                .assinaturaPilaCoin(CryptoUtil.sign(pilaCoinJson, this.sharedUtil.getPrivateKey()))
-                .pilaCoinJson(pilaCoinJson)
-                .build();
+            .nomeValidador(this.sharedUtil.getProperties().getUsername())
+            .chavePublicaValidador(this.sharedUtil.getPublicKey().getEncoded())
+            .assinaturaPilaCoin(CryptoUtil.sign(pilaCoinJson, this.sharedUtil.getPrivateKey()))
+            .pilaCoinJson(pilaCoinJson)
+            .build();
 
         this.queueService.publishPilaValidado(pilaValidado);
 
-        System.out.println("PILA VALIDADO!");
-        System.out.println(json.getNomeCriador());
+        Logger.log("[PILA VALIDADO] " + json.getNomeCriador());
     }
 
     @Override

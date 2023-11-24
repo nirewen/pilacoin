@@ -29,6 +29,7 @@ public class PilaCoin implements Cloneable {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+    @Column(unique = true)
     private String nonce;
 
     @Override
@@ -42,7 +43,9 @@ public class PilaCoin implements Cloneable {
 
     public enum Status {
         AG_VALIDACAO,
-        AG_CONSOLIDACAO,
         AG_BLOCO,
+        BLOCO_EM_VALIDACAO,
+        VALIDO,
+        INVALIDO
     }
 }

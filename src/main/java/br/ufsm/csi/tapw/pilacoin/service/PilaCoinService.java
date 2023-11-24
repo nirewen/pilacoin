@@ -4,7 +4,6 @@ import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.PilaCoin;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.repository.PilaCoinRepository;
-import br.ufsm.csi.tapw.pilacoin.types.Observer;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
@@ -19,12 +18,11 @@ import java.util.Date;
 import java.util.Random;
 
 @Service
-public class PilaCoinService implements Observer<Difficulty> {
+public class PilaCoinService {
     private final PilaCoinRepository pilaCoinRepository;
     private final SharedUtil sharedUtil;
-    private final Random random = new Random();
+    private final Random random = new Random(System.currentTimeMillis());
     private final MessageDigest md = MessageDigest.getInstance("SHA-256");
-    private Difficulty difficulty;
 
     public PilaCoinService(PilaCoinRepository pilaCoinRepository, SharedUtil sharedUtil) throws NoSuchAlgorithmException {
         this.pilaCoinRepository = pilaCoinRepository;
@@ -48,7 +46,7 @@ public class PilaCoinService implements Observer<Difficulty> {
     }
 
     @Transactional
-    public PilaCoinJson generatePilaCoin() {
+    public PilaCoinJson generatePilaCoin(Difficulty difficulty) {
         PilaCoinJson pilaCoin = PilaCoinJson.builder()
             .chaveCriador(this.sharedUtil.getPublicKey().toString().getBytes(StandardCharsets.UTF_8))
             .nomeCriador(this.sharedUtil.getProperties().getUsername())
@@ -63,7 +61,7 @@ public class PilaCoinService implements Observer<Difficulty> {
 
         String json = JacksonUtil.toString(pilaCoin);
 
-        if (CryptoUtil.compareHash(json, this.difficulty.getDificuldade())) {
+        if (CryptoUtil.compareHash(json, difficulty.getDificuldade())) {
             this.save(pilaCoin);
 
             return pilaCoin;
@@ -80,10 +78,5 @@ public class PilaCoinService implements Observer<Difficulty> {
         pilaCoin.setStatus(status);
 
         this.pilaCoinRepository.save(pilaCoin);
-    }
-
-    @Override
-    public void update(Difficulty difficulty) {
-        this.difficulty = difficulty;
     }
 }

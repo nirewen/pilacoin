@@ -12,10 +12,11 @@ import java.nio.file.Paths;
 @Component
 public class Properties {
     @Value("${pilacoin.username}")
-    public String username;
+    private String username;
     @Value("${pilacoin.home}")
-    public String home;
-    public Path homePath;
+    private String home;
+    private Path homePath;
+    private int miningThreads = Runtime.getRuntime().availableProcessors();
 
     @PostConstruct
     public void init() {
