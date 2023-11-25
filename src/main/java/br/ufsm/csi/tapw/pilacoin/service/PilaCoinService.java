@@ -44,10 +44,9 @@ public class PilaCoinService {
         PilaCoinJson pilaCoin = PilaCoinJson.builder()
             .chaveCriador(this.sharedUtil.getPublicKey().getEncoded())
             .nomeCriador(this.sharedUtil.getProperties().getUsername())
+            .nonce(CryptoUtil.getRandomNonce())
+            .dataCriacao(new Date(System.currentTimeMillis()))
             .build();
-
-        pilaCoin.setNonce(CryptoUtil.getRandomNonce());
-        pilaCoin.setDataCriacao(new Date(System.currentTimeMillis()));
 
         String json = JacksonUtil.toString(pilaCoin);
 
