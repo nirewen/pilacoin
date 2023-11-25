@@ -10,8 +10,8 @@ import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class PilaCoinService {
@@ -29,7 +29,7 @@ public class PilaCoinService {
             .nomeCriador(pilaCoinJson.getNomeCriador())
             .nonce(pilaCoinJson.getNonce())
             .dataCriacao(pilaCoinJson.getDataCriacao())
-            .status(pilaCoinJson.getStatus())
+            .status(Optional.ofNullable(pilaCoinJson.getStatus()).orElse(PilaCoin.Status.AG_VALIDACAO))
             .build();
 
         return this.save(pilaCoin);
@@ -42,9 +42,8 @@ public class PilaCoinService {
     @Transactional
     public PilaCoinJson generatePilaCoin(Difficulty difficulty) {
         PilaCoinJson pilaCoin = PilaCoinJson.builder()
-            .chaveCriador(this.sharedUtil.getPublicKey().toString().getBytes(StandardCharsets.UTF_8))
+            .chaveCriador(this.sharedUtil.getPublicKey().getEncoded())
             .nomeCriador(this.sharedUtil.getProperties().getUsername())
-            .status(PilaCoin.Status.AG_VALIDACAO)
             .build();
 
         pilaCoin.setNonce(CryptoUtil.getRandomNonce());

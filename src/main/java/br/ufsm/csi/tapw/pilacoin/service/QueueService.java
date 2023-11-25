@@ -17,10 +17,18 @@ import java.util.Objects;
 
 @Service
 public class QueueService {
+    @Value("${queue.pila.minerado}")
+    public final String PILA_MINERADO = "PILA_MINERADO";
+    @Value("${queue.pila.validado}")
+    public final String PILA_VALIDADO = "PILA_VALIDADO";
+    @Value("${queue.bloco.minerado}")
+    public final String BLOCO_MINERADO = "BLOCO_MINERADO";
+    @Value("${queue.bloco.validado}")
+    public final String BLOCO_VALIDADO = "BLOCO_VALIDADO";
+
     private final RabbitTemplate rabbitTemplate;
     private final PilaCoinService pilaCoinService;
     private final SharedUtil sharedUtil;
-
     private ReportJson lastReport;
 
     public QueueService(RabbitTemplate rabbitTemplate, PilaCoinService pilaCoinService, SharedUtil sharedUtil) {
@@ -44,14 +52,14 @@ public class QueueService {
         }
 
         switch (message.getQueue()) {
-            case Fila.PILA_MINERADO: {
+            case PILA_MINERADO: {
                 PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
 
                 this.pilaCoinService.changeStatus(pilaCoin, PilaCoin.Status.VALIDO);
 
                 break;
             }
-            case Fila.PILA_VALIDADO: {
+            case PILA_VALIDADO: {
                 PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
 
                 this.pilaCoinService.changeStatus(pilaCoin, PilaCoin.Status.AG_BLOCO);
@@ -65,14 +73,14 @@ public class QueueService {
 
     private void handleError(MessageJson message) {
         switch (message.getQueue()) {
-            case Fila.PILA_MINERADO: {
+            case PILA_MINERADO: {
                 PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
 
                 this.pilaCoinService.changeStatus(pilaCoin, PilaCoin.Status.INVALIDO);
 
                 break;
             }
-            case Fila.PILA_VALIDADO: {
+            case PILA_VALIDADO: {
                 Logger.logBox("ERRO\n---\n" + message.getErro());
 
                 break;
@@ -105,25 +113,14 @@ public class QueueService {
     }
 
     public void publishPilaCoin(PilaCoinJson pilaCoinJson) {
-        this.rabbitTemplate.convertAndSend(Fila.PILA_MINERADO, JacksonUtil.toString(pilaCoinJson));
+        this.rabbitTemplate.convertAndSend(PILA_MINERADO, JacksonUtil.toString(pilaCoinJson));
     }
 
     public void publishPilaValidado(PilaValidado pilaValidado) {
-        this.rabbitTemplate.convertAndSend(Fila.PILA_VALIDADO, JacksonUtil.toString(pilaValidado));
+        this.rabbitTemplate.convertAndSend(PILA_VALIDADO, JacksonUtil.toString(pilaValidado));
     }
 
     public void publishBlocoMinerado(BlocoJson blocoJson) {
-        this.rabbitTemplate.convertAndSend(Fila.BLOCO_MINERADO, JacksonUtil.toString(blocoJson));
-    }
-
-    public static class Fila {
-        @Value("${queue.pila.minerado}")
-        public static final String PILA_MINERADO = "${queue.pila.minerado}";
-        @Value("${queue.pila.validado}")
-        public static final String PILA_VALIDADO = "${queue.pila.validado}";
-        @Value("${queue.bloco.minerado}")
-        public static final String BLOCO_MINERADO = "${queue.bloco.minerado}";
-        @Value("${queue.bloco.validado}")
-        public static final String BLOCO_VALIDADO = "${queue.bloco.validado}";
+        this.rabbitTemplate.convertAndSend(BLOCO_MINERADO, JacksonUtil.toString(blocoJson));
     }
 }

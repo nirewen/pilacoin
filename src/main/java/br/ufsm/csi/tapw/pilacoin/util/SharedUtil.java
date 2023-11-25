@@ -43,7 +43,7 @@ public class SharedUtil {
             Files.createDirectories(this.properties.getHomePath());
 
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(512);
+            keyPairGenerator.initialize(2048);
 
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
