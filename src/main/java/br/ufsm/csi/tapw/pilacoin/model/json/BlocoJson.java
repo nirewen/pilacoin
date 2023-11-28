@@ -16,7 +16,7 @@ import java.util.List;
 @JsonPropertyOrder(alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BlocoJson {
-    private Integer numeroBloco;
+    private Long numeroBloco;
     private String nonceBlocoAnterior;
     private String nonce;
     private byte[] chaveUsuarioMinerador;

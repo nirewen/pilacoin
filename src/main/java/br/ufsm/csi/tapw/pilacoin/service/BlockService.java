@@ -35,10 +35,10 @@ public class BlockService implements Observer<Difficulty> {
             return;
         }
 
+        blocoJson.setNonceBlocoAnterior(blocoJson.getNonce());
+
         Thread t = new Thread(new BlockMinerRunnable(blocoJson, this.difficulty));
-
         t.setName("BlockMinerThread");
-
         t.start();
     }
 
