@@ -13,12 +13,12 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BlockService implements Observer<Difficulty> {
+public class BlockDiscoveryService implements Observer<Difficulty> {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
     private Difficulty difficulty;
 
-    public BlockService(QueueService queueService, SharedUtil sharedUtil) {
+    public BlockDiscoveryService(QueueService queueService, SharedUtil sharedUtil) {
         this.queueService = queueService;
         this.sharedUtil = sharedUtil;
     }
@@ -40,14 +40,6 @@ public class BlockService implements Observer<Difficulty> {
         Thread t = new Thread(new BlockMinerRunnable(blocoJson, this.difficulty));
         t.setName("BlockMinerThread");
         t.start();
-    }
-
-    @RabbitListener(queues = "${queue.bloco.minerado}")
-    public void validaBloco(@Payload String json) {
-//        Logger.log(json);
-        if (this.difficulty == null || json == null || json.isEmpty()) {
-            return;
-        }
     }
 
     @Override
