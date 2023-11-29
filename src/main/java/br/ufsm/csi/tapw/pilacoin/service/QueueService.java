@@ -3,10 +3,7 @@ package br.ufsm.csi.tapw.pilacoin.service;
 import br.ufsm.csi.tapw.pilacoin.model.BlocoValidado;
 import br.ufsm.csi.tapw.pilacoin.model.PilaCoin;
 import br.ufsm.csi.tapw.pilacoin.model.PilaCoinValidado;
-import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
-import br.ufsm.csi.tapw.pilacoin.model.json.MessageJson;
-import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
-import br.ufsm.csi.tapw.pilacoin.model.json.ReportJson;
+import br.ufsm.csi.tapw.pilacoin.model.json.*;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
@@ -44,7 +41,7 @@ public class QueueService {
     }
 
     @RabbitListener(queues = "${pilacoin.username}")
-    public void receiveResponse(@Payload String response) {
+    public void onResponse(@Payload String response) {
         MessageJson message = JacksonUtil.convert(response, MessageJson.class);
 
         if (Objects.isNull(message)) {
@@ -71,19 +68,14 @@ public class QueueService {
 
         Logger.log(response);
     }
-
-    private void handleError(MessageJson message) {
-        if (message.getQueue().equals(PILA_MINERADO)) {
-            PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
-
-            this.pilaCoinService.changeStatus(pilaCoin, PilaCoin.Status.INVALIDO);
-        }
-
-        Logger.logBox("ERRO\n---\n" + message.getErro());
-    }
+//
+//    @RabbitListener(queues = "${pilacoin.username}-query")
+//    public void onQueryResponse(@Payload String response) {
+//        Logger.log(response);
+//    }
 
     @RabbitListener(queues = "report")
-    public void receiveReport(@Payload String report) {
+    public void onReport(@Payload String report) {
         List<ReportJson> reports = JacksonUtil.convert(report, new TypeReference<List<ReportJson>>() {
         });
 
@@ -104,6 +96,30 @@ public class QueueService {
                 newReport.printReport();
             }
         }
+    }
+
+    public QueryResponseJson requestQuery(QueryJson queryJson) {
+        String json = JacksonUtil.toString(queryJson);
+        this.publishToQueue("query", json);
+
+        int tries = 0;
+        QueryResponseJson response = JacksonUtil.convert((String) this.rabbitTemplate.receiveAndConvert("londeroedu-query"), QueryResponseJson.class);
+
+        while (!(response != null && response.getIdQuery().equals(queryJson.getIdQuery())) && tries++ < 10) {
+            response = JacksonUtil.convert((String) this.rabbitTemplate.receiveAndConvert("londeroedu-query"), QueryResponseJson.class);
+        }
+
+        return response;
+    }
+
+    private void handleError(MessageJson message) {
+        if (message.getQueue().equals(PILA_MINERADO)) {
+            PilaCoin pilaCoin = this.pilaCoinService.findByNonce(message.getNonce());
+
+            this.pilaCoinService.changeStatus(pilaCoin, PilaCoin.Status.INVALIDO);
+        }
+
+        Logger.logBox("ERRO\n---\n" + message.getErro());
     }
 
     public void publishPilaCoinMinerado(PilaCoinJson pilaCoinJson) {
