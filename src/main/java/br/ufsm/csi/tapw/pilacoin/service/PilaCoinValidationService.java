@@ -1,8 +1,8 @@
 package br.ufsm.csi.tapw.pilacoin.service;
 
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
+import br.ufsm.csi.tapw.pilacoin.model.PilaCoinValidado;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
-import br.ufsm.csi.tapw.pilacoin.model.json.PilaValidado;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
@@ -13,12 +13,12 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ValidationService implements Observer<Difficulty> {
+public class PilaCoinValidationService implements Observer<Difficulty> {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
     private Difficulty difficulty;
 
-    public ValidationService(QueueService queueService, SharedUtil sharedUtil) {
+    public PilaCoinValidationService(QueueService queueService, SharedUtil sharedUtil) {
         this.queueService = queueService;
         this.sharedUtil = sharedUtil;
     }
@@ -38,19 +38,19 @@ public class ValidationService implements Observer<Difficulty> {
         boolean valid = CryptoUtil.compareHash(json, this.difficulty.getDificuldade());
 
         if (pilaCoinJson.getNomeCriador().equals(this.sharedUtil.getProperties().getUsername()) || !valid) {
-            this.queueService.publishPilaCoin(pilaCoinJson);
+            this.queueService.publishPilaCoinMinerado(pilaCoinJson);
 
             return;
         }
 
-        PilaValidado pilaValidado = PilaValidado.builder()
+        PilaCoinValidado pilaCoinValidado = PilaCoinValidado.builder()
             .nomeValidador(this.sharedUtil.getProperties().getUsername())
             .chavePublicaValidador(this.sharedUtil.getPublicKey().getEncoded())
             .assinaturaPilaCoin(CryptoUtil.sign(json, this.sharedUtil.getPrivateKey()))
             .pilaCoinJson(pilaCoinJson)
             .build();
 
-        this.queueService.publishPilaValidado(pilaValidado);
+        this.queueService.publishPilaCoinValidado(pilaCoinValidado);
 
         Logger.logBox(STR. """
             PILA VALIDADO

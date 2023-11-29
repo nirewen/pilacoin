@@ -19,10 +19,16 @@ public class DifficultyService implements Observable<Difficulty> {
     private final List<Observer<Difficulty>> observers = new ArrayList<>();
     private Difficulty currentDifficulty;
 
-    public DifficultyService(MiningService miningService, ValidationService validationService, BlockService blockService) {
+    public DifficultyService(
+        MiningService miningService,
+        PilaCoinValidationService validationService,
+        BlockDiscoveryService blockDiscoveryService,
+        BlockValidationService blockValidationService
+    ) {
         this.subscribe(miningService);
         this.subscribe(validationService);
-        this.subscribe(blockService);
+        this.subscribe(blockDiscoveryService);
+        this.subscribe(blockValidationService);
 
         this.updateDifficulty(
             Difficulty.builder()

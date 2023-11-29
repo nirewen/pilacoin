@@ -1,7 +1,12 @@
 package br.ufsm.csi.tapw.pilacoin.service;
 
+import br.ufsm.csi.tapw.pilacoin.model.BlocoValidado;
 import br.ufsm.csi.tapw.pilacoin.model.PilaCoin;
-import br.ufsm.csi.tapw.pilacoin.model.json.*;
+import br.ufsm.csi.tapw.pilacoin.model.PilaCoinValidado;
+import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
+import br.ufsm.csi.tapw.pilacoin.model.json.MessageJson;
+import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
+import br.ufsm.csi.tapw.pilacoin.model.json.ReportJson;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
@@ -101,16 +106,20 @@ public class QueueService {
         }
     }
 
-    public void publishPilaCoin(PilaCoinJson pilaCoinJson) {
+    public void publishPilaCoinMinerado(PilaCoinJson pilaCoinJson) {
         this.publishToQueue(PILA_MINERADO, JacksonUtil.toString(pilaCoinJson));
     }
 
-    public void publishPilaValidado(PilaValidado pilaValidado) {
-        this.publishToQueue(PILA_VALIDADO, JacksonUtil.toString(pilaValidado));
+    public void publishPilaCoinValidado(PilaCoinValidado pilaCoinValidado) {
+        this.publishToQueue(PILA_VALIDADO, JacksonUtil.toString(pilaCoinValidado));
     }
 
     public void publishBlocoMinerado(BlocoJson blocoJson) {
         this.publishToQueue(BLOCO_MINERADO, JacksonUtil.toString(blocoJson));
+    }
+
+    public void publishBlocoValidado(BlocoValidado blocoValidado) {
+        this.publishToQueue(BLOCO_VALIDADO, JacksonUtil.toString(blocoValidado));
     }
 
     private void publishToQueue(String queue, String message) {

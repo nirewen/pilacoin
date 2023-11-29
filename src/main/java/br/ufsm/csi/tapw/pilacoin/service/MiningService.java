@@ -74,7 +74,7 @@ public class MiningService implements Observer<Difficulty> {
                             Em \{ count } tentativas
                             """ );
 
-                        queueService.publishPilaCoin(pilaCoin);
+                        queueService.publishPilaCoinMinerado(pilaCoin);
 
                         count = 0;
                     }
