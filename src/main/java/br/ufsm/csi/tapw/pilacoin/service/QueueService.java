@@ -103,7 +103,8 @@ public class QueueService {
         this.publishToQueue("query", json);
 
         int tries = 0;
-        QueryResponseJson response = JacksonUtil.convert((String) this.rabbitTemplate.receiveAndConvert("londeroedu-query"), QueryResponseJson.class);
+        String responseJson = (String) this.rabbitTemplate.receiveAndConvert("londeroedu-query");
+        QueryResponseJson response = JacksonUtil.convert(responseJson, QueryResponseJson.class);
 
         while (!(response != null && response.getIdQuery().equals(queryJson.getIdQuery())) && tries++ < 10) {
             response = JacksonUtil.convert((String) this.rabbitTemplate.receiveAndConvert("londeroedu-query"), QueryResponseJson.class);
