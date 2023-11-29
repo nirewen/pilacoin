@@ -3,7 +3,6 @@ package br.ufsm.csi.tapw.pilacoin.service;
 import br.ufsm.csi.tapw.pilacoin.model.BlocoValidado;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
-import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
@@ -25,12 +24,12 @@ public class BlockValidationService implements Observer<Difficulty> {
     }
 
     @RabbitListener(queues = "${queue.bloco.minerado}")
-    public void validatePila(@Payload String json) {
+    public void validarBloco(@Payload String json) {
         if (this.difficulty == null || json == null || json.isEmpty()) {
             return;
         }
 
-        BlocoJson blocoJson = JacksonUtil.convert(json, PilaCoinJson.class);
+        BlocoJson blocoJson = JacksonUtil.convert(json, BlocoJson.class);
 
         if (blocoJson == null) {
             return;

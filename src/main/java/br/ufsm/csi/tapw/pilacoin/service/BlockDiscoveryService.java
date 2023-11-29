@@ -64,7 +64,7 @@ public class BlockDiscoveryService implements Observer<Difficulty> {
         public void run() {
             int count = 0;
 
-            Logger.logBox("Minerando bloco...");
+            Logger.logBox("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
 
             while (true) {
                 count++;
