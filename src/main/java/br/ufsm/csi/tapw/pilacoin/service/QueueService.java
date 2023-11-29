@@ -32,6 +32,9 @@ public class QueueService {
     @Value("${queue.bloco.validado}")
     private String BLOCO_VALIDADO;
 
+    @Value("${pilacoin.username}")
+    private String username;
+
     private ReportJson lastReport;
 
     public QueueService(RabbitTemplate rabbitTemplate, PilaCoinService pilaCoinService, SharedUtil sharedUtil) {
@@ -68,11 +71,6 @@ public class QueueService {
 
         Logger.log(response);
     }
-//
-//    @RabbitListener(queues = "${pilacoin.username}-query")
-//    public void onQueryResponse(@Payload String response) {
-//        Logger.log(response);
-//    }
 
     @RabbitListener(queues = "report")
     public void onReport(@Payload String report) {
@@ -100,17 +98,25 @@ public class QueueService {
 
     public QueryResponseJson requestQuery(QueryJson queryJson) {
         String json = JacksonUtil.toString(queryJson);
+
         this.publishToQueue("query", json);
 
         int tries = 0;
-        String responseJson = (String) this.rabbitTemplate.receiveAndConvert("londeroedu-query");
-        QueryResponseJson response = JacksonUtil.convert(responseJson, QueryResponseJson.class);
 
-        while (!(response != null && response.getIdQuery().equals(queryJson.getIdQuery())) && tries++ < 10) {
-            response = JacksonUtil.convert((String) this.rabbitTemplate.receiveAndConvert("londeroedu-query"), QueryResponseJson.class);
+        while (tries++ != 10) {
+            String responseJson = (String) this.rabbitTemplate.receiveAndConvert(username + "-query");
+            QueryResponseJson response = JacksonUtil.convert(responseJson, QueryResponseJson.class);
+
+            if (response == null) {
+                continue;
+            }
+
+            if (response.getIdQuery().equals(queryJson.getIdQuery())) {
+                return response;
+            }
         }
 
-        return response;
+        return null;
     }
 
     private void handleError(MessageJson message) {
