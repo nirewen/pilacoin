@@ -64,6 +64,7 @@ public class PilaCoinValidationService extends IModulo {
             ---
             \{ pilaCoinJson.getNomeCriador() }
             """ );
+        this.log("PilaCoin de " + pilaCoinJson.getNomeCriador() + " validado.");
     }
 
     @Override

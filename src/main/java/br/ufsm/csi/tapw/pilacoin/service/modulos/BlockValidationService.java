@@ -65,6 +65,7 @@ public class BlockValidationService extends IModulo {
             ---
             \{ blocoJson.getNomeUsuarioMinerador() }
             """ );
+        this.log("Bloco de " + blocoJson.getNomeUsuarioMinerador() + " validado.");
     }
 
     @Override

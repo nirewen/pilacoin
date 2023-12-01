@@ -81,7 +81,8 @@ public class BlockDiscoveryService extends IModulo {
             this.difficulty = difficulty;
             this.blocoJson = blocoJson;
 
-            Logger.logBox("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
+            Logger.log("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
+            log("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
 
             blocoJson.setChaveUsuarioMinerador(sharedUtil.getPublicKey().getEncoded());
             blocoJson.setNomeUsuarioMinerador(sharedUtil.getProperties().getUsername());
@@ -111,7 +112,8 @@ public class BlockDiscoveryService extends IModulo {
                 ---
                 Em \{ count } tentativas
                 """ );
-            Thread.currentThread().interrupt();
+            log("Bloco minerado em " + count + " tentativas");
+            this.running = false;
         }
 
         public void stop() {
