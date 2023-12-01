@@ -10,10 +10,11 @@
     };
 </script>
 
-<blockquote class="max-h-40 overflow-auto flex flex-col-reverse">
-    {#each messages as message}
-        <pre>
-            {JSON.stringify(message, null, 2)}
-        </pre>
-    {/each}
-</blockquote>
+<div class="p-2 flex-1 flex flex-col border border-neutral-800 rounded-md">
+    <h2 class="text-xl font-bold">{modulo}</h2>
+    <div class="h-52 overflow-auto flex flex-col-reverse bg-neutral-800 rounded-sm">
+        {#each messages as message}
+            <code class="text-nowrap">{JSON.stringify(message, null, 2)}</code>
+        {/each}
+    </div>
+</div>

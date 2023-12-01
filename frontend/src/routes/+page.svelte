@@ -1,6 +1,10 @@
 <script lang="ts">
-	import LogCard from '$lib/components/cards/LogCard.svelte';
+    import LogCard from '$lib/components/cards/LogCard.svelte';
 </script>
 
-<LogCard modulo="PilaCoinMining" />
-<LogCard modulo="PilaCoinValidation" />
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+    <LogCard modulo="PilaCoinMining" />
+    <LogCard modulo="PilaCoinValidation" />
+    <LogCard modulo="BlockDiscovery" />
+    <LogCard modulo="BlockValidation" />
+</div>
