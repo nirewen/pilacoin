@@ -26,7 +26,7 @@ public class PilaCoinValidationService extends IModulo {
 
     @RabbitListener(queues = "${queue.pila.minerado}")
     public void validatePila(@Payload String json) {
-        if (this.difficulty == null || json == null || json.isEmpty() || !this.modulo.isAtivo()) {
+        if (this.difficulty == null || json == null || json.isEmpty()) {
             return;
         }
 
@@ -38,7 +38,7 @@ public class PilaCoinValidationService extends IModulo {
 
         if (!this.modulo.isAtivo()) {
             this.queueService.publishPilaCoinMinerado(pilaCoinJson);
-            
+
             return;
         }
 

@@ -37,15 +37,18 @@ public class BlockDiscoveryService extends IModulo {
 
         BlocoJson blocoJson = JacksonUtil.convert(json, BlocoJson.class);
 
-        if (!this.modulo.isAtivo() && blocoJson != null) {
+        if (blocoJson == null) {
+            return;
+        }
+
+        if (!this.modulo.isAtivo()) {
             this.queueService.publishBlocoDescoberto(blocoJson);
 
             return;
         }
 
-        if (blocoJson == null ||
-            blocoJson.getNomeUsuarioMinerador() != null &&
-                blocoJson.getNomeUsuarioMinerador().equals(sharedUtil.getProperties().getUsername())
+        if (blocoJson.getNomeUsuarioMinerador() != null &&
+            blocoJson.getNomeUsuarioMinerador().equals(sharedUtil.getProperties().getUsername())
         ) {
             return;
         }

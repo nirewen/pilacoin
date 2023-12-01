@@ -14,7 +14,7 @@ public class ModuloController {
     }
 
     @GetMapping("/{nome}")
-    public Modulo minerarPila(@PathVariable String nome) {
+    public Modulo getModulo(@PathVariable String nome) {
         return moduloService.getModulo(nome);
     }
 
