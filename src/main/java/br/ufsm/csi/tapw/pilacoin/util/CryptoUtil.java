@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
+import java.util.Base64;
 import java.util.Random;
 
 public class CryptoUtil {
@@ -55,5 +56,9 @@ public class CryptoUtil {
         CryptoUtil.random.nextBytes(byteArray);
 
         return CryptoUtil.hash(byteArray).toString();
+    }
+
+    public static byte[] decodeBase64(String base64) {
+        return Base64.getDecoder().decode(base64);
     }
 }

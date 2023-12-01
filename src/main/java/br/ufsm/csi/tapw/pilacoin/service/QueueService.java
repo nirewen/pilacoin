@@ -3,6 +3,7 @@ package br.ufsm.csi.tapw.pilacoin.service;
 import br.ufsm.csi.tapw.pilacoin.model.BlocoValidado;
 import br.ufsm.csi.tapw.pilacoin.model.PilaCoin;
 import br.ufsm.csi.tapw.pilacoin.model.PilaCoinValidado;
+import br.ufsm.csi.tapw.pilacoin.model.Transferencia;
 import br.ufsm.csi.tapw.pilacoin.model.json.*;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
@@ -31,9 +32,8 @@ public class QueueService {
     private String BLOCO_MINERADO;
     @Value("${queue.bloco.validado}")
     private String BLOCO_VALIDADO;
-
-    @Value("${pilacoin.username}")
-    private String username;
+    @Value("${queue.pila.transferir}")
+    private String TRANSFERIR_PILA;
 
     private ReportJson lastReport;
 
@@ -98,13 +98,12 @@ public class QueueService {
 
     public QueryResponseJson requestQuery(QueryJson queryJson) {
         String json = JacksonUtil.toString(queryJson);
-
         this.publishToQueue("query", json);
 
         int tries = 0;
 
         while (tries++ != 10) {
-            String responseJson = (String) this.rabbitTemplate.receiveAndConvert(username + "-query");
+            String responseJson = (String) this.rabbitTemplate.receiveAndConvert(queryJson.getNomeUsuario() + "-query");
             QueryResponseJson response = JacksonUtil.convert(responseJson, QueryResponseJson.class);
 
             if (response == null) {
@@ -143,6 +142,10 @@ public class QueueService {
 
     public void publishBlocoValidado(BlocoValidado blocoValidado) {
         this.publishToQueue(BLOCO_VALIDADO, JacksonUtil.toString(blocoValidado));
+    }
+
+    public void publishTransferencia(Transferencia transferencia) {
+        this.publishToQueue(TRANSFERIR_PILA, JacksonUtil.toString(transferencia));
     }
 
     private void publishToQueue(String queue, String message) {
