@@ -17,6 +17,7 @@ queue:
   pila:
     minerado: pila-minerado
     validado: pila-validado
+    transferir: transferir-pila
   bloco:
     descobre: descobre-bloco
     minerado: bloco-minerado
