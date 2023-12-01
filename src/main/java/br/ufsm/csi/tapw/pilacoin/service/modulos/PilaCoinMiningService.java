@@ -25,6 +25,8 @@ public class PilaCoinMiningService extends IModulo {
         this.queueService = queueService;
         this.pilaCoinService = pilaCoinService;
         this.sharedUtil = sharedUtil;
+
+        this.log("Minerador inicializado");
     }
 
     @Override
@@ -66,7 +68,8 @@ public class PilaCoinMiningService extends IModulo {
         @SneakyThrows
         public void run() {
             int count = 0;
-            Logger.logBox("Minerando...");
+            Logger.log("Minerando...");
+            log("Minerando...");
 
             while (running) {
                 count++;
@@ -84,6 +87,7 @@ public class PilaCoinMiningService extends IModulo {
                             ---
                             Em \{ count } tentativas
                             """ );
+                        log("PilaCoin minerado em " + count + " tentativas");
 
                         queueService.publishPilaCoinMinerado(pilaCoin);
 

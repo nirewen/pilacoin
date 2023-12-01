@@ -1,5 +1,6 @@
 package br.ufsm.csi.tapw.pilacoin.service;
 
+import br.ufsm.csi.tapw.pilacoin.exception.ModuloNotFoundException;
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
 import br.ufsm.csi.tapw.pilacoin.repository.ModuloRepository;
 import br.ufsm.csi.tapw.pilacoin.types.IModulo;
@@ -28,25 +29,32 @@ public class ModuloService {
         }
     }
 
-    public Modulo getModulo(String nome) {
+    public Modulo getModuloEntity(String nome) {
         return moduloRepository.findOneByNome(nome);
     }
 
+    public IModulo getModulo(String nome) {
+        return this.modulos.get(nome);
+    }
+
     public Modulo toggleModulo(String nome) {
-        Modulo modulo = this.getModulo(nome);
+        Modulo modulo = this.getModuloEntity(nome);
 
         modulo.setAtivo(!modulo.isAtivo());
 
         moduloRepository.save(modulo);
 
-        IModulo moduloInterface = this.modulos.get(nome);
+        IModulo moduloInterface = this.getModulo(nome);
 
-        if (moduloInterface != null) {
-            moduloInterface.register(modulo);
-            moduloInterface.update(this.difficultyService.getDifficulty());
+        if (moduloInterface == null) {
+            throw new ModuloNotFoundException();
         }
 
+        moduloInterface.register(modulo);
+        moduloInterface.update(this.difficultyService.getDifficulty());
+
         Logger.log("Modulo " + nome + " " + (modulo.isAtivo() ? "ativado" : "desativado"));
+        moduloInterface.log("Modulo " + nome + " " + (modulo.isAtivo() ? "ativado" : "desativado"));
 
         return modulo;
     }
