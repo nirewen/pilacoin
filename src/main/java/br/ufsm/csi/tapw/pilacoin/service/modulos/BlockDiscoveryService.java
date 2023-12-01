@@ -13,10 +13,14 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class BlockDiscoveryService extends IModulo {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
+    private final List<BlockMinerRunnable> threads = new ArrayList<>();
 
     private Difficulty difficulty;
 
@@ -48,19 +52,27 @@ public class BlockDiscoveryService extends IModulo {
 
         blocoJson.setNonceBlocoAnterior(blocoJson.getNonce());
 
-        Thread t = new Thread(new BlockMinerRunnable(blocoJson, this.difficulty));
+        BlockMinerRunnable runnable = new BlockMinerRunnable(blocoJson, this.difficulty);
+        Thread t = new Thread(runnable);
         t.setName("BlockMinerThread");
         t.start();
+
+        this.threads.add(runnable);
     }
 
     @Override
     public void update(Difficulty subject) {
         this.difficulty = subject;
+
+        this.threads.forEach(BlockMinerRunnable::stop);
+        this.threads.clear();
     }
 
     public class BlockMinerRunnable implements Runnable {
         private final Difficulty difficulty;
         private final BlocoJson blocoJson;
+
+        private boolean running = true;
 
         public BlockMinerRunnable(BlocoJson blocoJson, Difficulty difficulty) {
             this.difficulty = difficulty;
@@ -77,7 +89,7 @@ public class BlockDiscoveryService extends IModulo {
         public void run() {
             int count = 0;
 
-            while (true) {
+            while (running) {
                 count++;
 
                 blocoJson.setNonce(CryptoUtil.getRandomNonce());
@@ -97,6 +109,10 @@ public class BlockDiscoveryService extends IModulo {
                 Em \{ count } tentativas
                 """ );
             Thread.currentThread().interrupt();
+        }
+
+        public void stop() {
+            this.running = false;
         }
     }
 }

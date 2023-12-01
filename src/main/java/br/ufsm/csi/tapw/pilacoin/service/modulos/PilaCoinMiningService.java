@@ -29,10 +29,7 @@ public class PilaCoinMiningService extends IModulo {
 
     @Override
     public void update(Difficulty subject) {
-        for (PilaCoinMinerRunnable runnable : this.threads) {
-            runnable.stop();
-        }
-
+        this.threads.forEach(PilaCoinMinerRunnable::stop);
         this.threads.clear();
 
         if (!this.modulo.isAtivo() || subject == null) {
