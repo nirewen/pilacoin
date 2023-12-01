@@ -27,13 +27,19 @@ public class BlockValidationService extends IModulo {
 
     @RabbitListener(queues = "${queue.bloco.minerado}")
     public void validarBloco(@Payload String json) {
-        if (this.difficulty == null || json == null || json.isEmpty() || !this.modulo.isAtivo()) {
+        if (this.difficulty == null || json == null || json.isEmpty()) {
             return;
         }
 
         BlocoJson blocoJson = JacksonUtil.convert(json, BlocoJson.class);
 
         if (blocoJson == null) {
+            return;
+        }
+
+        if (!this.modulo.isAtivo()) {
+            this.queueService.publishBlocoMinerado(blocoJson);
+
             return;
         }
 

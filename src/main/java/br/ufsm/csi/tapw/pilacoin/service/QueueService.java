@@ -29,6 +29,8 @@ public class QueueService {
     private String PILA_MINERADO;
     @Value("${queue.pila.validado}")
     private String PILA_VALIDADO;
+    @Value("${queue.bloco.descobre}")
+    private String BLOCO_DESCOBERTO;
     @Value("${queue.bloco.minerado}")
     private String BLOCO_MINERADO;
     @Value("${queue.bloco.validado}")
@@ -140,6 +142,10 @@ public class QueueService {
 
     public void publishPilaCoinValidado(PilaCoinValidado pilaCoinValidado) {
         this.publishToQueue(PILA_VALIDADO, JacksonUtil.toString(pilaCoinValidado));
+    }
+
+    public void publishBlocoDescoberto(BlocoJson blocoJson) {
+        this.publishToQueue(BLOCO_DESCOBERTO, JacksonUtil.toString(blocoJson));
     }
 
     public void publishBlocoMinerado(BlocoJson blocoJson) {

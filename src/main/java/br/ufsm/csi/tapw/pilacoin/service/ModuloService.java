@@ -3,6 +3,7 @@ package br.ufsm.csi.tapw.pilacoin.service;
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
 import br.ufsm.csi.tapw.pilacoin.repository.ModuloRepository;
 import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -44,6 +45,8 @@ public class ModuloService {
             moduloInterface.register(modulo);
             moduloInterface.update(this.difficultyService.getDifficulty());
         }
+
+        Logger.log("Modulo " + nome + " " + (modulo.isAtivo() ? "ativado" : "desativado"));
 
         return modulo;
     }

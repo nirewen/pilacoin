@@ -27,11 +27,17 @@ public class BlockDiscoveryService extends IModulo {
 
     @RabbitListener(queues = "${queue.bloco.descobre}")
     public void descobreBloco(@Payload String json) {
-        if (this.difficulty == null || json == null || json.isEmpty() || !this.modulo.isAtivo()) {
+        if (this.difficulty == null || json == null || json.isEmpty()) {
             return;
         }
 
         BlocoJson blocoJson = JacksonUtil.convert(json, BlocoJson.class);
+
+        if (!this.modulo.isAtivo() && blocoJson != null) {
+            this.queueService.publishBlocoDescoberto(blocoJson);
+
+            return;
+        }
 
         if (blocoJson == null ||
             blocoJson.getNomeUsuarioMinerador() != null &&

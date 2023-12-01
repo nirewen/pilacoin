@@ -36,6 +36,12 @@ public class PilaCoinValidationService extends IModulo {
             return;
         }
 
+        if (!this.modulo.isAtivo()) {
+            this.queueService.publishPilaCoinMinerado(pilaCoinJson);
+            
+            return;
+        }
+
         boolean valid = CryptoUtil.compareHash(json, this.difficulty.getDificuldade());
 
         if (pilaCoinJson.getNomeCriador().equals(this.sharedUtil.getProperties().getUsername()) || !valid) {
