@@ -19,7 +19,7 @@ public class PilaCoinMiningService extends IModulo {
     private final QueueService queueService;
     private final PilaCoinService pilaCoinService;
     private final SharedUtil sharedUtil;
-    private final List<Thread> threads = new ArrayList<>();
+    private final List<PilaCoinMinerRunnable> threads = new ArrayList<>();
 
     public PilaCoinMiningService(QueueService queueService, PilaCoinService pilaCoinService, SharedUtil sharedUtil) {
         this.queueService = queueService;
@@ -29,17 +29,20 @@ public class PilaCoinMiningService extends IModulo {
 
     @Override
     public void update(Difficulty subject) {
-        for (Thread t : this.threads) {
-            t.interrupt();
+        for (PilaCoinMinerRunnable runnable : this.threads) {
+            runnable.stop();
         }
 
-        if (!this.modulo.isAtivo()) {
+        this.threads.clear();
+
+        if (!this.modulo.isAtivo() || subject == null) {
             return;
         }
 
         IntStream.range(0, this.sharedUtil.getProperties().getMiningThreads()).forEach((i) -> {
             try {
-                Thread t = new Thread(new PilaCoinMinerRunnable(subject));
+                PilaCoinMinerRunnable runnable = new PilaCoinMinerRunnable(subject);
+                Thread t = new Thread(runnable);
 
                 t.setName("MiningThread " + i);
 
@@ -47,7 +50,7 @@ public class PilaCoinMiningService extends IModulo {
 
                 t.start();
 
-                this.threads.add(t);
+                this.threads.add(runnable);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -56,6 +59,7 @@ public class PilaCoinMiningService extends IModulo {
 
     public class PilaCoinMinerRunnable implements Runnable {
         private final Difficulty difficulty;
+        private boolean running = true;
 
         public PilaCoinMinerRunnable(Difficulty difficulty) {
             this.difficulty = difficulty;
@@ -67,8 +71,12 @@ public class PilaCoinMiningService extends IModulo {
             int count = 0;
             Logger.logBox("Minerando...");
 
-            while (true) {
+            while (running) {
                 count++;
+
+                if (Thread.interrupted()) {
+                    throw new InterruptedException();
+                }
 
                 try {
                     PilaCoinJson pilaCoin = pilaCoinService.generatePilaCoin(this.difficulty);
@@ -87,6 +95,10 @@ public class PilaCoinMiningService extends IModulo {
                 } catch (Exception ignored) {
                 }
             }
+        }
+
+        public void stop() {
+            this.running = false;
         }
     }
 }
