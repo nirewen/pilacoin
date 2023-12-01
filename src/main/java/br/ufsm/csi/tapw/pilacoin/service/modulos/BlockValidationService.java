@@ -4,7 +4,7 @@ import br.ufsm.csi.tapw.pilacoin.model.BlocoValidado;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.Observer;
+import br.ufsm.csi.tapw.pilacoin.types.IModulo;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
@@ -14,9 +14,10 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BlockValidationService implements Observer<Difficulty> {
+public class BlockValidationService extends IModulo {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
+
     private Difficulty difficulty;
 
     public BlockValidationService(QueueService queueService, SharedUtil sharedUtil) {
@@ -26,7 +27,7 @@ public class BlockValidationService implements Observer<Difficulty> {
 
     @RabbitListener(queues = "${queue.bloco.minerado}")
     public void validarBloco(@Payload String json) {
-        if (this.difficulty == null || json == null || json.isEmpty()) {
+        if (this.difficulty == null || json == null || json.isEmpty() || !this.modulo.isAtivo()) {
             return;
         }
 

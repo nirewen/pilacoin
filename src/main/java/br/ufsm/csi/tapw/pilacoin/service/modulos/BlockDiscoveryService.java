@@ -3,7 +3,7 @@ package br.ufsm.csi.tapw.pilacoin.service.modulos;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.Observer;
+import br.ufsm.csi.tapw.pilacoin.types.IModulo;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
@@ -14,9 +14,10 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BlockDiscoveryService implements Observer<Difficulty> {
+public class BlockDiscoveryService extends IModulo {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
+
     private Difficulty difficulty;
 
     public BlockDiscoveryService(QueueService queueService, SharedUtil sharedUtil) {
@@ -26,7 +27,7 @@ public class BlockDiscoveryService implements Observer<Difficulty> {
 
     @RabbitListener(queues = "${queue.bloco.descobre}")
     public void descobreBloco(@Payload String json) {
-        if (this.difficulty == null || json == null || json.isEmpty()) {
+        if (this.difficulty == null || json == null || json.isEmpty() || !this.modulo.isAtivo()) {
             return;
         }
 

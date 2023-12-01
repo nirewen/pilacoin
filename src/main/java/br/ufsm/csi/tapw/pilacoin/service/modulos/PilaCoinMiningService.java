@@ -4,7 +4,7 @@ import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.service.PilaCoinService;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.Observer;
+import br.ufsm.csi.tapw.pilacoin.types.IModulo;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import lombok.SneakyThrows;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Service
-public class PilaCoinMiningService implements Observer<Difficulty> {
+public class PilaCoinMiningService extends IModulo {
     private final QueueService queueService;
     private final PilaCoinService pilaCoinService;
     private final SharedUtil sharedUtil;
@@ -31,6 +31,10 @@ public class PilaCoinMiningService implements Observer<Difficulty> {
     public void update(Difficulty subject) {
         for (Thread t : this.threads) {
             t.interrupt();
+        }
+
+        if (!this.modulo.isAtivo()) {
+            return;
         }
 
         IntStream.range(0, this.sharedUtil.getProperties().getMiningThreads()).forEach((i) -> {
