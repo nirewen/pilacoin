@@ -1,7 +1,8 @@
-package br.ufsm.csi.tapw.pilacoin.service;
+package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
+import br.ufsm.csi.tapw.pilacoin.service.QueueService;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;

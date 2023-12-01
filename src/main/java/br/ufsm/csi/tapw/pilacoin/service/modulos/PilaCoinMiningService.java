@@ -1,7 +1,9 @@
-package br.ufsm.csi.tapw.pilacoin.service;
+package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
+import br.ufsm.csi.tapw.pilacoin.service.PilaCoinService;
+import br.ufsm.csi.tapw.pilacoin.service.QueueService;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
@@ -13,13 +15,13 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Service
-public class MiningService implements Observer<Difficulty> {
+public class PilaCoinMiningService implements Observer<Difficulty> {
     private final QueueService queueService;
     private final PilaCoinService pilaCoinService;
     private final SharedUtil sharedUtil;
     private final List<Thread> threads = new ArrayList<>();
 
-    public MiningService(QueueService queueService, PilaCoinService pilaCoinService, SharedUtil sharedUtil) {
+    public PilaCoinMiningService(QueueService queueService, PilaCoinService pilaCoinService, SharedUtil sharedUtil) {
         this.queueService = queueService;
         this.pilaCoinService = pilaCoinService;
         this.sharedUtil = sharedUtil;
@@ -33,7 +35,7 @@ public class MiningService implements Observer<Difficulty> {
 
         IntStream.range(0, this.sharedUtil.getProperties().getMiningThreads()).forEach((i) -> {
             try {
-                Thread t = new Thread(new MinerRunnable(subject));
+                Thread t = new Thread(new PilaCoinMinerRunnable(subject));
 
                 t.setName("MiningThread " + i);
 
@@ -48,10 +50,10 @@ public class MiningService implements Observer<Difficulty> {
         });
     }
 
-    public class MinerRunnable implements Runnable {
+    public class PilaCoinMinerRunnable implements Runnable {
         private final Difficulty difficulty;
 
-        public MinerRunnable(Difficulty difficulty) {
+        public PilaCoinMinerRunnable(Difficulty difficulty) {
             this.difficulty = difficulty;
         }
 

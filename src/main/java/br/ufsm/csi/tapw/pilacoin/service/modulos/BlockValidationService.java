@@ -1,8 +1,9 @@
-package br.ufsm.csi.tapw.pilacoin.service;
+package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
+import br.ufsm.csi.tapw.pilacoin.model.BlocoValidado;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
-import br.ufsm.csi.tapw.pilacoin.model.PilaCoinValidado;
-import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
+import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
+import br.ufsm.csi.tapw.pilacoin.service.QueueService;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
@@ -13,49 +14,49 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PilaCoinValidationService implements Observer<Difficulty> {
+public class BlockValidationService implements Observer<Difficulty> {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
     private Difficulty difficulty;
 
-    public PilaCoinValidationService(QueueService queueService, SharedUtil sharedUtil) {
+    public BlockValidationService(QueueService queueService, SharedUtil sharedUtil) {
         this.queueService = queueService;
         this.sharedUtil = sharedUtil;
     }
 
-    @RabbitListener(queues = "${queue.pila.minerado}")
-    public void validatePila(@Payload String json) {
+    @RabbitListener(queues = "${queue.bloco.minerado}")
+    public void validarBloco(@Payload String json) {
         if (this.difficulty == null || json == null || json.isEmpty()) {
             return;
         }
 
-        PilaCoinJson pilaCoinJson = JacksonUtil.convert(json, PilaCoinJson.class);
+        BlocoJson blocoJson = JacksonUtil.convert(json, BlocoJson.class);
 
-        if (pilaCoinJson == null) {
+        if (blocoJson == null) {
             return;
         }
 
         boolean valid = CryptoUtil.compareHash(json, this.difficulty.getDificuldade());
 
-        if (pilaCoinJson.getNomeCriador().equals(this.sharedUtil.getProperties().getUsername()) || !valid) {
-            this.queueService.publishPilaCoinMinerado(pilaCoinJson);
+        if (blocoJson.getNomeUsuarioMinerador().equals(this.sharedUtil.getProperties().getUsername()) || !valid) {
+            this.queueService.publishBlocoMinerado(blocoJson);
 
             return;
         }
 
-        PilaCoinValidado pilaCoinValidado = PilaCoinValidado.builder()
+        BlocoValidado blocoValidado = BlocoValidado.builder()
             .nomeValidador(this.sharedUtil.getProperties().getUsername())
             .chavePublicaValidador(this.sharedUtil.getPublicKey().getEncoded())
-            .assinaturaPilaCoin(CryptoUtil.sign(json, this.sharedUtil.getPrivateKey()))
-            .pilaCoinJson(pilaCoinJson)
+            .assinaturaBloco(CryptoUtil.sign(json, this.sharedUtil.getPrivateKey()))
+            .bloco(blocoJson)
             .build();
 
-        this.queueService.publishPilaCoinValidado(pilaCoinValidado);
+        this.queueService.publishBlocoValidado(blocoValidado);
 
         Logger.logBox(STR. """
-            PILA VALIDADO
+            BLOCO VALIDADO
             ---
-            \{ pilaCoinJson.getNomeCriador() }
+            \{ blocoJson.getNomeUsuarioMinerador() }
             """ );
     }
 

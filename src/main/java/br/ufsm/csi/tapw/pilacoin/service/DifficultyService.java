@@ -1,6 +1,10 @@
 package br.ufsm.csi.tapw.pilacoin.service;
 
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
+import br.ufsm.csi.tapw.pilacoin.service.modulos.BlockDiscoveryService;
+import br.ufsm.csi.tapw.pilacoin.service.modulos.BlockValidationService;
+import br.ufsm.csi.tapw.pilacoin.service.modulos.PilaCoinMiningService;
+import br.ufsm.csi.tapw.pilacoin.service.modulos.PilaCoinValidationService;
 import br.ufsm.csi.tapw.pilacoin.types.Observable;
 import br.ufsm.csi.tapw.pilacoin.types.Observer;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
@@ -20,12 +24,12 @@ public class DifficultyService implements Observable<Difficulty> {
     private Difficulty currentDifficulty;
 
     public DifficultyService(
-        MiningService miningService,
+        PilaCoinMiningService pilaCoinMiningService,
         PilaCoinValidationService validationService,
         BlockDiscoveryService blockDiscoveryService,
         BlockValidationService blockValidationService
     ) {
-        this.subscribe(miningService);
+        this.subscribe(pilaCoinMiningService);
         this.subscribe(validationService);
         this.subscribe(blockDiscoveryService);
         this.subscribe(blockValidationService);
