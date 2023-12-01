@@ -14,7 +14,7 @@
     <h2 class="text-xl font-bold">{modulo}</h2>
     <div class="h-52 overflow-auto flex flex-col-reverse bg-neutral-800 rounded-sm">
         {#each messages as message}
-            <code class="text-nowrap">{JSON.stringify(message, null, 2)}</code>
+            <code class="whitespace-nowrap">{JSON.stringify(message, null, 2)}</code>
         {/each}
     </div>
 </div>
