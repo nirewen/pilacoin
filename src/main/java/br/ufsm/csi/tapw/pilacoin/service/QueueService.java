@@ -9,6 +9,7 @@ import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.SneakyThrows;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -96,6 +97,7 @@ public class QueueService {
         }
     }
 
+    @SneakyThrows
     public QueryResponseJson requestQuery(QueryJson queryJson) {
         String json = JacksonUtil.toString(queryJson);
         this.publishToQueue("query", json);
@@ -107,6 +109,8 @@ public class QueueService {
             QueryResponseJson response = JacksonUtil.convert(responseJson, QueryResponseJson.class);
 
             if (response == null) {
+                Thread.sleep(500);
+
                 continue;
             }
 
@@ -115,7 +119,9 @@ public class QueueService {
             }
         }
 
-        return null;
+        return QueryResponseJson.builder()
+            .idQuery(0L)
+            .build();
     }
 
     private void handleError(MessageJson message) {

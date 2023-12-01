@@ -31,7 +31,10 @@ public class BlockDiscoveryService implements Observer<Difficulty> {
 
         BlocoJson blocoJson = JacksonUtil.convert(json, BlocoJson.class);
 
-        if (blocoJson == null) {
+        if (blocoJson == null ||
+            blocoJson.getNomeUsuarioMinerador() != null &&
+                blocoJson.getNomeUsuarioMinerador().equals(sharedUtil.getProperties().getUsername())
+        ) {
             return;
         }
 
@@ -55,6 +58,8 @@ public class BlockDiscoveryService implements Observer<Difficulty> {
             this.difficulty = difficulty;
             this.blocoJson = blocoJson;
 
+            Logger.logBox("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
+
             blocoJson.setChaveUsuarioMinerador(sharedUtil.getPublicKey().getEncoded());
             blocoJson.setNomeUsuarioMinerador(sharedUtil.getProperties().getUsername());
         }
@@ -63,8 +68,6 @@ public class BlockDiscoveryService implements Observer<Difficulty> {
         @SneakyThrows
         public void run() {
             int count = 0;
-
-            Logger.logBox("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
 
             while (true) {
                 count++;
