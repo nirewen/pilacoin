@@ -81,7 +81,7 @@
         </div>
     </div>
     <div
-        class={cn('relative flex flex-col-reverse overflow-auto rounded-sm h-52 bg-neutral-800', {
+        class={cn('relative flex flex-col-reverse overflow-auto rounded-sm h-full bg-neutral-800', {
             'h-80': expanded,
         })}
     >
@@ -98,7 +98,7 @@
                 {@const expanded = message.expanded}
                 <button
                     class={cn(
-                        'flex flex-col font-mono text-xs text-left px-2 bg-[#1f1f1f] cursor-default whitespace-nowrap even:bg-[#2f2f2f]',
+                        'flex flex-col font-mono text-xs text-left px-2 bg-[#1f1f1f] cursor-default whitespace-nowrap even:bg-[#2f2f2f] focus:outline-none',
                         {
                             'cursor-pointer': message.extra,
                         },
