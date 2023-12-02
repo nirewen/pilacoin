@@ -3,11 +3,9 @@
     import { format } from 'date-fns';
     import { onMount } from 'svelte';
 
-    import { logEventSource, type Modulo } from '$lib';
+    import { logEventSource } from '$lib';
     import { Switch } from '$lib/components/ui/switch';
     import { cn } from '$lib/util/cn';
-
-    export let modulo: Modulo;
 
     type Message = {
         timestamp: number;
@@ -17,18 +15,20 @@
         expanded?: boolean;
     };
 
+    export let nome: string;
+    export let ativo: boolean | undefined = undefined;
+
     let expanded = false;
     let messages: Message[] = [];
-    let checked = modulo.modulo.ativo;
 
     onMount(() => {
-        logEventSource.addEventListener(modulo.nome, (event) => {
+        logEventSource.addEventListener(nome, (event) => {
             messages = [...messages, { ...JSON.parse(event.data), expanded: false }];
         });
     });
 
     function toggleModulo() {
-        fetch(`/api/modulo/${modulo.nome}/toggle`, {
+        fetch(`/api/modulo/${nome}/toggle`, {
             method: 'POST',
         })
             .then((res) => {
@@ -37,8 +37,7 @@
                 }
             })
             .then((data) => {
-                modulo.modulo = data;
-                checked = modulo.modulo.ativo;
+                ativo = data.ativo;
             });
     }
 
@@ -53,25 +52,29 @@
     })}
 >
     <div class="flex items-center justify-between">
-        <h2 class="text-xl font-bold">{modulo.nome}</h2>
+        <h2 class="text-xl font-bold">{nome}</h2>
         <div class="flex items-center gap-2">
-            <Switch class="data-[checked]:dark:bg-green-500" bind:checked on:click={toggleModulo} />
-            {#if checked}
-                {#if messages.length > 0}
-                    <button class="p-1 text-sm text-white rounded-md bg-neutral-800" on:click={clearLogs}>
-                        <IconTrash />
-                    </button>
-                {/if}
+            {#if ativo !== undefined}
+                <Switch class="data-[checked]:dark:bg-green-500" bind:checked={ativo} on:click={toggleModulo} />
+            {/if}
+
+            {#if (ativo === undefined && messages.length > 0) || (messages.length > 0 && ativo)}
+                <button class="p-1 text-sm text-white rounded-sm bg-neutral-800" on:click={clearLogs}>
+                    <IconTrash size={20} />
+                </button>
+            {/if}
+
+            {#if ativo}
                 <button
-                    class="p-1 text-sm text-white rounded-md bg-neutral-800"
+                    class="p-1 text-sm text-white rounded-sm bg-neutral-800"
                     on:click={() => {
                         expanded = !expanded;
                     }}
                 >
                     {#if expanded}
-                        <IconMinimize />
+                        <IconMinimize size={20} />
                     {:else}
-                        <IconMaximize />
+                        <IconMaximize size={20} />
                     {/if}
                 </button>
             {/if}
@@ -82,7 +85,7 @@
             'h-80': expanded,
         })}
     >
-        {#if !checked}
+        {#if ativo !== undefined && !ativo}
             <div
                 class="absolute inset-0 z-10 flex flex-col items-center justify-center h-full select-none backdrop-blur-sm"
             >
