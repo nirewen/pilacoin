@@ -1,15 +1,6 @@
 <script lang="ts">
+    import type { Modulo } from '$lib';
     import LogCard from '$lib/components/cards/LogCard.svelte';
-
-    type Modulo = {
-        modulo: {
-            id: number;
-            nome: string;
-            descricao: string;
-            ativo: boolean;
-        };
-        nome: string;
-    };
 
     async function getModulos() {
         const modulos = await fetch('/api/modulo')
@@ -25,7 +16,7 @@
         Carregando...
     {:then modulos}
         {#each modulos as modulo}
-            <LogCard modulo={modulo.nome} />
+            <LogCard {modulo} />
         {/each}
     {:catch name}
         Não foi possível carregar os módulos

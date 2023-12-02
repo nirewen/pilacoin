@@ -1,10 +1,13 @@
 <script lang="ts">
-    import { logEventSource } from '$lib';
-    import { cn } from '$lib/util/cn';
+    import { IconMaximize, IconMinimize } from '@tabler/icons-svelte';
     import { format } from 'date-fns';
     import { onMount } from 'svelte';
 
-    export let modulo: string;
+    import { logEventSource, type Modulo } from '$lib';
+    import { Switch } from '$lib/components/ui/switch';
+    import { cn } from '$lib/util/cn';
+
+    export let modulo: Modulo;
 
     type Message = {
         timestamp: number;
@@ -16,12 +19,28 @@
 
     let expanded = false;
     let messages: Message[] = [];
+    let checked = modulo.modulo.ativo;
 
     onMount(() => {
-        logEventSource.addEventListener(modulo, (event) => {
+        logEventSource.addEventListener(modulo.nome, (event) => {
             messages = [...messages, { ...JSON.parse(event.data), expanded: false }];
         });
     });
+
+    function toggleModulo() {
+        fetch(`/api/modulo/${modulo.nome}/toggle`, {
+            method: 'POST',
+        })
+            .then((res) => {
+                if (res.ok) {
+                    return res.json();
+                }
+            })
+            .then((data) => {
+                modulo.modulo = data;
+                checked = modulo.modulo.ativo;
+            });
+    }
 </script>
 
 <div
@@ -29,16 +48,23 @@
         'basis-full order-1 ': expanded,
     })}
 >
-    <div class="flex justify-between align-items-center">
-        <h2 class="text-xl font-bold">{modulo}</h2>
-        <button
-            class="p-1 text-sm text-white rounded-md bg-neutral-700"
-            on:click={() => {
-                expanded = !expanded;
-            }}
-        >
-            {expanded ? 'Collapse' : 'Expand'}
-        </button>
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold">{modulo.nome}</h2>
+        <div class="flex items-center gap-2">
+            <Switch class="data-[checked]:dark:bg-green-500" bind:checked on:click={toggleModulo} />
+            <button
+                class="p-1 text-sm text-white rounded-md bg-neutral-700"
+                on:click={() => {
+                    expanded = !expanded;
+                }}
+            >
+                {#if expanded}
+                    <IconMinimize />
+                {:else}
+                    <IconMaximize />
+                {/if}
+            </button>
+        </div>
     </div>
     <div
         class={cn('flex flex-col-reverse overflow-auto rounded-sm h-52 bg-neutral-800', {
