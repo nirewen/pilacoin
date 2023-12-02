@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { IconMaximize, IconMinimize, IconTrash } from '@tabler/icons-svelte';
+    import { IconMaximize, IconMinimize, IconTrash } from '$lib/components/icons';
     import { format } from 'date-fns';
     import { onMount } from 'svelte';
 
