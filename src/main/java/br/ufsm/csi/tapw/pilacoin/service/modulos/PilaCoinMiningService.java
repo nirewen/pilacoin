@@ -25,8 +25,6 @@ public class PilaCoinMiningService extends IModulo {
         this.queueService = queueService;
         this.pilaCoinService = pilaCoinService;
         this.sharedUtil = sharedUtil;
-
-        this.log("Minerador inicializado");
     }
 
     @Override
@@ -37,6 +35,8 @@ public class PilaCoinMiningService extends IModulo {
         if (!this.modulo.isAtivo() || subject == null) {
             return;
         }
+
+        this.log("Minerador de Pila inicializado");
 
         IntStream.range(0, this.sharedUtil.getProperties().getMiningThreads()).forEach((i) -> {
             try {

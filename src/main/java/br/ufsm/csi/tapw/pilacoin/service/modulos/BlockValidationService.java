@@ -71,5 +71,11 @@ public class BlockValidationService extends IModulo {
     @Override
     public void update(Difficulty subject) {
         this.difficulty = subject;
+
+        if (!this.modulo.isAtivo() || subject == null) {
+            return;
+        }
+
+        this.log("Validador de Bloco inicializado");
     }
 }

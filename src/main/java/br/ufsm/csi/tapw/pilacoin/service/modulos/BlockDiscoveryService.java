@@ -69,6 +69,12 @@ public class BlockDiscoveryService extends IModulo {
 
         this.threads.forEach(BlockMinerRunnable::stop);
         this.threads.clear();
+
+        if (!this.modulo.isAtivo() || subject == null) {
+            return;
+        }
+
+        this.log("Minerador de Bloco inicializado");
     }
 
     public class BlockMinerRunnable implements Runnable {
@@ -82,7 +88,6 @@ public class BlockDiscoveryService extends IModulo {
             this.blocoJson = blocoJson;
 
             Logger.log("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
-            log("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
 
             blocoJson.setChaveUsuarioMinerador(sharedUtil.getPublicKey().getEncoded());
             blocoJson.setNomeUsuarioMinerador(sharedUtil.getProperties().getUsername());
