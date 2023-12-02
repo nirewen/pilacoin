@@ -11,7 +11,7 @@ import java.util.Date;
 public abstract class IModulo implements Observer<Difficulty> {
     public Modulo modulo;
     @JsonIgnore
-    public SseEmitter logEmitter = new SseEmitter(Long.MAX_VALUE);
+    public SseEmitter logEmitter = new SseEmitter(-1L);
 
     public String getNome() {
         return this.getClass().getSimpleName().replaceAll("Service", "");
