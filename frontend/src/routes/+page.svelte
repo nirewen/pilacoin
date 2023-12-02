@@ -2,26 +2,30 @@
     import type { Modulo } from '$lib';
     import LogCard from '$lib/components/cards/LogCard.svelte';
     import QueryCard from '$lib/components/cards/QueryCard.svelte';
+    import { createQuery } from '@tanstack/svelte-query';
 
     async function getModulos() {
-        const modulos = await fetch('/api/modulo')
+        return fetch('/api/modulo')
             .then((res) => res.json())
             .then((data: Modulo[]) => data);
-
-        return modulos;
     }
+
+    const query = createQuery({
+        queryKey: ['modulos'],
+        queryFn: () => getModulos(),
+    });
 </script>
 
 <div class="flex flex-wrap gap-2 overflow-hidden">
-    {#await getModulos()}
-        Carregando...
-    {:then modulos}
-        {#each modulos as { modulo }}
+    {#if $query.isLoading}
+        <p>Carregando...</p>
+    {:else if $query.isError}
+        <p>Não foi possível carregar os módulos</p>
+    {:else if $query.isSuccess}
+        {#each $query.data as { modulo }}
             <LogCard {...modulo} />
         {/each}
-    {:catch name}
-        Não foi possível carregar os módulos
-    {/await}
+    {/if}
 </div>
 
 <div class="flex flex-wrap gap-2">

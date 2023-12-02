@@ -1,5 +1,10 @@
 export const logEventSource = new EventSource(`/api/modulo/logs`);
 
+logEventSource.addEventListener('error', (event) => {
+    console.error(event);
+    logEventSource.close();
+});
+
 export type Modulo = {
     modulo: {
         id: number;

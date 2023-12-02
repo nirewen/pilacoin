@@ -1,5 +1,6 @@
 package br.ufsm.csi.tapw.pilacoin.service;
 
+import br.ufsm.csi.tapw.pilacoin.exception.EmptyResultException;
 import br.ufsm.csi.tapw.pilacoin.model.BlocoValidado;
 import br.ufsm.csi.tapw.pilacoin.model.PilaCoinValidado;
 import br.ufsm.csi.tapw.pilacoin.model.Transferencia;
@@ -56,9 +57,7 @@ public class QueueService {
             }
         }
 
-        return QueryResponseJson.builder()
-            .idQuery(0L)
-            .build();
+        throw new EmptyResultException();
     }
 
     public void publishPilaCoinMinerado(PilaCoinJson pilaCoinJson) {
