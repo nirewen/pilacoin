@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -33,6 +34,10 @@ public class ModuloService {
         for (IModulo modulo : modulos) {
             modulo.register(this.registerModulo(modulo));
         }
+    }
+
+    public List<IModulo> getAllModulos() {
+        return this.modulos.values().stream().toList();
     }
 
     public Modulo getModuloEntity(String nome) {

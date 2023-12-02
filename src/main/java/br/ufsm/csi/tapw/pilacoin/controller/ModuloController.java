@@ -2,10 +2,13 @@ package br.ufsm.csi.tapw.pilacoin.controller;
 
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
 import br.ufsm.csi.tapw.pilacoin.service.ModuloService;
+import br.ufsm.csi.tapw.pilacoin.types.IModulo;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/modulo")
@@ -19,6 +22,11 @@ public class ModuloController {
     @GetMapping("/{nome}")
     public Modulo getModulo(@PathVariable String nome) {
         return moduloService.getModuloEntity(nome);
+    }
+
+    @GetMapping
+    public List<IModulo> getModulos() {
+        return moduloService.getAllModulos();
     }
 
     @SneakyThrows
