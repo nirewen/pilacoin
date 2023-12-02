@@ -2,7 +2,10 @@
     import type { Modulo } from '$lib';
     import LogCard from '$lib/components/cards/LogCard.svelte';
     import QueryCard from '$lib/components/cards/QueryCard.svelte';
+    import TransferenciaCard from '$lib/components/cards/TransferenciaCard.svelte';
     import { createQuery } from '@tanstack/svelte-query';
+
+    import { pilacoinTransferencia, usuarioTransferencia } from '$lib';
 
     async function getModulos() {
         return fetch('/api/modulo')
@@ -30,6 +33,7 @@
 
 <div class="flex flex-wrap gap-2">
     <LogCard nome="UserMessage" />
-    <QueryCard query="usuarios" />
     <QueryCard query="pilas" />
+    <QueryCard query="usuarios" />
+    <TransferenciaCard usuario={$usuarioTransferencia} pilacoin={$pilacoinTransferencia} />
 </div>

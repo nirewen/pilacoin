@@ -28,14 +28,14 @@
             </button>
         </div>
     </div>
-    <div class="flex flex-col h-full overflow-auto rounded-sm bg-neutral-800">
+    <div class="flex flex-col h-full overflow-x-hidden overflow-y-auto rounded-sm bg-neutral-800">
         {#if $queryStore.isLoading}
-            <p>Carregando...</p>
+            <p class="p-2">Carregando...</p>
         {:else if $queryStore.isError}
             <p>Não foi possível carregar os dados</p>
         {:else if $queryStore.isSuccess}
             {#if $queryStore.data.idQuery}
-                <div class="grid grid-flow-row">
+                <div class="flex flex-col">
                     {#if query === 'usuarios'}
                         <UsuarioList data={$queryStore.data.usuariosResult} />
                     {/if}

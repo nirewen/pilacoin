@@ -1,9 +1,14 @@
+import { writable } from 'svelte/store';
+
 export const logEventSource = new EventSource(`/api/modulo/logs`);
 
 logEventSource.addEventListener('error', (event) => {
     console.error(event);
     logEventSource.close();
 });
+
+export const usuarioTransferencia = writable<UsuarioJson | null>(null);
+export const pilacoinTransferencia = writable<PilaCoinJson | null>(null);
 
 export type Modulo = {
     modulo: {
