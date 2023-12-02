@@ -5,6 +5,7 @@ import br.ufsm.csi.tapw.pilacoin.model.PilaCoinValidado;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
 import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
@@ -12,6 +13,8 @@ import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 public class PilaCoinValidationService extends IModulo {
@@ -59,12 +62,17 @@ public class PilaCoinValidationService extends IModulo {
 
         this.queueService.publishPilaCoinValidado(pilaCoinValidado);
 
-        Logger.logBox(STR. """
-            PILA VALIDADO
-            ---
-            \{ pilaCoinJson.getNomeCriador() }
-            """ );
-        this.log("PilaCoin de " + pilaCoinJson.getNomeCriador() + " validado.");
+        Logger.log("PilaCoin de " + pilaCoinJson.getNomeCriador() + " validado.");
+        this.log(
+            ModuloLogMessage.builder()
+                .title("PilaCoin validado")
+                .message("PilaCoin de " + pilaCoinJson.getNomeCriador() + " validado.")
+                .extra(Map.of(
+                    "pilaCoin", pilaCoinJson,
+                    "pilaValidado", pilaCoinValidado
+                ))
+                .build()
+        );
     }
 
     @Override
@@ -75,6 +83,11 @@ public class PilaCoinValidationService extends IModulo {
             return;
         }
 
-        this.log("Validador de Pila inicializado");
+        this.log(
+            ModuloLogMessage.builder()
+                .title("Validador de PilaCoin")
+                .message("Inicializado")
+                .build()
+        );
     }
 }

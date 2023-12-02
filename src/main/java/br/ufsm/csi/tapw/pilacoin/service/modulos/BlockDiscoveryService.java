@@ -4,6 +4,7 @@ import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
 import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
@@ -74,7 +75,12 @@ public class BlockDiscoveryService extends IModulo {
             return;
         }
 
-        this.log("Minerador de Bloco inicializado");
+        this.log(
+            ModuloLogMessage.builder()
+                .title("Descoberta de Bloco")
+                .message("Inicializada")
+                .build()
+        );
     }
 
     public class BlockMinerRunnable implements Runnable {
@@ -88,6 +94,13 @@ public class BlockDiscoveryService extends IModulo {
             this.blocoJson = blocoJson;
 
             Logger.log("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
+            log(
+                ModuloLogMessage.builder()
+                    .title("Descoberta de Bloco")
+                    .message("Minerando bloco...")
+                    .extra(blocoJson)
+                    .build()
+            );
 
             blocoJson.setChaveUsuarioMinerador(sharedUtil.getPublicKey().getEncoded());
             blocoJson.setNomeUsuarioMinerador(sharedUtil.getProperties().getUsername());
@@ -112,12 +125,14 @@ public class BlockDiscoveryService extends IModulo {
                 }
             }
 
-            Logger.logBox(STR. """
-                BLOCO MINERADO
-                ---
-                Em \{ count } tentativas
-                """ );
-            log("Bloco minerado em " + count + " tentativas");
+            Logger.log("Bloco minerado em " + count + " tentativas");
+            log(
+                ModuloLogMessage.builder()
+                    .title("Descoberta de Bloco")
+                    .message("Bloco minerado em " + count + " tentativas")
+                    .extra(blocoJson)
+                    .build()
+            );
             this.running = false;
         }
 

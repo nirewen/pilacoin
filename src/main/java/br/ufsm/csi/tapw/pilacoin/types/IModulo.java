@@ -3,15 +3,15 @@ package br.ufsm.csi.tapw.pilacoin.types;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import java.util.Date;
 
 public abstract class IModulo implements Observer<Difficulty> {
     public Modulo modulo;
     @JsonIgnore
-    public SseEmitter logEmitter = new SseEmitter(-1L);
+    @Setter
+    public SseEmitter logEmitter;
 
     public String getNome() {
         return this.getClass().getSimpleName().replaceAll("Service", "");
@@ -22,13 +22,13 @@ public abstract class IModulo implements Observer<Difficulty> {
     }
 
     @SneakyThrows
-    public void log(String message) {
+    public void log(ModuloLogMessage message) {
         this.logEmitter.send(
-            ModuloLogMessage.builder()
-                .timestamp(new Date(System.currentTimeMillis()))
-                .message(message)
-                .modulo(this)
-                .build()
+            SseEmitter.event()
+                .id("0") // You can give nay string as id
+                .name(this.getNome())
+                .data(message)
+                .reconnectTime(10000)
         );
     }
 }

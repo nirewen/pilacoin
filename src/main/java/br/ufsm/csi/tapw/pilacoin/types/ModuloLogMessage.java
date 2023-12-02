@@ -2,11 +2,11 @@ package br.ufsm.csi.tapw.pilacoin.types;
 
 import lombok.Builder;
 
-import java.util.Date;
-
 @Builder
 public class ModuloLogMessage {
-    public Date timestamp;
+    @Builder.Default
+    public Long timestamp = System.currentTimeMillis();
+    public String title;
     public String message;
-    public IModulo modulo;
+    public Object extra;
 }

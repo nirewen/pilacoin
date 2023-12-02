@@ -5,6 +5,7 @@ import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
 import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
@@ -60,12 +61,14 @@ public class BlockValidationService extends IModulo {
 
         this.queueService.publishBlocoValidado(blocoValidado);
 
-        Logger.logBox(STR. """
-            BLOCO VALIDADO
-            ---
-            \{ blocoJson.getNomeUsuarioMinerador() }
-            """ );
-        this.log("Bloco de " + blocoJson.getNomeUsuarioMinerador() + " validado.");
+        Logger.log("Bloco de " + blocoJson.getNomeUsuarioMinerador() + " validado.");
+        this.log(
+            ModuloLogMessage.builder()
+                .title("Bloco validado")
+                .message("Bloco de " + blocoJson.getNomeUsuarioMinerador() + " validado.")
+                .extra(blocoJson)
+                .build()
+        );
     }
 
     @Override
@@ -76,6 +79,11 @@ public class BlockValidationService extends IModulo {
             return;
         }
 
-        this.log("Validador de Bloco inicializado");
+        this.log(
+            ModuloLogMessage.builder()
+                .title("Validação de Bloco")
+                .message("Inicializada")
+                .build()
+        );
     }
 }

@@ -1,9 +1,7 @@
 package br.ufsm.csi.tapw.pilacoin.controller;
 
-import br.ufsm.csi.tapw.pilacoin.exception.ModuloNotFoundException;
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
 import br.ufsm.csi.tapw.pilacoin.service.ModuloService;
-import br.ufsm.csi.tapw.pilacoin.types.IModulo;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -24,15 +22,9 @@ public class ModuloController {
     }
 
     @SneakyThrows
-    @GetMapping(value = "/{nome}/logs", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter getModuleLogs(@PathVariable String nome) {
-        IModulo modulo = moduloService.getModulo(nome);
-
-        if (modulo == null) {
-            throw new ModuloNotFoundException();
-        }
-
-        return modulo.logEmitter;
+    @GetMapping(value = "/logs", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter getLogs() {
+        return moduloService.getEmitter();
     }
 
     @PostMapping("/{nome}/toggle")

@@ -34,14 +34,6 @@ public class DifficultyService implements Observable<Difficulty> {
         this.subscribe(validationService);
         this.subscribe(blockDiscoveryService);
         this.subscribe(blockValidationService);
-//
-//        this.updateDifficulty(
-//            Difficulty.builder()
-//                .dificuldade(new BigInteger("f".repeat(59), 16))
-//                .validadeFinal(new Date())
-//                .inicio(new Date())
-//                .build()
-//        );
     }
 
     @RabbitListener(queues = "${queue.dificuldade}")
@@ -59,7 +51,7 @@ public class DifficultyService implements Observable<Difficulty> {
     }
 
     private void updateDifficulty(Difficulty diff) {
-        Logger.logBox("DIFICULDADE\n---\n" + diff.getDificuldade());
+        Logger.log("Dificuldade alterada para " + diff.getDificuldade());
 
         difficulty = diff;
 

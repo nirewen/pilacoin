@@ -4,8 +4,11 @@ import br.ufsm.csi.tapw.pilacoin.exception.ModuloNotFoundException;
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
 import br.ufsm.csi.tapw.pilacoin.repository.ModuloRepository;
 import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +18,9 @@ public class ModuloService {
     private final ModuloRepository moduloRepository;
     private final DifficultyService difficultyService;
     private final Map<String, IModulo> modulos = new HashMap<>();
+
+    @Getter
+    private SseEmitter emitter = new SseEmitter(-1L);
 
     public ModuloService(
         ModuloRepository moduloRepository,
@@ -54,7 +60,13 @@ public class ModuloService {
         moduloInterface.update(this.difficultyService.getDifficulty());
 
         Logger.log("Modulo " + nome + " " + (modulo.isAtivo() ? "ativado" : "desativado"));
-        moduloInterface.log("Modulo " + nome + " " + (modulo.isAtivo() ? "ativado" : "desativado"));
+        moduloInterface.log(
+            ModuloLogMessage.builder()
+                .title("Status do Modulo " + nome)
+                .message((modulo.isAtivo() ? "Ativado" : "Desativado"))
+                .extra(modulo)
+                .build()
+        );
 
         return modulo;
     }
@@ -62,6 +74,7 @@ public class ModuloService {
     public Modulo registerModulo(IModulo modulo) {
         Modulo foundModulo = moduloRepository.findOneByNome(modulo.getNome());
 
+        modulo.setLogEmitter(this.emitter);
         this.modulos.put(modulo.getNome(), modulo);
 
         if (foundModulo != null) {

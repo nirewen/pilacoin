@@ -5,6 +5,7 @@ import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.service.PilaCoinService;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
 import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import lombok.SneakyThrows;
@@ -36,7 +37,12 @@ public class PilaCoinMiningService extends IModulo {
             return;
         }
 
-        this.log("Minerador de Pila inicializado");
+        this.log(
+            ModuloLogMessage.builder()
+                .title("Mineração iniciada")
+                .message("Mineração iniciada com dificuldade " + subject.getDificuldade())
+                .build()
+        );
 
         IntStream.range(0, this.sharedUtil.getProperties().getMiningThreads()).forEach((i) -> {
             try {
@@ -69,7 +75,11 @@ public class PilaCoinMiningService extends IModulo {
         public void run() {
             int count = 0;
             Logger.log("Minerando...");
-            log("Minerando...");
+            log(
+                ModuloLogMessage.builder()
+                    .title("Minerando...")
+                    .build()
+            );
 
             while (running) {
                 count++;
@@ -82,12 +92,14 @@ public class PilaCoinMiningService extends IModulo {
                     PilaCoinJson pilaCoin = pilaCoinService.generatePilaCoin(this.difficulty);
 
                     if (pilaCoin != null) {
-                        Logger.logBox(STR. """
-                            PILA MINERADO
-                            ---
-                            Em \{ count } tentativas
-                            """ );
-                        log("PilaCoin minerado em " + count + " tentativas");
+                        Logger.log("PilaCoin minerado em " + count + " tentativas");
+                        log(
+                            ModuloLogMessage.builder()
+                                .title("PilaCoin minerado")
+                                .message("PilaCoin minerado em " + count + " tentativas")
+                                .extra(pilaCoin)
+                                .build()
+                        );
 
                         queueService.publishPilaCoinMinerado(pilaCoin);
 
