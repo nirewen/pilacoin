@@ -1,1 +1,1 @@
-// place files you want to import through the `$lib` alias in this folder.
+export const logEventSource = new EventSource(`/api/modulo/logs`);

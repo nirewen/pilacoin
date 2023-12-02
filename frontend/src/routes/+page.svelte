@@ -2,7 +2,7 @@
     import LogCard from '$lib/components/cards/LogCard.svelte';
 </script>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+<div class="flex flex-wrap gap-2">
     <LogCard modulo="PilaCoinMining" />
     <LogCard modulo="PilaCoinValidation" />
     <LogCard modulo="BlockDiscovery" />
