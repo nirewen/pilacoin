@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { IconMaximize, IconMinimize } from '@tabler/icons-svelte';
+    import { IconMaximize, IconMinimize, IconTrash } from '@tabler/icons-svelte';
     import { format } from 'date-fns';
     import { onMount } from 'svelte';
 
@@ -41,6 +41,10 @@
                 checked = modulo.modulo.ativo;
             });
     }
+
+    function clearLogs() {
+        messages = [];
+    }
 </script>
 
 <div
@@ -52,18 +56,25 @@
         <h2 class="text-xl font-bold">{modulo.nome}</h2>
         <div class="flex items-center gap-2">
             <Switch class="data-[checked]:dark:bg-green-500" bind:checked on:click={toggleModulo} />
-            <button
-                class="p-1 text-sm text-white rounded-md bg-neutral-700"
-                on:click={() => {
-                    expanded = !expanded;
-                }}
-            >
-                {#if expanded}
-                    <IconMinimize />
-                {:else}
-                    <IconMaximize />
+            {#if checked}
+                {#if messages.length > 0}
+                    <button class="p-1 text-sm text-white rounded-md bg-neutral-800" on:click={clearLogs}>
+                        <IconTrash />
+                    </button>
                 {/if}
-            </button>
+                <button
+                    class="p-1 text-sm text-white rounded-md bg-neutral-800"
+                    on:click={() => {
+                        expanded = !expanded;
+                    }}
+                >
+                    {#if expanded}
+                        <IconMinimize />
+                    {:else}
+                        <IconMaximize />
+                    {/if}
+                </button>
+            {/if}
         </div>
     </div>
     <div
@@ -83,7 +94,12 @@
             {#each messages as message, index}
                 {@const expanded = message.expanded}
                 <button
-                    class="flex flex-col font-mono text-xs text-left cursor-pointer px-2 bg-[#1f1f1f] whitespace-nowrap even:bg-[#2f2f2f]"
+                    class={cn(
+                        'flex flex-col font-mono text-xs text-left px-2 bg-[#1f1f1f] cursor-default whitespace-nowrap even:bg-[#2f2f2f]',
+                        {
+                            'cursor-pointer': message.extra,
+                        },
+                    )}
                     on:click={() => (message.expanded = !message.expanded)}
                 >
                     <span>
@@ -95,7 +111,7 @@
                             <span class="text-yellow-400">{message.message}</span>
                         {/if}
                     </span>
-                    {#if expanded}
+                    {#if expanded && message.extra}
                         <div class="p-2 bg-[#0f0f0f] rounded-md my-2">
                             <pre class="text-pink-500 whitespace-pre-wrap">{JSON.stringify(
                                     message.extra,
