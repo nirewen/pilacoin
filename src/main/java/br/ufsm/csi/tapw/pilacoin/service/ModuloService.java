@@ -7,6 +7,7 @@ import br.ufsm.csi.tapw.pilacoin.types.IModulo;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -92,5 +93,16 @@ public class ModuloService {
             .build();
 
         return moduloRepository.save(moduloEntity);
+    }
+
+    @SneakyThrows
+    public void log(ModuloLogMessage message) {
+        this.emitter.send(
+            SseEmitter.event()
+                .id("0")
+                .name(message.getTopic())
+                .data(message)
+                .reconnectTime(10000)
+        );
     }
 }

@@ -25,7 +25,7 @@ public abstract class IModulo implements Observer<Difficulty> {
     public void log(ModuloLogMessage message) {
         this.logEmitter.send(
             SseEmitter.event()
-                .id("0") // You can give nay string as id
+                .id("0")
                 .name(this.getNome())
                 .data(message)
                 .reconnectTime(10000)

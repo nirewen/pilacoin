@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.util.Map;
 
 @RestController
@@ -18,7 +16,6 @@ import java.util.Map;
 public class QueryController {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
-    RuntimeMXBean mxBean = ManagementFactory.getRuntimeMXBean();
 
     public QueryController(QueueService queueService, SharedUtil sharedUtil) {
         this.queueService = queueService;
@@ -29,7 +26,7 @@ public class QueryController {
     public QueryResponseJson getUsuarios() {
         QueryJson query = QueryJson
             .builder()
-            .idQuery(mxBean.getUptime())
+            .idQuery(System.nanoTime() - 100)
             .nomeUsuario(this.sharedUtil.getProperties().getUsername())
             .tipoQuery(QueryJson.TipoQuery.USUARIOS)
             .build();
@@ -41,7 +38,7 @@ public class QueryController {
     public QueryResponseJson getPilas(@RequestParam Map<String, String> filter) {
         QueryJson query = QueryJson
             .builder()
-            .idQuery(mxBean.getUptime())
+            .idQuery(System.nanoTime() - 200)
             .nomeUsuario(this.sharedUtil.getProperties().getUsername())
             .tipoQuery(QueryJson.TipoQuery.PILA)
             .build();
@@ -59,7 +56,7 @@ public class QueryController {
     public QueryResponseJson getBlocos(@RequestParam Map<String, String> filter) {
         QueryJson query = QueryJson
             .builder()
-            .idQuery(mxBean.getUptime())
+            .idQuery(System.nanoTime() - 300)
             .nomeUsuario(this.sharedUtil.getProperties().getUsername())
             .tipoQuery(QueryJson.TipoQuery.BLOCO)
             .build();
