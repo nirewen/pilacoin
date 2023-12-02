@@ -5,7 +5,7 @@
 
     import { logEventSource } from '$lib';
     import { Switch } from '$lib/components/ui/switch';
-    import { cn } from '$lib/util/cn';
+    import { cn } from '$lib/utils';
 
     type Message = {
         timestamp: number;
@@ -47,7 +47,7 @@
 </script>
 
 <div
-    class={cn('flex flex-col gap-1 w-0 flex-1 basis-[24%] p-2 order-2 border rounded-md border-neutral-800 ', {
+    class={cn('flex flex-col gap-1 w-0 flex-1 basis-[24%] p-2 h-full order-2 border rounded-md border-neutral-800 ', {
         'basis-full order-1 ': expanded,
     })}
 >
