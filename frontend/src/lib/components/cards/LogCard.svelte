@@ -67,10 +67,18 @@
         </div>
     </div>
     <div
-        class={cn('flex flex-col-reverse overflow-auto rounded-sm h-52 bg-neutral-800', {
+        class={cn('relative flex flex-col-reverse overflow-auto rounded-sm h-52 bg-neutral-800', {
             'h-80': expanded,
         })}
     >
+        {#if !checked}
+            <div
+                class="absolute inset-0 z-10 flex flex-col items-center justify-center h-full select-none backdrop-blur-sm"
+            >
+                <span class="font-bold">Módulo desativado</span>
+                <small>Ative o módulo para ver os logs</small>
+            </div>
+        {/if}
         <div class="grid grid-flow-row">
             {#each messages as message, index}
                 {@const expanded = message.expanded}
