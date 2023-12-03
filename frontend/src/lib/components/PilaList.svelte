@@ -9,7 +9,7 @@
     export let data: PilaCoinJson[];
 </script>
 
-{#each data as pilacoin (pilacoin.id)}
+{#each data.toReversed() as pilacoin (pilacoin.id)}
     {#if !pilacoin.selected}
         <div
             class="flex flex-col border-b-2 border-neutral-900 hover:bg-neutral-900"
