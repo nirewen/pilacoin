@@ -6,23 +6,21 @@ import br.ufsm.csi.tapw.pilacoin.repository.ModuloRepository;
 import br.ufsm.csi.tapw.pilacoin.types.IModulo;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class ModuloService {
+    public final Set<SseEmitter> sseEmitters = new HashSet<>();
+
     private final ModuloRepository moduloRepository;
     private final DifficultyService difficultyService;
     private final Map<String, IModulo> modulos = new HashMap<>();
-
-    @Getter
-    private SseEmitter emitter = new SseEmitter(-1L);
 
     public ModuloService(
         ModuloRepository moduloRepository,
@@ -80,7 +78,7 @@ public class ModuloService {
     public Modulo registerModulo(IModulo modulo) {
         Modulo foundModulo = moduloRepository.findOneByNome(modulo.getNome());
 
-        modulo.setLogEmitter(this.emitter);
+        modulo.setModuloService(this);
         this.modulos.put(modulo.getNome(), modulo);
 
         if (foundModulo != null) {
@@ -97,12 +95,31 @@ public class ModuloService {
 
     @SneakyThrows
     public void log(ModuloLogMessage message) {
-        this.emitter.send(
-            SseEmitter.event()
-                .id("0")
-                .name(message.getTopic())
-                .data(message)
-                .reconnectTime(10000)
-        );
+        if (this.sseEmitters.isEmpty()) {
+            return;
+        }
+
+        this.sseEmitters.forEach(emitter -> {
+            if (emitter == null) {
+                return;
+            }
+
+            try (ExecutorService sseExecutor = Executors.newCachedThreadPool()) {
+                sseExecutor.execute(
+                    () -> {
+                        try {
+                            emitter.send(
+                                SseEmitter.event()
+                                    .id("0")
+                                    .name(message.getTopic())
+                                    .data(message)
+                                    .reconnectTime(10000)
+                            );
+                        } catch (Exception e) {
+                            emitter.complete();
+                        }
+                    });
+            }
+        });
     }
 }
