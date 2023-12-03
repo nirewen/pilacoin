@@ -5,8 +5,6 @@
 
     import { IconReload } from '$lib/icons';
 
-    import PilaList from '../PilaList.svelte';
-    import UsuarioList from '../UsuarioList.svelte';
     import Card from './Card.svelte';
 
     export let query: string;
@@ -48,12 +46,7 @@
         {:else if $queryStore.isSuccess}
             {#if $queryStore.data.idQuery}
                 <div class="flex flex-col">
-                    {#if query === 'usuarios'}
-                        <UsuarioList data={$store.usuariosResult} />
-                    {/if}
-                    {#if query === 'pilas'}
-                        <PilaList data={$store.pilasResult} />
-                    {/if}
+                    <slot data={$store} />
                 </div>
             {:else}
                 <div class="flex flex-col items-center justify-center flex-1">

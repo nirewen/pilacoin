@@ -53,7 +53,7 @@
 <button type="button" class="flex justify-between w-full gap-6 p-2 focus:outline-none" on:click={selectPilaCoin}>
     <div class="flex flex-col min-w-0">
         <span class="flex items-center gap-1">
-            <UserAvatar nome={pilacoin.nomeCriador} size={4} />
+            <UserAvatar nome={pilacoin.nomeCriador} class="w-4 h-4" />
             {pilacoin.nomeCriador}
         </span>
         <span class="overflow-hidden font-mono text-sm text-ellipsis">{pilacoin.nonce}</span>

@@ -6,6 +6,8 @@
     import QueryCard from '$lib/components/cards/QueryCard.svelte';
     import TransferenciaCard from '$lib/components/cards/TransferenciaCard.svelte';
 
+    import PilaList from '$lib/components/PilaList.svelte';
+    import UsuarioList from '$lib/components/UsuarioList.svelte';
     import { IconLoader } from '$lib/icons';
 
     async function getModulos() {
@@ -47,7 +49,11 @@
 
 <div class="flex flex-wrap gap-2">
     <LogCard nome="UserMessage" />
-    <QueryCard query="pilas" />
-    <QueryCard query="usuarios" />
+    <QueryCard query="pilas" let:data>
+        <PilaList data={data.pilasResult} />
+    </QueryCard>
+    <QueryCard query="usuarios" let:data>
+        <UsuarioList data={data.usuariosResult} />
+    </QueryCard>
     <TransferenciaCard />
 </div>
