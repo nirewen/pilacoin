@@ -9,7 +9,7 @@
 
 {#each data as usuario (usuario.id)}
     {#if !usuario.selected}
-        <div class="flex flex-col" transition:slide={{ duration: 300, easing: quintInOut, axis: 'y' }}>
+        <div class="flex flex-col odd:bg-[#1f1f1f]" transition:slide={{ duration: 300, easing: quintInOut, axis: 'y' }}>
             <UsuarioRow {usuario} />
         </div>
     {/if}

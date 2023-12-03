@@ -44,9 +44,17 @@
     </div>
     <div class="flex flex-col h-full gap-2 p-2 overflow-x-hidden overflow-y-auto rounded-sm bg-neutral-800">
         <span class="text-sm font-bold uppercase">Selecione o PilaCoin</span>
-        <PilaRow {pilacoin} large />
+        <div class="flex flex-col bg-[#2f2f2f] h-[60px]">
+            {#if pilacoin}
+                <PilaRow {pilacoin} large />
+            {/if}
+        </div>
         <span class="text-sm font-bold uppercase">Selecione o Usuário</span>
-        <UsuarioRow {usuario} large />
+        <div class="flex flex-col bg-[#2f2f2f] h-[68px]">
+            {#if usuario}
+                <UsuarioRow {usuario} large />
+            {/if}
+        </div>
 
         <div class="flex flex-col mt-auto">
             {#if pilacoin && !isValidPila}

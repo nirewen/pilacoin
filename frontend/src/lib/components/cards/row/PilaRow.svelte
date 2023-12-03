@@ -5,7 +5,7 @@
     import { cn } from '$lib/utils';
     import { format } from 'date-fns';
 
-    export let pilacoin: PilaCoinJson | null = null;
+    export let pilacoin: PilaCoinJson;
     export let large = false;
 
     const pilas = queries.get('pilas');
@@ -49,39 +49,31 @@
     </div>
 {/snippet}
 
-{#if pilacoin}
-    <button
-        type="button"
-        class="focus:outline-none flex justify-between w-full p-2 gap-6 odd:bg-[#1f1f1f]"
-        on:click={selectPilaCoin}
-    >
-        <div class="flex flex-col min-w-0">
-            <span class="flex items-center gap-1">
-                <img
-                    src="https://api.dicebear.com/7.x/identicon/svg?seed={pilacoin.nomeCriador}"
-                    alt={pilacoin.nomeCriador}
-                    class="w-4 h-4"
-                />
-                {pilacoin.nomeCriador}
-            </span>
-            <span class="overflow-hidden font-mono text-sm text-ellipsis">{pilacoin.nonce}</span>
+<button type="button" class="flex justify-between w-full gap-6 p-2 focus:outline-none" on:click={selectPilaCoin}>
+    <div class="flex flex-col min-w-0">
+        <span class="flex items-center gap-1">
+            <img
+                src="https://api.dicebear.com/7.x/identicon/svg?seed={pilacoin.nomeCriador}"
+                alt={pilacoin.nomeCriador}
+                class="w-4 h-4"
+            />
+            {pilacoin.nomeCriador}
+        </span>
+        <span class="overflow-hidden font-mono text-sm text-ellipsis">{pilacoin.nonce}</span>
+    </div>
+    <div class="flex items-center h-full">
+        <div class="flex flex-col items-end h-full">
+            {@render formatStatus(pilacoin)}
+            <time class="overflow-hidden text-ellipsis whitespace-nowrap">
+                {format(new Date(pilacoin.dataCriacao), 'dd/MM/yyyy HH:mm')}
+            </time>
         </div>
-        <div class="flex items-center h-full">
-            <div class="flex flex-col items-end h-full">
-                {@render formatStatus(pilacoin)}
-                <time class="overflow-hidden text-ellipsis whitespace-nowrap">
-                    {format(new Date(pilacoin.dataCriacao), 'dd/MM/yyyy HH:mm')}
-                </time>
-            </div>
-            <div class="grid place-items-center">
-                {#if pilacoin.selected}
-                    <IconX />
-                {:else}
-                    <IconChevron />
-                {/if}
-            </div>
+        <div class="grid place-items-center">
+            {#if pilacoin.selected}
+                <IconX />
+            {:else}
+                <IconChevron />
+            {/if}
         </div>
-    </button>
-{:else}
-    <button type="button" class="focus:outline-none h-[60px] bg-[#2f2f2f]"></button>
-{/if}
+    </div>
+</button>

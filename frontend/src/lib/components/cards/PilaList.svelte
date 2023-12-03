@@ -9,7 +9,7 @@
 
 {#each data as pilacoin (pilacoin.id)}
     {#if !pilacoin.selected}
-        <div class="flex flex-col" transition:slide={{ duration: 300, easing: quintInOut, axis: 'y' }}>
+        <div class="flex flex-col odd:bg-[#1f1f1f]" transition:slide={{ duration: 300, easing: quintInOut, axis: 'y' }}>
             <PilaRow {pilacoin} />
         </div>
     {/if}
