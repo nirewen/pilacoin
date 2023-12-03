@@ -21,22 +21,25 @@
 
         $pilacoinTransferencia = pilacoin;
     }
+
+    function getStatusString(pilacoin: PilaCoinJson) {
+        if (pilacoin.transacoes?.length > 1) return 'TRANSFERIDO';
+        if (pilacoin.status === 'BLOCO_EM_VALIDACAO') return 'BLOCO EM VALIDAÇÃO';
+        if (pilacoin.status === 'VALIDO') return 'VÁLIDO';
+        return pilacoin.status;
+    }
 </script>
 
-{#snippet formatStatus(value: string)}
+{#snippet formatStatus(pilacoin: PilaCoinJson)}
+    {@const status = getStatusString(pilacoin)}
     <div
         class={cn('whitespace-nowrap px-1 rounded-sm text-sm bg-slate-600', {
-            'bg-yellow-700': value === 'BLOCO_EM_VALIDACAO',
-            'bg-green-700': value === 'VALIDO',
+            'bg-yellow-700': status === 'BLOCO EM VALIDAÇÃO',
+            'bg-green-700': status === 'VÁLIDO',
+            'bg-indigo-500': status === 'TRANSFERIDO',
         })}
     >
-        {#if value === 'BLOCO_EM_VALIDACAO'}
-            BLOCO EM VALIDAÇÃO
-        {:else if value === 'VALIDO'}
-            VÁLIDO
-        {:else}
-            {value}
-        {/if}
+        {status}
     </div>
 {/snippet}
 
@@ -59,7 +62,7 @@
         </div>
         <div class="flex items-center h-full">
             <div class="flex flex-col items-end h-full">
-                {@render formatStatus(pilacoin.status)}
+                {@render formatStatus(pilacoin)}
                 <time class="overflow-hidden text-ellipsis whitespace-nowrap">
                     {format(new Date(pilacoin.dataCriacao), 'dd/MM/yyyy HH:mm')}
                 </time>

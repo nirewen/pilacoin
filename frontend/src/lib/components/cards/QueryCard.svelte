@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { QueryResponse } from '$lib';
     import { createQuery } from '@tanstack/svelte-query';
+    import IconLoader from '../icons/IconLoader.svelte';
     import IconReload from '../icons/IconReload.svelte';
     import PilaList from './PilaList.svelte';
     import UsuarioList from './UsuarioList.svelte';
@@ -28,9 +29,11 @@
             </button>
         </div>
     </div>
-    <div class="flex flex-col h-full overflow-x-hidden overflow-y-auto rounded-sm bg-neutral-800">
+    <div class="relative flex flex-col h-full overflow-x-hidden overflow-y-auto rounded-sm bg-neutral-800">
         {#if $queryStore.isLoading}
-            <p class="p-2">Carregando...</p>
+            <div class="absolute inset-0 grid rounded-md place-items-center backdrop-blur-md">
+                <IconLoader class="animate-spin" size={36} />
+            </div>
         {:else if $queryStore.isError}
             <p>Não foi possível carregar os dados</p>
         {:else if $queryStore.isSuccess}

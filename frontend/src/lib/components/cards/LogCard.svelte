@@ -80,11 +80,7 @@
             {/if}
         </div>
     </div>
-    <div
-        class={cn('relative flex flex-col-reverse overflow-auto rounded-sm h-full bg-neutral-800', {
-            'h-80': expanded,
-        })}
-    >
+    <div class={cn('relative flex flex-col-reverse overflow-auto rounded-sm h-full bg-neutral-800')}>
         {#if ativo !== undefined && !ativo}
             <div
                 class="absolute inset-0 z-10 flex flex-col items-center justify-center h-full select-none backdrop-blur-sm"

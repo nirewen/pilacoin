@@ -1,14 +1,6 @@
 <script lang="ts">
-    import { browser } from '$app/environment';
-    import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
-
-    const queryClient = new QueryClient({
-        defaultOptions: {
-            queries: {
-                enabled: browser,
-            },
-        },
-    });
+    import { queryClient } from '$lib';
+    import { QueryClientProvider } from '@tanstack/svelte-query';
 </script>
 
 <svelte:head>

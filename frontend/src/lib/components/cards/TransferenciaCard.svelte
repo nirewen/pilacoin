@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PilaCoinJson, UsuarioJson } from '$lib';
+    import { queryClient, type PilaCoinJson, type UsuarioJson } from '$lib';
     import { createMutation } from '@tanstack/svelte-query';
     import PilaRow from './row/PilaRow.svelte';
     import UsuarioRow from './row/UsuarioRow.svelte';
@@ -22,11 +22,17 @@
                 }),
             });
 
+            queryClient.refetchQueries({
+                queryKey: ['query', 'pilas'],
+                exact: true,
+            });
+
             return response.json();
         },
     });
 
-    $: canTransfer = usuario && pilacoin && pilacoin.status === 'VALIDO';
+    $: isValidPila = pilacoin && pilacoin.status === 'VALIDO' && pilacoin.transacoes?.length === 1;
+    $: canTransfer = usuario && isValidPila;
 </script>
 
 <div class="flex flex-col gap-1 w-0 flex-1 basis-[24%] p-2 h-full order-2 border rounded-md border-neutral-800">
@@ -40,8 +46,11 @@
         <UsuarioRow {usuario} large />
 
         <div class="flex flex-col mt-auto">
-            {#if pilacoin && pilacoin.status !== 'VALIDO'}
-                <div class="text-red-500">Esse PilaCoin não pode ser transferido.</div>
+            {#if pilacoin && !isValidPila}
+                <div class="flex flex-col text-red-500">
+                    <span>Esse PilaCoin não pode ser transferido.</span>
+                    <span>Ele já foi transferido ou ainda não foi validado</span>
+                </div>
             {/if}
 
             <button
