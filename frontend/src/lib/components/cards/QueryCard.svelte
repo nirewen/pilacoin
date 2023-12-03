@@ -3,10 +3,11 @@
     import { createQuery } from '@tanstack/svelte-query';
     import { writable } from 'svelte/store';
 
-    import IconReload from '../icons/IconReload.svelte';
+    import { IconReload } from '$lib/icons';
+
+    import PilaList from '../PilaList.svelte';
+    import UsuarioList from '../UsuarioList.svelte';
     import Card from './Card.svelte';
-    import PilaList from './PilaList.svelte';
-    import UsuarioList from './UsuarioList.svelte';
 
     export let query: string;
 

@@ -1,11 +1,12 @@
 <script lang="ts">
+    import { createQuery } from '@tanstack/svelte-query';
+
     import type { Modulo } from '$lib';
     import LogCard from '$lib/components/cards/LogCard.svelte';
     import QueryCard from '$lib/components/cards/QueryCard.svelte';
     import TransferenciaCard from '$lib/components/cards/TransferenciaCard.svelte';
-    import { createQuery } from '@tanstack/svelte-query';
 
-    import IconLoader from '$lib/components/icons/IconLoader.svelte';
+    import { IconLoader } from '$lib/icons';
 
     async function getModulos() {
         return fetch('/api/modulo')

@@ -1,6 +1,6 @@
 <script lang="ts">
+    import { IconLoader } from '$lib/icons';
     import { cn } from '$lib/utils';
-    import IconLoader from '../icons/IconLoader.svelte';
 
     export let loading: boolean = false;
 </script>

@@ -1,8 +1,9 @@
 <script lang="ts">
-    import type { LogMessage } from '$lib';
-    import { cn, logEventSource } from '$lib/utils';
     import { format } from 'date-fns';
     import { onMount } from 'svelte';
+
+    import type { LogMessage } from '$lib';
+    import { cn, logEventSource } from '$lib/utils';
 
     export let nome: string;
     export let messages: LogMessage[] = [];

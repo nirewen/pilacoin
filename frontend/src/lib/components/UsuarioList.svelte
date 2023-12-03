@@ -1,7 +1,9 @@
 <script lang="ts">
-    import type { UsuarioJson } from '$lib';
     import { quintInOut } from 'svelte/easing';
     import { slide } from 'svelte/transition';
+
+    import type { UsuarioJson } from '$lib';
+
     import UsuarioRow from './row/UsuarioRow.svelte';
 
     export let data: UsuarioJson[];

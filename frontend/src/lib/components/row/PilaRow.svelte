@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { queries, type PilaCoinJson } from '$lib';
-    import IconChevron from '$lib/components/icons/IconChevron.svelte';
-    import IconX from '$lib/components/icons/IconX.svelte';
-    import { cn } from '$lib/utils';
     import { format } from 'date-fns';
+
+    import { queries, type PilaCoinJson } from '$lib';
+    import { IconChevron, IconX } from '$lib/icons';
+    import { cn } from '$lib/utils';
 
     export let pilacoin: PilaCoinJson;
     export let large = false;

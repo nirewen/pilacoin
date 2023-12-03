@@ -1,9 +1,11 @@
 <script lang="ts">
-    import { queries, queryClient } from '$lib';
     import { createMutation } from '@tanstack/svelte-query';
+
+    import { queries, queryClient } from '$lib';
+
+    import PilaRow from '../row/PilaRow.svelte';
+    import UsuarioRow from '../row/UsuarioRow.svelte';
     import Card from './Card.svelte';
-    import PilaRow from './row/PilaRow.svelte';
-    import UsuarioRow from './row/UsuarioRow.svelte';
 
     $: usuarios = queries.get('usuarios');
     $: pilas = queries.get('pilas');

@@ -1,7 +1,9 @@
 <script lang="ts">
-    import type { PilaCoinJson } from '$lib';
     import { quintInOut } from 'svelte/easing';
     import { slide } from 'svelte/transition';
+
+    import type { PilaCoinJson } from '$lib';
+
     import PilaRow from './row/PilaRow.svelte';
 
     export let data: PilaCoinJson[];

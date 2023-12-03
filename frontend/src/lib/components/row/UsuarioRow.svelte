@@ -1,7 +1,6 @@
 <script lang="ts">
     import { queries, type UsuarioJson } from '$lib';
-    import IconChevron from '$lib/components/icons/IconChevron.svelte';
-    import IconX from '$lib/components/icons/IconX.svelte';
+    import { IconChevron, IconX } from '$lib/icons';
 
     export let usuario: UsuarioJson;
     export let large = false;

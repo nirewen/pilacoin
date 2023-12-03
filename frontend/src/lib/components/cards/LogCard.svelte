@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { IconMaximize, IconMinimize, IconTrash } from '$lib/components/icons';
-
     import type { LogMessage } from '$lib';
-    import { Switch } from '$lib/components/ui/switch';
+    import { IconMaximize, IconMinimize, IconTrash } from '$lib/icons';
     import { cn } from '$lib/utils';
+
+    import { Switch } from '$lib/components/ui/switch';
+    import LogBox from '../LogBox.svelte';
     import Card from './Card.svelte';
-    import LogBox from './LogBox.svelte';
 
     export let nome: string;
     export let ativo: boolean | undefined = undefined;
