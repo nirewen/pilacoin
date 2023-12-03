@@ -1,6 +1,7 @@
 <script lang="ts">
     import { queries, queryClient } from '$lib';
     import { createMutation } from '@tanstack/svelte-query';
+    import Card from './Card.svelte';
     import PilaRow from './row/PilaRow.svelte';
     import UsuarioRow from './row/UsuarioRow.svelte';
 
@@ -38,10 +39,10 @@
     $: canTransfer = usuario && isValidPila;
 </script>
 
-<div class="flex flex-col gap-1 w-0 flex-1 basis-[24%] p-2 h-full order-2 border rounded-md border-neutral-800">
-    <div class="flex items-center justify-between">
+<Card>
+    <svelte:fragment slot="title">
         <h2 class="text-xl font-bold text-capitalize">Transferir pila</h2>
-    </div>
+    </svelte:fragment>
     <div class="flex flex-col h-full gap-2 p-2 overflow-x-hidden overflow-y-auto rounded-sm bg-neutral-800">
         <span class="text-sm font-bold uppercase">Selecione o PilaCoin</span>
         <div class="flex flex-col bg-[#2f2f2f] h-[60px]">
@@ -74,4 +75,4 @@
             </button>
         </div>
     </div>
-</div>
+</Card>

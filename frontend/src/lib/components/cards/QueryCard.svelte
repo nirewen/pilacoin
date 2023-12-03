@@ -3,8 +3,8 @@
     import { createQuery } from '@tanstack/svelte-query';
     import { writable } from 'svelte/store';
 
-    import IconLoader from '../icons/IconLoader.svelte';
     import IconReload from '../icons/IconReload.svelte';
+    import Card from './Card.svelte';
     import PilaList from './PilaList.svelte';
     import UsuarioList from './UsuarioList.svelte';
 
@@ -32,21 +32,17 @@
     });
 </script>
 
-<div class="flex flex-col gap-1 w-0 flex-1 basis-[24%] p-2 h-full order-2 border rounded-md border-neutral-800">
-    <div class="flex items-center justify-between">
+<Card loading={$queryStore.isLoading}>
+    <svelte:fragment slot="title">
         <h2 class="text-xl font-bold text-capitalize">{query}</h2>
         <div class="flex items-center gap-2">
             <button class="p-1 text-sm text-white rounded-sm bg-neutral-800" on:click={() => $queryStore.refetch()}>
                 <IconReload size={20} />
             </button>
         </div>
-    </div>
+    </svelte:fragment>
     <div class="relative flex flex-col h-full overflow-x-hidden overflow-y-auto rounded-sm bg-neutral-800">
-        {#if $queryStore.isLoading}
-            <div class="absolute inset-0 grid rounded-md place-items-center backdrop-blur-md">
-                <IconLoader class="animate-spin" size={36} />
-            </div>
-        {:else if $queryStore.isError}
+        {#if $queryStore.isError}
             <p>Não foi possível carregar os dados</p>
         {:else if $queryStore.isSuccess}
             {#if $queryStore.data.idQuery}
@@ -66,4 +62,4 @@
             {/if}
         {/if}
     </div>
-</div>
+</Card>

@@ -69,3 +69,11 @@ export type QueryResponse = {
     blocosResult: BlocoJson[];
     usuariosResult: UsuarioJson[];
 };
+
+export type LogMessage = {
+    timestamp: number;
+    title: string;
+    message: string;
+    extra: object;
+    expanded?: boolean;
+};

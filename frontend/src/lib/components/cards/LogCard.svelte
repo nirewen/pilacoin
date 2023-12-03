@@ -1,34 +1,17 @@
 <script lang="ts">
     import { IconMaximize, IconMinimize, IconTrash } from '$lib/components/icons';
-    import { format } from 'date-fns';
-    import { onMount } from 'svelte';
 
+    import type { LogMessage } from '$lib';
     import { Switch } from '$lib/components/ui/switch';
-    import { cn, logEventSource } from '$lib/utils';
-
-    type Message = {
-        timestamp: number;
-        title: string;
-        message: string;
-        extra: object;
-        expanded?: boolean;
-    };
+    import { cn } from '$lib/utils';
+    import Card from './Card.svelte';
+    import LogBox from './LogBox.svelte';
 
     export let nome: string;
     export let ativo: boolean | undefined = undefined;
 
     let expanded = false;
-    let messages: Message[] = [];
-
-    onMount(() => {
-        const handler = (event: MessageEvent<any>) => {
-            messages = [...messages, { ...JSON.parse(event.data), expanded: false }];
-        };
-
-        logEventSource.addEventListener(nome, handler);
-
-        () => logEventSource.removeEventListener(nome, handler);
-    });
+    let messages: LogMessage[] = [];
 
     function toggleModulo() {
         fetch(`/api/modulo/${nome}/toggle`, {
@@ -49,12 +32,12 @@
     }
 </script>
 
-<div
-    class={cn('flex flex-col gap-1 w-0 flex-1 basis-[24%] p-2 h-full order-2 border rounded-md border-neutral-800 ', {
-        'basis-full order-1 ': expanded,
+<Card
+    class={cn({
+        'basis-full order-1': expanded,
     })}
 >
-    <div class="flex items-center justify-between">
+    <svelte:fragment slot="title">
         <h2 class="text-xl font-bold">{nome}</h2>
         <div class="flex items-center gap-2">
             {#if ativo !== undefined}
@@ -82,8 +65,8 @@
                 </button>
             {/if}
         </div>
-    </div>
-    <div class={cn('relative flex flex-col-reverse overflow-auto rounded-sm h-full bg-neutral-800')}>
+    </svelte:fragment>
+    <svelte:fragment>
         {#if ativo !== undefined && !ativo}
             <div
                 class="absolute inset-0 z-10 flex flex-col items-center justify-center h-full select-none backdrop-blur-sm"
@@ -92,38 +75,6 @@
                 <small>Ative o módulo para ver os logs</small>
             </div>
         {/if}
-        <div class="grid grid-flow-row">
-            {#each messages as message, index}
-                {@const expanded = message.expanded}
-                <button
-                    class={cn(
-                        'flex flex-col font-mono text-xs text-left px-2 bg-[#1f1f1f] cursor-default whitespace-nowrap even:bg-[#2f2f2f] focus:outline-none',
-                        {
-                            'cursor-pointer': message.extra,
-                        },
-                    )}
-                    on:click={() => (message.expanded = !message.expanded)}
-                >
-                    <span>
-                        <span class="text-blue-300">
-                            {format(new Date(message.timestamp), 'HH:mm:ss')}
-                        </span>
-                        <span class="text-green-400">{message.title}</span>
-                        {#if message.message}
-                            <span class="text-yellow-400">{message.message}</span>
-                        {/if}
-                    </span>
-                    {#if expanded && message.extra}
-                        <div class="p-2 bg-[#0f0f0f] rounded-md my-2">
-                            <pre class="text-pink-500 whitespace-pre-wrap">{JSON.stringify(
-                                    message.extra,
-                                    null,
-                                    2,
-                                )}</pre>
-                        </div>
-                    {/if}
-                </button>
-            {/each}
-        </div>
-    </div>
-</div>
+        <LogBox {nome} bind:messages />
+    </svelte:fragment>
+</Card>
