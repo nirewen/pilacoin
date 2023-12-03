@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { pilacoinTransferencia, type PilaCoinJson } from '$lib';
+    import { queries, type PilaCoinJson } from '$lib';
     import IconChevron from '$lib/components/icons/IconChevron.svelte';
     import IconX from '$lib/components/icons/IconX.svelte';
     import { cn } from '$lib/utils';
@@ -8,18 +8,24 @@
     export let pilacoin: PilaCoinJson | null = null;
     export let large = false;
 
-    $: selected = $pilacoinTransferencia?.id === pilacoin?.id;
+    const pilas = queries.get('pilas');
 
-    function setPilacoinTransferencia() {
+    function selectPilaCoin() {
         if (!pilacoin) return;
 
-        if (selected) {
-            $pilacoinTransferencia = null;
+        let foundPila = $pilas?.pilasResult.find((u) => u.selected);
 
-            return;
+        if (foundPila) {
+            foundPila.selected = false;
         }
 
-        $pilacoinTransferencia = pilacoin;
+        let newPila = $pilas?.pilasResult.find((u) => u.nonce === pilacoin?.nonce);
+
+        if (newPila && newPila.nonce !== foundPila?.nonce) {
+            newPila.selected = true;
+        }
+
+        $pilas = $pilas;
     }
 
     function getStatusString(pilacoin: PilaCoinJson) {
@@ -47,7 +53,7 @@
     <button
         type="button"
         class="focus:outline-none flex justify-between w-full p-2 gap-6 odd:bg-[#1f1f1f]"
-        on:click={setPilacoinTransferencia}
+        on:click={selectPilaCoin}
     >
         <div class="flex flex-col min-w-0">
             <span class="flex items-center gap-1">
@@ -68,7 +74,7 @@
                 </time>
             </div>
             <div class="grid place-items-center">
-                {#if selected}
+                {#if pilacoin.selected}
                     <IconX />
                 {:else}
                     <IconChevron />

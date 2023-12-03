@@ -1,6 +1,8 @@
 <script lang="ts">
-    import type { QueryResponse } from '$lib';
+    import { queries, type QueryResponse } from '$lib';
     import { createQuery } from '@tanstack/svelte-query';
+    import { writable } from 'svelte/store';
+
     import IconLoader from '../icons/IconLoader.svelte';
     import IconReload from '../icons/IconReload.svelte';
     import PilaList from './PilaList.svelte';
@@ -8,10 +10,20 @@
 
     export let query: string;
 
+    const store = writable<QueryResponse>();
+
+    queries.set(query, store);
+
     function getQuery() {
         return fetch(`/api/query/${query}?self=true`)
             .then((res) => res.json())
-            .then((result: QueryResponse) => result);
+            .then((result: QueryResponse) => {
+                const store = queries.get(query);
+
+                if (store) store.set(result);
+
+                return result;
+            });
     }
 
     const queryStore = createQuery({
@@ -40,10 +52,10 @@
             {#if $queryStore.data.idQuery}
                 <div class="flex flex-col">
                     {#if query === 'usuarios'}
-                        <UsuarioList data={$queryStore.data.usuariosResult} />
+                        <UsuarioList data={$store.usuariosResult} />
                     {/if}
                     {#if query === 'pilas'}
-                        <PilaList data={$queryStore.data.pilasResult} />
+                        <PilaList data={$store.pilasResult} />
                     {/if}
                 </div>
             {:else}

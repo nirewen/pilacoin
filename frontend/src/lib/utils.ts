@@ -3,6 +3,8 @@ import { cubicOut } from 'svelte/easing';
 import type { TransitionConfig } from 'svelte/transition';
 import { twMerge } from 'tailwind-merge';
 
+export const logEventSource = new EventSource(`/api/modulo/logs`);
+
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }

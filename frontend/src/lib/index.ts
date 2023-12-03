@@ -1,16 +1,9 @@
-import { writable } from 'svelte/store';
+import type { Writable } from 'svelte/store';
 
 import { browser } from '$app/environment';
 import { QueryClient } from '@tanstack/svelte-query';
 
-export const logEventSource = new EventSource(`/api/modulo/logs`);
-
-logEventSource.addEventListener('error', (event) => {
-    logEventSource.close();
-});
-
-export const usuarioTransferencia = writable<UsuarioJson | null>(null);
-export const pilacoinTransferencia = writable<PilaCoinJson | null>(null);
+export const queries = new Map<string, Writable<QueryResponse>>();
 
 export const queryClient = new QueryClient({
     defaultOptions: {
@@ -49,6 +42,7 @@ export type PilaCoinJson = {
     status: string;
     nonce: string;
     transacoes: TransacaoJson[];
+    selected: boolean;
 };
 
 export type BlocoJson = {
@@ -65,6 +59,7 @@ export type UsuarioJson = {
     id: number;
     nome: string;
     chavePublica: string;
+    selected: boolean;
 };
 
 export type QueryResponse = {

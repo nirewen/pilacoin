@@ -5,7 +5,6 @@
     import TransferenciaCard from '$lib/components/cards/TransferenciaCard.svelte';
     import { createQuery } from '@tanstack/svelte-query';
 
-    import { pilacoinTransferencia, usuarioTransferencia } from '$lib';
     import IconLoader from '$lib/components/icons/IconLoader.svelte';
 
     async function getModulos() {
@@ -49,5 +48,5 @@
     <LogCard nome="UserMessage" />
     <QueryCard query="pilas" />
     <QueryCard query="usuarios" />
-    <TransferenciaCard usuario={$usuarioTransferencia} pilacoin={$pilacoinTransferencia} />
+    <TransferenciaCard />
 </div>

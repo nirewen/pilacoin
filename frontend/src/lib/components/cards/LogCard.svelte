@@ -3,9 +3,8 @@
     import { format } from 'date-fns';
     import { onMount } from 'svelte';
 
-    import { logEventSource } from '$lib';
     import { Switch } from '$lib/components/ui/switch';
-    import { cn } from '$lib/utils';
+    import { cn, logEventSource } from '$lib/utils';
 
     type Message = {
         timestamp: number;
@@ -22,9 +21,13 @@
     let messages: Message[] = [];
 
     onMount(() => {
-        logEventSource.addEventListener(nome, (event) => {
+        const handler = (event: MessageEvent<any>) => {
             messages = [...messages, { ...JSON.parse(event.data), expanded: false }];
-        });
+        };
+
+        logEventSource.addEventListener(nome, handler);
+
+        () => logEventSource.removeEventListener(nome, handler);
     });
 
     function toggleModulo() {

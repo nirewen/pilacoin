@@ -1,11 +1,14 @@
 <script lang="ts">
-    import { queryClient, type PilaCoinJson, type UsuarioJson } from '$lib';
+    import { queries, queryClient } from '$lib';
     import { createMutation } from '@tanstack/svelte-query';
     import PilaRow from './row/PilaRow.svelte';
     import UsuarioRow from './row/UsuarioRow.svelte';
 
-    export let usuario: UsuarioJson | null = null;
-    export let pilacoin: PilaCoinJson | null = null;
+    $: usuarios = queries.get('usuarios');
+    $: pilas = queries.get('pilas');
+
+    $: usuario = $usuarios?.usuariosResult.find((u) => u.selected);
+    $: pilacoin = $pilas?.pilasResult.find((u) => u.selected);
 
     const mutation = createMutation({
         mutationKey: ['transferir', usuario?.id, pilacoin?.nonce],

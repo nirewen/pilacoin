@@ -1,32 +1,34 @@
 <script lang="ts">
-    import { usuarioTransferencia, type UsuarioJson } from '$lib';
+    import { queries, type UsuarioJson } from '$lib';
     import IconChevron from '$lib/components/icons/IconChevron.svelte';
     import IconX from '$lib/components/icons/IconX.svelte';
 
     export let usuario: UsuarioJson | null = null;
     export let large = false;
 
-    $: selected = $usuarioTransferencia?.id === usuario?.id;
+    const usuarios = queries.get('usuarios');
 
-    function setUsuarioTransferencia() {
+    function selectUsuario() {
         if (!usuario) return;
 
-        if (selected) {
-            $usuarioTransferencia = null;
+        let foundUsuario = $usuarios?.usuariosResult.find((u) => u.selected);
 
-            return;
+        if (foundUsuario) {
+            foundUsuario.selected = false;
         }
 
-        $usuarioTransferencia = usuario;
+        let newUsuario = $usuarios?.usuariosResult.find((u) => u.nome === usuario?.nome);
+
+        if (newUsuario && newUsuario.nome !== foundUsuario?.nome) {
+            newUsuario.selected = true;
+        }
+
+        $usuarios = $usuarios;
     }
 </script>
 
 {#if usuario}
-    <button
-        type="button"
-        class="flex justify-between p-2 odd:bg-[#1f1f1f] focus:outline-none"
-        on:click={setUsuarioTransferencia}
-    >
+    <button type="button" class="flex justify-between p-2 odd:bg-[#1f1f1f] focus:outline-none" on:click={selectUsuario}>
         <div class="flex flex-col min-w-0 gap-2">
             <span class="flex items-center gap-2">
                 <img
@@ -42,7 +44,7 @@
         </div>
         <div class="flex items-center h-full">
             <div class="grid place-items-center">
-                {#if selected}
+                {#if usuario.selected}
                     <IconX />
                 {:else}
                     <IconChevron />
