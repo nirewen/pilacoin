@@ -4,6 +4,7 @@
     import { queries, type PilaCoinJson } from '$lib';
     import { IconChevron, IconX } from '$lib/icons';
     import { cn } from '$lib/utils';
+    import UserAvatar from '../UserAvatar.svelte';
 
     export let pilacoin: PilaCoinJson;
     export let large = false;
@@ -39,7 +40,7 @@
 {#snippet formatStatus(pilacoin: PilaCoinJson)}
     {@const status = getStatusString(pilacoin)}
     <div
-        class={cn('whitespace-nowrap px-1 rounded-sm text-sm bg-slate-600', {
+        class={cn('whitespace-nowrap px-1 rounded-sm text-xs bg-slate-600', {
             'bg-yellow-700': status === 'BLOCO EM VALIDAÇÃO',
             'bg-green-700': status === 'VÁLIDO',
             'bg-indigo-500': status === 'TRANSFERIDO',
@@ -52,17 +53,13 @@
 <button type="button" class="flex justify-between w-full gap-6 p-2 focus:outline-none" on:click={selectPilaCoin}>
     <div class="flex flex-col min-w-0">
         <span class="flex items-center gap-1">
-            <img
-                src="https://api.dicebear.com/7.x/identicon/svg?seed={pilacoin.nomeCriador}"
-                alt={pilacoin.nomeCriador}
-                class="w-4 h-4"
-            />
+            <UserAvatar nome={pilacoin.nomeCriador} size={4} />
             {pilacoin.nomeCriador}
         </span>
         <span class="overflow-hidden font-mono text-sm text-ellipsis">{pilacoin.nonce}</span>
     </div>
-    <div class="flex items-center h-full">
-        <div class="flex flex-col items-end h-full">
+    <div class="flex items-center h-full gap-1">
+        <div class="flex flex-col items-end justify-center h-full gap-1">
             {@render formatStatus(pilacoin)}
             <time class="overflow-hidden text-ellipsis whitespace-nowrap">
                 {format(new Date(pilacoin.dataCriacao), 'dd/MM/yyyy HH:mm')}

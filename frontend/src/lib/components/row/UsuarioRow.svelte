@@ -1,6 +1,7 @@
 <script lang="ts">
     import { queries, type UsuarioJson } from '$lib';
     import { IconChevron, IconX } from '$lib/icons';
+    import UserAvatar from '../UserAvatar.svelte';
 
     export let usuario: UsuarioJson;
     export let large = false;
@@ -29,11 +30,7 @@
 <button type="button" class="flex justify-between p-2 focus:outline-none" on:click={selectUsuario}>
     <div class="flex flex-col min-w-0 gap-2">
         <span class="flex items-center gap-2">
-            <img
-                src="https://api.dicebear.com/7.x/identicon/svg?seed={usuario.nome}"
-                alt={usuario.nome}
-                class="w-6 h-6"
-            />
+            <UserAvatar nome={usuario.nome} />
             {usuario.nome}
         </span>
         {#if large}
