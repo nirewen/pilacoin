@@ -8,13 +8,14 @@
     import Card from './Card.svelte';
 
     export let nome: string;
+    export let topic = nome;
     export let ativo: boolean | undefined = undefined;
 
     let expanded = false;
     let messages: LogMessage[] = [];
 
     function toggleModulo() {
-        fetch(`/api/modulo/${nome}/toggle`, {
+        fetch(`/api/modulo/${topic}/toggle`, {
             method: 'POST',
         })
             .then((res) => {
@@ -37,34 +38,38 @@
         'basis-full order-1': expanded,
     })}
 >
-    <svelte:fragment slot="title">
-        <h2 class="text-xl font-bold">{nome}</h2>
-        <div class="flex items-center gap-2">
-            {#if ativo !== undefined}
-                <Switch class="data-[checked]:dark:bg-green-500" bind:checked={ativo} on:click={toggleModulo} />
-            {/if}
+    <svelte:fragment slot="header">
+        <header class="flex items-center">
+            <div class="flex-1">
+                <h2 class="text-xl font-bold">{nome}</h2>
+            </div>
+            <div class="flex items-center gap-2">
+                {#if (ativo === undefined && messages.length > 0) || (messages.length > 0 && ativo)}
+                    <button class="p-1 text-sm text-white rounded-sm bg-neutral-800" on:click={clearLogs}>
+                        <IconTrash size={20} />
+                    </button>
+                {/if}
 
-            {#if (ativo === undefined && messages.length > 0) || (messages.length > 0 && ativo)}
-                <button class="p-1 text-sm text-white rounded-sm bg-neutral-800" on:click={clearLogs}>
-                    <IconTrash size={20} />
-                </button>
-            {/if}
+                {#if ativo}
+                    <button
+                        class="p-1 text-sm text-white rounded-sm bg-neutral-800"
+                        on:click={() => {
+                            expanded = !expanded;
+                        }}
+                    >
+                        {#if expanded}
+                            <IconMinimize size={20} />
+                        {:else}
+                            <IconMaximize size={20} />
+                        {/if}
+                    </button>
+                {/if}
 
-            {#if ativo}
-                <button
-                    class="p-1 text-sm text-white rounded-sm bg-neutral-800"
-                    on:click={() => {
-                        expanded = !expanded;
-                    }}
-                >
-                    {#if expanded}
-                        <IconMinimize size={20} />
-                    {:else}
-                        <IconMaximize size={20} />
-                    {/if}
-                </button>
-            {/if}
-        </div>
+                {#if ativo !== undefined}
+                    <Switch class="data-[checked]:dark:bg-green-500" bind:checked={ativo} on:click={toggleModulo} />
+                {/if}
+            </div>
+        </header>
     </svelte:fragment>
     <svelte:fragment>
         {#if ativo !== undefined && !ativo}
@@ -75,6 +80,6 @@
                 <small>Ative o módulo para ver os logs</small>
             </div>
         {/if}
-        <LogBox {nome} bind:messages />
+        <LogBox {topic} bind:messages />
     </svelte:fragment>
 </Card>

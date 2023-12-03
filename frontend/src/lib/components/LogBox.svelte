@@ -5,7 +5,7 @@
     import type { LogMessage } from '$lib';
     import { cn, logEventSource } from '$lib/utils';
 
-    export let nome: string;
+    export let topic: string;
     export let messages: LogMessage[] = [];
 
     onMount(() => {
@@ -13,9 +13,9 @@
             messages = [...messages, { ...JSON.parse(event.data), expanded: false }];
         };
 
-        logEventSource.addEventListener(nome, handler);
+        logEventSource.addEventListener(topic, handler);
 
-        () => logEventSource.removeEventListener(nome, handler);
+        () => logEventSource.removeEventListener(topic, handler);
     });
 </script>
 

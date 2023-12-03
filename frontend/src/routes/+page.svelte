@@ -42,18 +42,18 @@
         {/each}
     {:else if $query.isSuccess}
         {#each $query.data as { modulo }}
-            <LogCard {...modulo} />
+            <LogCard nome={modulo.nome} ativo={modulo.ativo} />
         {/each}
     {/if}
 </div>
 
 <div class="flex flex-wrap gap-2">
-    <LogCard nome="UserMessage" />
-    <QueryCard query="pilas" let:data>
-        <PilaList data={data.pilasResult} />
+    <LogCard nome="Caixa de Entrada" topic="UserMessage" />
+    <QueryCard title="PilaCoins" query="pilas" let:data>
+        <PilaList data={data.result} />
     </QueryCard>
-    <QueryCard query="usuarios" let:data>
-        <UsuarioList data={data.usuariosResult} />
+    <QueryCard title="Usuários" query="usuarios" let:data>
+        <UsuarioList data={data.result} />
     </QueryCard>
     <TransferenciaCard />
 </div>

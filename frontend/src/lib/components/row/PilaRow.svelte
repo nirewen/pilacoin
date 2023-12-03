@@ -14,13 +14,13 @@
     function selectPilaCoin() {
         if (!pilacoin) return;
 
-        let foundPila = $pilas?.pilasResult.find((u) => u.selected);
+        let foundPila = $pilas?.result.find((u) => u.selected);
 
         if (foundPila) {
             foundPila.selected = false;
         }
 
-        let newPila = $pilas?.pilasResult.find((u) => u.nonce === pilacoin?.nonce);
+        let newPila = $pilas?.result.find((u) => u.nonce === pilacoin?.nonce);
 
         if (newPila && newPila.nonce !== foundPila?.nonce) {
             newPila.selected = true;

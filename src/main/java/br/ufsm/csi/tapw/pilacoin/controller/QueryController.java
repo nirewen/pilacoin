@@ -1,7 +1,7 @@
 package br.ufsm.csi.tapw.pilacoin.controller;
 
-import br.ufsm.csi.tapw.pilacoin.model.json.QueryJson;
-import br.ufsm.csi.tapw.pilacoin.model.json.QueryResponseJson;
+import br.ufsm.csi.tapw.pilacoin.dto.QueryResponse;
+import br.ufsm.csi.tapw.pilacoin.model.json.*;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +23,7 @@ public class QueryController {
     }
 
     @GetMapping("/usuarios")
-    public QueryResponseJson getUsuarios() {
+    public QueryResponse<UsuarioJson> getUsuarios() {
         QueryJson query = QueryJson
             .builder()
             .idQuery(System.nanoTime() - 100)
@@ -31,11 +31,18 @@ public class QueryController {
             .tipoQuery(QueryJson.TipoQuery.USUARIOS)
             .build();
 
-        return this.queueService.requestQuery(query);
+        QueryResponseJson response = this.queueService.requestQuery(query);
+
+        return QueryResponse
+            .<UsuarioJson>builder()
+            .idQuery(response.getIdQuery())
+            .usuario(response.getUsuario())
+            .result(response.getUsuariosResult())
+            .build();
     }
 
     @GetMapping("/pilas")
-    public QueryResponseJson getPilas(@RequestParam Map<String, String> filter) {
+    public QueryResponse<PilaCoinJson> getPilas(@RequestParam Map<String, String> filter) {
         QueryJson query = QueryJson
             .builder()
             .idQuery(System.nanoTime() - 200)
@@ -49,11 +56,18 @@ public class QueryController {
             query.setUsuarioMinerador(filter.get("usuarioMinerador"));
         }
 
-        return this.queueService.requestQuery(query);
+        QueryResponseJson response = this.queueService.requestQuery(query);
+
+        return QueryResponse
+            .<PilaCoinJson>builder()
+            .idQuery(response.getIdQuery())
+            .usuario(response.getUsuario())
+            .result(response.getPilasResult())
+            .build();
     }
 
     @GetMapping("/blocos")
-    public QueryResponseJson getBlocos(@RequestParam Map<String, String> filter) {
+    public QueryResponse<BlocoJson> getBlocos(@RequestParam Map<String, String> filter) {
         QueryJson query = QueryJson
             .builder()
             .idQuery(System.nanoTime() - 300)
@@ -67,6 +81,13 @@ public class QueryController {
             query.setUsuarioMinerador(filter.get("usuarioMinerador"));
         }
 
-        return this.queueService.requestQuery(query);
+        QueryResponseJson response = this.queueService.requestQuery(query);
+
+        return QueryResponse
+            .<BlocoJson>builder()
+            .idQuery(response.getIdQuery())
+            .usuario(response.getUsuario())
+            .result(response.getBlocosResult())
+            .build();
     }
 }

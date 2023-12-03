@@ -11,7 +11,10 @@
 
 {#each data as pilacoin (pilacoin.id)}
     {#if !pilacoin.selected}
-        <div class="flex flex-col odd:bg-[#1f1f1f]" transition:slide={{ duration: 300, easing: quintInOut, axis: 'y' }}>
+        <div
+            class="flex flex-col border-b-2 border-neutral-900 hover:bg-neutral-900"
+            transition:slide={{ duration: 300, easing: quintInOut, axis: 'y' }}
+        >
             <PilaRow {pilacoin} />
         </div>
     {/if}

@@ -10,8 +10,8 @@
     $: usuarios = queries.get('usuarios');
     $: pilas = queries.get('pilas');
 
-    $: usuario = $usuarios?.usuariosResult.find((u) => u.selected);
-    $: pilacoin = $pilas?.pilasResult.find((u) => u.selected);
+    $: usuario = $usuarios?.result.find((u) => u.selected);
+    $: pilacoin = $pilas?.result.find((u) => u.selected);
 
     const mutation = createMutation({
         mutationKey: ['transferir', usuario?.id, pilacoin?.nonce],
@@ -42,8 +42,12 @@
 </script>
 
 <Card>
-    <svelte:fragment slot="title">
-        <h2 class="text-xl font-bold text-capitalize">Transferir pila</h2>
+    <svelte:fragment slot="header">
+        <header class="flex items-center">
+            <div class="flex-1">
+                <h2 class="text-xl font-bold text-capitalize">Transferir PilaCoin</h2>
+            </div>
+        </header>
     </svelte:fragment>
     <div class="flex flex-col h-full gap-2 p-2 overflow-x-hidden overflow-y-auto rounded-sm bg-neutral-800">
         <span class="text-sm font-bold uppercase">Selecione o PilaCoin</span>

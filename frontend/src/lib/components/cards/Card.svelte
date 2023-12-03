@@ -11,8 +11,8 @@
         $$props.class,
     )}
 >
-    <div class="flex items-center justify-between">
-        <slot name="title" />
+    <div class="flex flex-col">
+        <slot name="header" />
     </div>
     <div class="relative flex flex-col h-full overflow-x-hidden overflow-y-auto rounded-sm bg-neutral-800">
         {#if loading}

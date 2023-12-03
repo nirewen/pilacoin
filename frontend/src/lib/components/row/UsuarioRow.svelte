@@ -11,13 +11,13 @@
     function selectUsuario() {
         if (!usuario) return;
 
-        let foundUsuario = $usuarios?.usuariosResult.find((u) => u.selected);
+        let foundUsuario = $usuarios?.result.find((u) => u.selected);
 
         if (foundUsuario) {
             foundUsuario.selected = false;
         }
 
-        let newUsuario = $usuarios?.usuariosResult.find((u) => u.nome === usuario?.nome);
+        let newUsuario = $usuarios?.result.find((u) => u.nome === usuario?.nome);
 
         if (newUsuario && newUsuario.nome !== foundUsuario?.nome) {
             newUsuario.selected = true;

@@ -3,7 +3,7 @@ import type { Writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import { QueryClient } from '@tanstack/svelte-query';
 
-export const queries = new Map<string, Writable<QueryResponse>>();
+export const queries = new Map<string, Writable<QueryResponse<any>>>();
 
 export const queryClient = new QueryClient({
     defaultOptions: {
@@ -62,12 +62,18 @@ export type UsuarioJson = {
     selected: boolean;
 };
 
-export type QueryResponse = {
+export type QueryResponseJson = {
     idQuery: number;
     usuario: string;
     pilasResult: PilaCoinJson[];
     blocosResult: BlocoJson[];
     usuariosResult: UsuarioJson[];
+};
+
+export type QueryResponse<T> = {
+    idQuery: number;
+    usuario: string;
+    result: T[];
 };
 
 export type LogMessage = {
