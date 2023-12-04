@@ -124,24 +124,24 @@ public class BlockDiscoveryService extends AppModule {
         public BlockMinerRunnable(BlocoJson blocoJson, Difficulty difficulty) {
             this.difficulty = difficulty;
             this.blocoJson = blocoJson;
-
-            Logger.log("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
-            log(
-                ModuloLogMessage.builder()
-                    .title("Descoberta de Bloco")
-                    .message("Minerando bloco...")
-                    .extra(blocoJson)
-                    .build()
-            );
-
-            blocoJson.setChaveUsuarioMinerador(sharedUtil.getPublicKey().getEncoded());
-            blocoJson.setNomeUsuarioMinerador(sharedUtil.getProperties().getUsername());
         }
 
         @Override
         @SneakyThrows
         public void run() {
             int count = 0;
+
+            Logger.log("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
+            log(
+                ModuloLogMessage.builder()
+                    .title(Thread.currentThread().getName() + " " + Thread.currentThread().threadId())
+                    .message("Minerando bloco")
+                    .extra(blocoJson)
+                    .build()
+            );
+
+            blocoJson.setChaveUsuarioMinerador(sharedUtil.getPublicKey().getEncoded());
+            blocoJson.setNomeUsuarioMinerador(sharedUtil.getProperties().getUsername());
 
             while (running) {
                 count++;
@@ -164,8 +164,8 @@ public class BlockDiscoveryService extends AppModule {
             Logger.log("Bloco minerado em " + count + " tentativas");
             log(
                 ModuloLogMessage.builder()
-                    .title("Descoberta de Bloco")
-                    .message("Bloco minerado em " + count + " tentativas")
+                    .title("Bloco minerado")
+                    .message("em " + count + " tentativas")
                     .extra(blocoJson)
                     .build()
             );

@@ -33,7 +33,7 @@
                 on:click={() => (message.expanded = !message.expanded)}
             >
                 <span>
-                    <span class="text-blue-300">
+                    <span class="text-blue-300" title={format(new Date(message.timestamp), 'yyyy-MM-dd HH:mm')}>
                         {format(new Date(message.timestamp), 'HH:mm:ss')}
                     </span>
                     <span class="text-green-400">{message.title}</span>
@@ -43,7 +43,7 @@
                 </span>
                 {#if expanded && message.extra}
                     <div class="p-2 bg-[#0f0f0f] rounded-md my-2">
-                        <pre class="text-pink-500 whitespace-pre-wrap">{JSON.stringify(message.extra, null, 2)}</pre>
+                        <pre class="text-pink-400 whitespace-pre-wrap">{JSON.stringify(message.extra, null, 2)}</pre>
                     </div>
                 {/if}
             </button>

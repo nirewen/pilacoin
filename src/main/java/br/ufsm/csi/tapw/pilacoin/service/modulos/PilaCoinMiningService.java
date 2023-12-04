@@ -114,10 +114,12 @@ public class PilaCoinMiningService extends AppModule {
         @SneakyThrows
         public void run() {
             int count = 0;
+
             Logger.log("Minerando...");
             log(
                 ModuloLogMessage.builder()
-                    .title("Minerando...")
+                    .title(Thread.currentThread().getName())
+                    .message("Minerando PilaCoin")
                     .extra(difficulty)
                     .build()
             );
@@ -137,7 +139,7 @@ public class PilaCoinMiningService extends AppModule {
                         log(
                             ModuloLogMessage.builder()
                                 .title("PilaCoin minerado")
-                                .message("PilaCoin minerado em " + count + " tentativas")
+                                .message("em " + count + " tentativas")
                                 .extra(pilaCoin)
                                 .build()
                         );

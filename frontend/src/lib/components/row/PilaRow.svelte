@@ -40,7 +40,7 @@
 {#snippet formatStatus(pilacoin: PilaCoinJson)}
     {@const status = getStatusString(pilacoin)}
     <div
-        class={cn('whitespace-nowrap px-1 rounded-sm text-xs bg-slate-600', {
+        class={cn('whitespace-nowrap px-1 rounded-sm text-sm bg-slate-600', {
             'bg-yellow-700': status === 'BLOCO EM VALIDAÇÃO',
             'bg-green-700': status === 'VÁLIDO',
             'bg-indigo-500': status === 'TRANSFERIDO',
@@ -51,17 +51,19 @@
 {/snippet}
 
 <button type="button" class="flex justify-between w-full gap-6 p-2 focus:outline-none" on:click={selectPilaCoin}>
-    <div class="flex flex-col min-w-0">
+    <div class="flex flex-col min-w-0 gap-1">
         <span class="flex items-center gap-1">
             <UserAvatar nome={pilacoin.nomeCriador} class="w-4 h-4" />
             {pilacoin.nomeCriador}
         </span>
-        <span class="overflow-hidden font-mono text-sm text-ellipsis">{pilacoin.nonce}</span>
+        <span class="overflow-hidden font-mono text-sm leading-4 text-ellipsis">{pilacoin.nonce}</span>
     </div>
     <div class="flex items-center h-full gap-1">
-        <div class="flex flex-col items-end justify-center h-full gap-1">
+        <div class="flex flex-col items-end h-full gap-1">
             {@render formatStatus(pilacoin)}
-            <time class="overflow-hidden text-ellipsis whitespace-nowrap">
+            <time
+                class="px-1 overflow-hidden text-sm leading-4 rounded-sm text-ellipsis whitespace-nowrap bg-neutral-700"
+            >
                 {format(new Date(pilacoin.dataCriacao), 'dd/MM/yyyy HH:mm')}
             </time>
         </div>

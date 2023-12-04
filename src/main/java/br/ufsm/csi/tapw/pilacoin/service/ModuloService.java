@@ -90,7 +90,7 @@ public class ModuloService {
         this.modulos.put(modulo.getTopic(), modulo);
 
         if (foundModulo != null) {
-            modulo.updateSettings(
+            modulo.setSettingsManager(
                 new SettingsManager(
                     foundModulo.getSettings()
                 )
