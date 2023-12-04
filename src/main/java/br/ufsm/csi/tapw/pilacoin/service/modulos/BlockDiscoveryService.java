@@ -103,7 +103,7 @@ public class BlockDiscoveryService extends AppModule {
             log(
                 ModuloLogMessage.builder()
                     .title(Thread.currentThread().getName() + " " + Thread.currentThread().threadId())
-                    .message("Minerando bloco")
+                    .message("Minerando bloco nº " + blocoJson.getNumeroBloco())
                     .extra(blocoJson)
                     .build()
             );
@@ -129,10 +129,10 @@ public class BlockDiscoveryService extends AppModule {
                 return;
             }
 
-            Logger.log("Bloco minerado em " + count + " tentativas");
+            Logger.log("Bloco nº " + blocoJson.getNumeroBloco() + " minerado em " + count + " tentativas");
             log(
                 ModuloLogMessage.builder()
-                    .title("Bloco minerado")
+                    .title("Bloco nº " + blocoJson.getNumeroBloco() + " minerado")
                     .message("em " + count + " tentativas")
                     .extra(blocoJson)
                     .build()
