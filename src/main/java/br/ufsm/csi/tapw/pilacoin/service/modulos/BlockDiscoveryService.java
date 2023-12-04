@@ -45,7 +45,20 @@ public class BlockDiscoveryService extends AppModule {
             return;
         }
 
-        if (!this.getSettingsManager().getBoolean("active") || this.threads.size() >= this.getSettingsManager().getRangeValue("maxThreads")) {
+        if (this.threads.size() >= this.getSettingsManager().getRangeValue("maxThreads")) {
+            Logger.log("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco());
+            this.log(
+                ModuloLogMessage.builder()
+                    .title(this.getName())
+                    .message("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco())
+                    .extra(blocoJson)
+                    .build()
+            );
+
+            return;
+        }
+
+        if (!this.getSettingsManager().getBoolean("active")) {
             this.queueService.publishBlocoDescoberto(blocoJson);
 
             return;
@@ -126,21 +139,19 @@ public class BlockDiscoveryService extends AppModule {
                     this.running = false;
                 }
             }
+            
+            threads.remove(this);
 
-            if (this.stopped) {
-                threads.remove(this);
-
-                return;
+            if (!stopped) {
+                Logger.log("Bloco nº " + blocoJson.getNumeroBloco() + " minerado em " + count + " tentativas");
+                log(
+                    ModuloLogMessage.builder()
+                        .title(Thread.currentThread().getName() + " " + Thread.currentThread().threadId())
+                        .message("Bloco nº " + blocoJson.getNumeroBloco() + " minerado em " + count + " tentativas")
+                        .extra(blocoJson)
+                        .build()
+                );
             }
-
-            Logger.log("Bloco nº " + blocoJson.getNumeroBloco() + " minerado em " + count + " tentativas");
-            log(
-                ModuloLogMessage.builder()
-                    .title(Thread.currentThread().getName() + " " + Thread.currentThread().threadId())
-                    .message("Bloco nº " + blocoJson.getNumeroBloco() + " minerado em " + count + " tentativas")
-                    .extra(blocoJson)
-                    .build()
-            );
         }
 
         public void stop() {

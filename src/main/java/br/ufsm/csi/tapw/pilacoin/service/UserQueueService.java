@@ -62,12 +62,13 @@ public class UserQueueService {
             this.pilaCoinService.changeStatus(pilaCoin, PilaCoin.Status.AG_BLOCO);
         }
 
-        Logger.log(response);
+        Logger.log(message.getMsg());
         this.moduloService.log(
             ModuloLogMessage.builder()
                 .topic("UserMessage")
                 .title(message.getQueue())
                 .message(message.getMsg())
+                .extra(message.getNonce())
                 .build()
         );
     }
@@ -92,6 +93,15 @@ public class UserQueueService {
                 this.lastReport = newReport;
 
                 newReport.printReport();
+
+                this.moduloService.log(
+                    ModuloLogMessage.builder()
+                        .topic("UserMessage")
+                        .title("Report")
+                        .message("Relatório de atividades")
+                        .extra(newReport)
+                        .build()
+                );
             }
         }
     }
