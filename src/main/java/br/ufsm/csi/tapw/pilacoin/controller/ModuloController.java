@@ -2,7 +2,7 @@ package br.ufsm.csi.tapw.pilacoin.controller;
 
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
 import br.ufsm.csi.tapw.pilacoin.service.ModuloService;
-import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.types.AbstractSetting;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
@@ -20,14 +20,14 @@ public class ModuloController {
         this.moduloService = moduloService;
     }
 
+    @GetMapping
+    public List<Modulo> getModulos() {
+        return moduloService.getAllModulos();
+    }
+
     @GetMapping("/{nome}")
     public Modulo getModulo(@PathVariable String nome) {
         return moduloService.getModuloEntity(nome);
-    }
-
-    @GetMapping
-    public List<IModulo> getModulos() {
-        return moduloService.getAllModulos();
     }
 
     @SneakyThrows
@@ -55,8 +55,8 @@ public class ModuloController {
         return sseEmitter;
     }
 
-    @PostMapping("/{nome}/toggle")
-    public Modulo toggleModulo(@PathVariable String nome) {
-        return moduloService.toggleModulo(nome);
+    @PatchMapping("/{nome}")
+    public Modulo updateSettings(@PathVariable String nome, @RequestBody List<AbstractSetting<?>> settings) {
+        return moduloService.updateSettings(nome, settings);
     }
 }

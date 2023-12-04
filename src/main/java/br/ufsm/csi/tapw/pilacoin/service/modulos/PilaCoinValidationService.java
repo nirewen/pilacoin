@@ -1,15 +1,13 @@
 package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
+import br.ufsm.csi.tapw.pilacoin.impl.BooleanSetting;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.PilaCoinValidado;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.types.AppModule;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
-import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
-import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
-import br.ufsm.csi.tapw.pilacoin.util.Logger;
-import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
+import br.ufsm.csi.tapw.pilacoin.util.*;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
@@ -17,12 +15,16 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
-public class PilaCoinValidationService extends IModulo {
+public class PilaCoinValidationService extends AppModule {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
     private Difficulty difficulty;
 
     public PilaCoinValidationService(QueueService queueService, SharedUtil sharedUtil) {
+        super("Validador de PilaCoin", new SettingsManager(
+            new BooleanSetting("active", false)
+        ));
+
         this.queueService = queueService;
         this.sharedUtil = sharedUtil;
     }
@@ -39,7 +41,7 @@ public class PilaCoinValidationService extends IModulo {
             return;
         }
 
-        if (!this.modulo.isAtivo()) {
+        if (!this.getSettingsManager().getBoolean("active")) {
             this.queueService.publishPilaCoinMinerado(pilaCoinJson);
 
             return;
@@ -76,18 +78,29 @@ public class PilaCoinValidationService extends IModulo {
     }
 
     @Override
-    public void update(Difficulty subject) {
+    public void updateDifficulty(Difficulty subject) {
         this.difficulty = subject;
+    }
 
-        if (!this.modulo.isAtivo() || subject == null) {
-            return;
-        }
+    @Override
+    public void updateSettings(SettingsManager subject) {
+        this.setSettingsManager(subject);
 
         this.log(
             ModuloLogMessage.builder()
-                .title("Validador de PilaCoin")
-                .message("Inicializado")
+                .title("Configurações alteradas")
+                .message("Clique para ver as configurações atuais")
+                .extra(subject.getSettings())
                 .build()
         );
+
+        if (subject.getBoolean("active")) {
+            this.log(
+                ModuloLogMessage.builder()
+                    .title("Validador de PilaCoin")
+                    .message("Inicializado")
+                    .build()
+            );
+        }
     }
 }

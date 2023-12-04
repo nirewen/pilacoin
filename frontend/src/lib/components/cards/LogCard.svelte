@@ -1,32 +1,39 @@
 <script lang="ts">
-    import type { LogMessage } from '$lib';
-    import { IconMaximize, IconMinimize, IconTrash } from '$lib/icons';
-    import { cn } from '$lib/utils';
+    import type { LogMessage, Modulo, ModuloSettings } from '$lib';
+    import { IconMaximize, IconMinimize, IconSettings, IconTrash } from '$lib/icons';
+    import { cn, debounced } from '$lib/utils';
 
+    import { Slider } from '$lib/components/ui/slider';
     import { Switch } from '$lib/components/ui/switch';
+    import { slide } from 'svelte/transition';
     import LogBox from '../LogBox.svelte';
     import Card from './Card.svelte';
 
-    export let nome: string;
-    export let topic = nome;
-    export let ativo: boolean | undefined = undefined;
+    export let modulo: Modulo;
+
+    $: ativo = modulo.settings.find((s) => s.name === 'active')?.value;
 
     let expanded = false;
+    let open = false;
     let messages: LogMessage[] = [];
 
-    function toggleModulo() {
-        fetch(`/api/modulo/${topic}/toggle`, {
-            method: 'POST',
+    const updateModulo = debounced((settings: ModuloSettings[]) => {
+        fetch(`/api/modulo/${modulo.topic}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(settings),
         })
             .then((res) => {
                 if (res.ok) {
                     return res.json();
                 }
             })
-            .then((data) => {
-                ativo = data.ativo;
+            .then((data: Modulo) => {
+                modulo = data;
             });
-    }
+    });
 
     function clearLogs() {
         messages = [];
@@ -39,9 +46,9 @@
     })}
 >
     <svelte:fragment slot="header">
-        <header class="flex items-center">
+        <header class="flex flex-wrap items-center gap-2">
             <div class="flex-1">
-                <h2 class="text-xl font-bold">{nome}</h2>
+                <h2 class="text-xl font-bold">{modulo.name}</h2>
             </div>
             <div class="flex items-center gap-2">
                 {#if (ativo === undefined && messages.length > 0) || (messages.length > 0 && ativo)}
@@ -50,7 +57,7 @@
                     </button>
                 {/if}
 
-                {#if ativo}
+                {#if ativo || expanded}
                     <button
                         class="p-1 text-sm text-white rounded-sm bg-neutral-800"
                         on:click={() => {
@@ -65,10 +72,46 @@
                     </button>
                 {/if}
 
-                {#if ativo !== undefined}
-                    <Switch class="data-[checked]:dark:bg-green-500" bind:checked={ativo} on:click={toggleModulo} />
-                {/if}
+                <button
+                    class="p-1 text-sm text-white rounded-sm bg-neutral-800"
+                    on:click={() => {
+                        open = !open;
+                    }}
+                >
+                    <IconSettings size={20} />
+                </button>
             </div>
+            {#if open}
+                <div class="flex flex-col px-4 basis-full" transition:slide={{ duration: 200 }}>
+                    {#each modulo.settings as setting}
+                        <div class="flex items-center justify-between">
+                            <span class="capitalize">{setting.name}</span>
+                            {#if setting.kind === 'BOOLEAN'}
+                                <Switch
+                                    class="data-[checked]:dark:bg-green-500"
+                                    bind:checked={setting.value}
+                                    onCheckedChange={(value) => {
+                                        setting.value = value;
+                                        updateModulo(modulo.settings);
+                                    }}
+                                />
+                            {:else if setting.kind === 'RANGE'}
+                                <Slider
+                                    class="w-28"
+                                    min={setting.min}
+                                    max={setting.max}
+                                    value={[setting.value]}
+                                    onValueChange={(value) => {
+                                        setting.value = value[0];
+
+                                        updateModulo(modulo.settings);
+                                    }}
+                                />
+                            {/if}
+                        </div>
+                    {/each}
+                </div>
+            {/if}
         </header>
     </svelte:fragment>
     <svelte:fragment>
@@ -80,6 +123,6 @@
                 <small>Ative o módulo para ver os logs</small>
             </div>
         {/if}
-        <LogBox {topic} bind:messages />
+        <LogBox topic={modulo.topic} bind:messages />
     </svelte:fragment>
 </Card>

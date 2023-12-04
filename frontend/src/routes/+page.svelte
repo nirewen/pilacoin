@@ -41,14 +41,14 @@
             </div>
         {/each}
     {:else if $query.isSuccess}
-        {#each $query.data as { modulo }}
-            <LogCard nome={modulo.nome} ativo={modulo.ativo} />
+        {#each $query.data as modulo}
+            <LogCard {modulo} />
         {/each}
     {/if}
 </div>
 
 <div class="flex flex-wrap gap-2">
-    <LogCard nome="Caixa de Entrada" topic="UserMessage" />
+    <LogCard modulo={{ id: 0, name: 'Caixa de Entrada', topic: 'UserMessage', settings: [] }} />
     <QueryCard title="PilaCoins" query="pilas" let:data>
         <PilaList data={data.result} />
     </QueryCard>

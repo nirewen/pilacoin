@@ -1,13 +1,15 @@
 package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
+import br.ufsm.csi.tapw.pilacoin.impl.BooleanSetting;
+import br.ufsm.csi.tapw.pilacoin.impl.RangeSetting;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.service.PilaCoinService;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.types.AppModule;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
-import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
+import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
@@ -16,35 +18,30 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Service
-public class PilaCoinMiningService extends IModulo {
+public class PilaCoinMiningService extends AppModule {
     private final QueueService queueService;
     private final PilaCoinService pilaCoinService;
-    private final SharedUtil sharedUtil;
     private final List<PilaCoinMinerRunnable> threads = new ArrayList<>();
 
-    public PilaCoinMiningService(QueueService queueService, PilaCoinService pilaCoinService, SharedUtil sharedUtil) {
+    public PilaCoinMiningService(QueueService queueService, PilaCoinService pilaCoinService) {
+        super("Minerador de PilaCoin", new SettingsManager(
+            new BooleanSetting("active", false),
+            new RangeSetting("miningThreads", 8, 1, 8)
+        ));
+
         this.queueService = queueService;
         this.pilaCoinService = pilaCoinService;
-        this.sharedUtil = sharedUtil;
     }
 
     @Override
-    public void update(Difficulty subject) {
-        this.threads.forEach(PilaCoinMinerRunnable::stop);
-        this.threads.clear();
+    public void updateDifficulty(Difficulty subject) {
+        this.stopThreads();
 
-        if (!this.modulo.isAtivo() || subject == null) {
+        if (!this.getSettingsManager().getBoolean("active") || subject == null) {
             return;
         }
 
-        this.log(
-            ModuloLogMessage.builder()
-                .title("Mineração iniciada")
-                .message("Mineração iniciada com dificuldade " + subject.getDificuldade())
-                .build()
-        );
-
-        IntStream.range(0, this.sharedUtil.getProperties().getMiningThreads()).forEach((i) -> {
+        IntStream.range(0, this.getSettingsManager().getInteger("miningThreads")).forEach((i) -> {
             try {
                 PilaCoinMinerRunnable runnable = new PilaCoinMinerRunnable(subject);
                 Thread t = new Thread(runnable);
@@ -60,6 +57,35 @@ public class PilaCoinMiningService extends IModulo {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    @Override
+    public void updateSettings(SettingsManager subject) {
+        this.setSettingsManager(subject);
+
+        this.stopThreads();
+
+        this.log(
+            ModuloLogMessage.builder()
+                .title("Configurações alteradas")
+                .message("Clique para ver as configurações atuais")
+                .extra(subject.getSettings())
+                .build()
+        );
+
+        if (subject.getBoolean("active")) {
+            this.log(
+                ModuloLogMessage.builder()
+                    .title("Mineração iniciada")
+                    .message("Mineração iniciada")
+                    .build()
+            );
+        }
+    }
+
+    private void stopThreads() {
+        this.threads.forEach(PilaCoinMinerRunnable::stop);
+        this.threads.clear();
     }
 
     public class PilaCoinMinerRunnable implements Runnable {

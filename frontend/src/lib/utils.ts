@@ -56,3 +56,12 @@ export const flyAndScale = (
         easing: cubicOut,
     };
 };
+
+export const debounced = <T extends (...args: any[]) => any>(fn: T, delay: number = 1000) => {
+    let timer: number | null = null;
+
+    return (...args: Parameters<T>): ReturnType<T> | void => {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+    };
+};

@@ -3,9 +3,10 @@ package br.ufsm.csi.tapw.pilacoin.service;
 import br.ufsm.csi.tapw.pilacoin.exception.ModuloNotFoundException;
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
 import br.ufsm.csi.tapw.pilacoin.repository.ModuloRepository;
-import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.types.AbstractSetting;
+import br.ufsm.csi.tapw.pilacoin.types.AppModule;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
-import br.ufsm.csi.tapw.pilacoin.util.Logger;
+import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -20,74 +21,82 @@ public class ModuloService {
 
     private final ModuloRepository moduloRepository;
     private final DifficultyService difficultyService;
-    private final Map<String, IModulo> modulos = new HashMap<>();
+    private final Map<String, AppModule> modulos = new HashMap<>();
 
     public ModuloService(
         ModuloRepository moduloRepository,
         DifficultyService difficultyService,
-        IModulo... modulos
+        AppModule... modulos
     ) {
         this.moduloRepository = moduloRepository;
         this.difficultyService = difficultyService;
 
-        for (IModulo modulo : modulos) {
+        for (AppModule modulo : modulos) {
             modulo.register(this.registerModulo(modulo));
         }
     }
 
-    public List<IModulo> getAllModulos() {
-        return this.modulos.values().stream().toList();
+    public List<Modulo> getAllModulos() {
+        return this.modulos.values().stream().map(AppModule::getModulo).toList();
     }
 
-    public Modulo getModuloEntity(String nome) {
-        return moduloRepository.findOneByNome(nome);
+    public Modulo getModuloEntity(String topic) {
+        return moduloRepository.findOneByTopic(topic);
     }
 
-    public IModulo getModulo(String nome) {
+    public AppModule getModulo(String nome) {
         return this.modulos.get(nome);
     }
 
-    public Modulo toggleModulo(String nome) {
+    public Modulo updateSettings(String nome, List<AbstractSetting<?>> settings) {
         Modulo modulo = this.getModuloEntity(nome);
 
-        modulo.setAtivo(!modulo.isAtivo());
-
-        moduloRepository.save(modulo);
-
-        IModulo moduloInterface = this.getModulo(nome);
-
-        if (moduloInterface == null) {
+        if (modulo == null) {
             throw new ModuloNotFoundException();
         }
 
-        moduloInterface.register(modulo);
-        moduloInterface.update(this.difficultyService.getDifficulty());
+        modulo.setSettings(settings);
 
-        Logger.log("Modulo " + nome + " " + (modulo.isAtivo() ? "ativado" : "desativado"));
-        moduloInterface.log(
-            ModuloLogMessage.builder()
-                .title("Status do Modulo " + nome)
-                .message((modulo.isAtivo() ? "Ativado" : "Desativado"))
-                .extra(modulo)
-                .build()
+        moduloRepository.save(modulo);
+
+        AppModule appModulo = this.getModulo(nome);
+
+        appModulo.setModulo(modulo);
+
+        appModulo.updateSettings(
+            new SettingsManager(
+                modulo.getSettings()
+            )
+        );
+        appModulo.updateDifficulty(
+            this.difficultyService.getDifficulty()
         );
 
         return modulo;
     }
 
-    public Modulo registerModulo(IModulo modulo) {
-        Modulo foundModulo = moduloRepository.findOneByNome(modulo.getNome());
+    public Modulo registerModulo(AppModule modulo) {
+        Modulo foundModulo = moduloRepository.findOneByTopic(modulo.getTopic());
 
         modulo.setModuloService(this);
-        this.modulos.put(modulo.getNome(), modulo);
+        this.modulos.put(modulo.getTopic(), modulo);
 
         if (foundModulo != null) {
+            modulo.updateSettings(
+                new SettingsManager(
+                    foundModulo.getSettings()
+                )
+            );
+
             return foundModulo;
         }
 
         Modulo moduloEntity = Modulo.builder()
-            .nome(modulo.getNome())
-            .ativo(true)
+            .topic(modulo.getTopic())
+            .name(modulo.getName())
+            .settings(
+                modulo.getSettingsManager().getSettings()
+            )
             .build();
 
         return moduloRepository.save(moduloEntity);

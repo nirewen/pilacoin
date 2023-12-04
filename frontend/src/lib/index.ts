@@ -13,14 +13,35 @@ export const queryClient = new QueryClient({
     },
 });
 
+export type ModuloSettings =
+    | {
+          kind: 'BOOLEAN';
+          name: string;
+          value: boolean;
+      }
+    | {
+          kind: 'CONSTANT';
+          name: string;
+          value: number;
+      }
+    | {
+          kind: 'STRING';
+          name: string;
+          value: string;
+      }
+    | {
+          kind: 'RANGE';
+          name: string;
+          value: number;
+          min: number;
+          max: number;
+      };
+
 export type Modulo = {
-    modulo: {
-        id: number;
-        nome: string;
-        descricao: string;
-        ativo: boolean;
-    };
-    nome: string;
+    id: number;
+    name: string;
+    topic: string;
+    settings: ModuloSettings[];
 };
 
 export type TransacaoJson = {

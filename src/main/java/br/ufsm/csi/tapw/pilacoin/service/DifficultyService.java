@@ -5,8 +5,8 @@ import br.ufsm.csi.tapw.pilacoin.service.modulos.BlockDiscoveryService;
 import br.ufsm.csi.tapw.pilacoin.service.modulos.BlockValidationService;
 import br.ufsm.csi.tapw.pilacoin.service.modulos.PilaCoinMiningService;
 import br.ufsm.csi.tapw.pilacoin.service.modulos.PilaCoinValidationService;
-import br.ufsm.csi.tapw.pilacoin.types.Observable;
-import br.ufsm.csi.tapw.pilacoin.types.Observer;
+import br.ufsm.csi.tapw.pilacoin.types.observer.DifficultyObservable;
+import br.ufsm.csi.tapw.pilacoin.types.observer.DifficultyObserver;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import lombok.Getter;
@@ -14,14 +14,9 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
+@Getter
 @Service
-public class DifficultyService implements Observable<Difficulty> {
-    private final List<Observer<Difficulty>> observers = new ArrayList<>();
-
-    @Getter
+public class DifficultyService implements DifficultyObservable {
     private Difficulty difficulty;
 
     public DifficultyService(
@@ -57,18 +52,18 @@ public class DifficultyService implements Observable<Difficulty> {
 
         if (!this.observers.isEmpty()) {
             this.observers.forEach(observer ->
-                observer.update(this.difficulty)
+                observer.updateDifficulty(this.difficulty)
             );
         }
     }
 
     @Override
-    public void subscribe(Observer<Difficulty> observer) {
+    public void subscribe(DifficultyObserver observer) {
         this.observers.add(observer);
     }
 
     @Override
-    public void unsubscribe(Observer<Difficulty> observer) {
+    public void unsubscribe(DifficultyObserver observer) {
         this.observers.remove(observer);
     }
 }

@@ -1,14 +1,12 @@
 package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
+import br.ufsm.csi.tapw.pilacoin.impl.BooleanSetting;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.types.AppModule;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
-import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
-import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
-import br.ufsm.csi.tapw.pilacoin.util.Logger;
-import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
+import br.ufsm.csi.tapw.pilacoin.util.*;
 import lombok.SneakyThrows;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -18,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class BlockDiscoveryService extends IModulo {
+public class BlockDiscoveryService extends AppModule {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
     private final List<BlockMinerRunnable> threads = new ArrayList<>();
@@ -26,6 +24,9 @@ public class BlockDiscoveryService extends IModulo {
     private Difficulty difficulty;
 
     public BlockDiscoveryService(QueueService queueService, SharedUtil sharedUtil) {
+        super("Descobridor de Bloco", new SettingsManager(
+            new BooleanSetting("active", false)
+        ));
         this.queueService = queueService;
         this.sharedUtil = sharedUtil;
     }
@@ -42,7 +43,7 @@ public class BlockDiscoveryService extends IModulo {
             return;
         }
 
-        if (!this.modulo.isAtivo()) {
+        if (!this.getSettingsManager().getBoolean("active")) {
             this.queueService.publishBlocoDescoberto(blocoJson);
 
             return;
@@ -65,22 +66,39 @@ public class BlockDiscoveryService extends IModulo {
     }
 
     @Override
-    public void update(Difficulty subject) {
+    public void updateDifficulty(Difficulty subject) {
         this.difficulty = subject;
 
-        this.threads.forEach(BlockMinerRunnable::stop);
-        this.threads.clear();
+        this.stopThreads();
+    }
 
-        if (!this.modulo.isAtivo() || subject == null) {
-            return;
-        }
+    @Override
+    public void updateSettings(SettingsManager subject) {
+        this.setSettingsManager(subject);
+
+        this.stopThreads();
 
         this.log(
             ModuloLogMessage.builder()
-                .title("Descoberta de Bloco")
-                .message("Inicializada")
+                .title("Configurações alteradas")
+                .message("Clique para ver as configurações atuais")
+                .extra(subject.getSettings())
                 .build()
         );
+
+        if (subject.getBoolean("active")) {
+            this.log(
+                ModuloLogMessage.builder()
+                    .title("Descoberta de Bloco")
+                    .message("Inicializada")
+                    .build()
+            );
+        }
+    }
+
+    private void stopThreads() {
+        this.threads.forEach(BlockMinerRunnable::stop);
+        this.threads.clear();
     }
 
     public class BlockMinerRunnable implements Runnable {

@@ -1,27 +1,29 @@
 package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
+import br.ufsm.csi.tapw.pilacoin.impl.BooleanSetting;
 import br.ufsm.csi.tapw.pilacoin.model.BlocoValidado;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.IModulo;
+import br.ufsm.csi.tapw.pilacoin.types.AppModule;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
-import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
-import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
-import br.ufsm.csi.tapw.pilacoin.util.Logger;
-import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
+import br.ufsm.csi.tapw.pilacoin.util.*;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BlockValidationService extends IModulo {
+public class BlockValidationService extends AppModule {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
 
     private Difficulty difficulty;
 
     public BlockValidationService(QueueService queueService, SharedUtil sharedUtil) {
+        super("Validador de Bloco", new SettingsManager(
+            new BooleanSetting("active", false)
+        ));
+
         this.queueService = queueService;
         this.sharedUtil = sharedUtil;
     }
@@ -38,7 +40,7 @@ public class BlockValidationService extends IModulo {
             return;
         }
 
-        if (!this.modulo.isAtivo()) {
+        if (!this.getSettingsManager().getBoolean("active")) {
             this.queueService.publishBlocoMinerado(blocoJson);
 
             return;
@@ -72,18 +74,29 @@ public class BlockValidationService extends IModulo {
     }
 
     @Override
-    public void update(Difficulty subject) {
+    public void updateDifficulty(Difficulty subject) {
         this.difficulty = subject;
+    }
 
-        if (!this.modulo.isAtivo() || subject == null) {
-            return;
-        }
+    @Override
+    public void updateSettings(SettingsManager subject) {
+        this.setSettingsManager(subject);
 
         this.log(
             ModuloLogMessage.builder()
-                .title("Validação de Bloco")
-                .message("Inicializada")
+                .title("Configurações alteradas")
+                .message("Clique para ver as configurações atuais")
+                .extra(subject.getSettings())
                 .build()
         );
+
+        if (subject.getBoolean("active")) {
+            this.log(
+                ModuloLogMessage.builder()
+                    .title("Validação de Bloco")
+                    .message("Inicializada")
+                    .build()
+            );
+        }
     }
 }
