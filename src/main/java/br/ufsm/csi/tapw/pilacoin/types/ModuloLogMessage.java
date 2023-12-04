@@ -11,5 +11,12 @@ public class ModuloLogMessage {
     public String topic;
     public String title;
     public String message;
+    @Builder.Default
+    public LogLevel level = LogLevel.INFO;
     public Object extra;
+
+    public enum LogLevel {
+        INFO,
+        ERROR
+    }
 }

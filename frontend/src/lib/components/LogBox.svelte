@@ -25,7 +25,7 @@
             {@const expanded = message.expanded}
             <button
                 class={cn(
-                    'flex flex-col font-mono text-xs text-left px-2 bg-[#1f1f1f] cursor-default whitespace-nowrap even:bg-[#2f2f2f] focus:outline-none',
+                    'flex flex-col font-mono text-xs text-left px-2 bg-[#1f1f1f] cursor-default whitespace-nowrap even:bg-[#1a1a1a] focus:outline-none',
                     {
                         'cursor-pointer': message.extra,
                     },
@@ -38,7 +38,12 @@
                     </span>
                     <span class="text-green-400">{message.title}</span>
                     {#if message.message}
-                        <span class="text-yellow-400">{message.message}</span>
+                        <span
+                            class={cn({
+                                'text-slate-400': message.level === 'INFO',
+                                'text-red-400': message.level === 'ERROR',
+                            })}>{message.message}</span
+                        >
                     {/if}
                 </span>
                 {#if expanded && message.extra}

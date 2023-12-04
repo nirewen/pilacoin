@@ -4,6 +4,7 @@ import br.ufsm.csi.tapw.pilacoin.model.PilaCoin;
 import br.ufsm.csi.tapw.pilacoin.model.json.MessageJson;
 import br.ufsm.csi.tapw.pilacoin.model.json.ReportJson;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
+import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage.LogLevel;
 import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
@@ -108,6 +109,7 @@ public class UserQueueService {
                 .topic("UserMessage")
                 .title(message.getQueue())
                 .message(message.getErro())
+                .level(LogLevel.ERROR)
                 .build()
         );
     }

@@ -108,5 +108,6 @@ export type LogMessage = {
     title: string;
     message: string;
     extra: object;
+    level: 'INFO' | 'ERROR';
     expanded?: boolean;
 };
