@@ -6,6 +6,8 @@ import br.ufsm.csi.tapw.pilacoin.repository.ModuloRepository;
 import br.ufsm.csi.tapw.pilacoin.types.AbstractSetting;
 import br.ufsm.csi.tapw.pilacoin.types.AppModule;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
+import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
+import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -60,17 +62,42 @@ public class ModuloService {
         moduloRepository.save(modulo);
 
         AppModule appModulo = this.getModulo(nome);
+        SettingsManager manager = new SettingsManager(modulo.getSettings());
 
         appModulo.setModulo(modulo);
+        appModulo.setSettingsManager(manager);
+        appModulo.onUpdateSettings(manager);
+        appModulo.updateDifficulty(this.difficultyService.getDifficulty());
 
-        appModulo.updateSettings(
-            new SettingsManager(
-                modulo.getSettings()
-            )
+        this.log(
+            ModuloLogMessage.builder()
+                .title("Configurações alteradas")
+                .message("Clique para ver as configurações atuais")
+                .extra(manager.getSettings())
+                .build()
         );
-        appModulo.updateDifficulty(
-            this.difficultyService.getDifficulty()
-        );
+
+        Logger.log("Configurações alteradas | " + JacksonUtil.toString(manager.getSettings()));
+
+        if (manager.getBoolean("active")) {
+            Logger.log(appModulo.getName() + " inicializada");
+
+            appModulo.log(
+                ModuloLogMessage.builder()
+                    .title(appModulo.getName())
+                    .message("Inicializado")
+                    .build()
+            );
+        } else {
+            Logger.log("Módulo " + appModulo.getName() + " desativado");
+
+            appModulo.log(
+                ModuloLogMessage.builder()
+                    .title(appModulo.getName())
+                    .message("Desativado")
+                    .build()
+            );
+        }
 
         return modulo;
     }

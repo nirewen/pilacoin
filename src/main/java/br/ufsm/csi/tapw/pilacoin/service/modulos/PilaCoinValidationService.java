@@ -83,37 +83,7 @@ public class PilaCoinValidationService extends AppModule {
     }
 
     @Override
-    public void updateSettings(SettingsManager subject) {
+    public void onUpdateSettings(SettingsManager subject) {
         this.setSettingsManager(subject);
-
-        this.log(
-            ModuloLogMessage.builder()
-                .title("Configurações alteradas")
-                .message("Clique para ver as configurações atuais")
-                .extra(subject.getSettings())
-                .build()
-        );
-
-        Logger.log("Configurações alteradas | " + JacksonUtil.toString(subject.getSettings()));
-
-        if (subject.getBoolean("active")) {
-            Logger.log(this.getName() + " inicializada");
-
-            this.log(
-                ModuloLogMessage.builder()
-                    .title(this.getName())
-                    .message("Inicializado")
-                    .build()
-            );
-        } else {
-            Logger.log(this.getName() + " desativada");
-            
-            this.log(
-                ModuloLogMessage.builder()
-                    .title(this.getName())
-                    .message("Desativada")
-                    .build()
-            );
-        }
     }
 }

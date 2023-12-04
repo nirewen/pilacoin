@@ -12,6 +12,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class BlockValidationService extends AppModule {
     private final QueueService queueService;
@@ -68,7 +70,10 @@ public class BlockValidationService extends AppModule {
             ModuloLogMessage.builder()
                 .title("Bloco validado")
                 .message("Bloco de " + blocoJson.getNomeUsuarioMinerador() + " validado.")
-                .extra(blocoJson)
+                .extra(Map.of(
+                    "bloco", blocoJson,
+                    "blocoValidado", blocoValidado
+                ))
                 .build()
         );
     }
@@ -79,37 +84,7 @@ public class BlockValidationService extends AppModule {
     }
 
     @Override
-    public void updateSettings(SettingsManager subject) {
-        this.setSettingsManager(subject);
+    public void onUpdateSettings(SettingsManager subject) {
 
-        this.log(
-            ModuloLogMessage.builder()
-                .title("Configurações alteradas")
-                .message("Clique para ver as configurações atuais")
-                .extra(subject.getSettings())
-                .build()
-        );
-
-        Logger.log("Configurações alteradas | " + JacksonUtil.toString(subject.getSettings()));
-
-        if (subject.getBoolean("active")) {
-            Logger.log(this.getName() + " inicializada");
-
-            this.log(
-                ModuloLogMessage.builder()
-                    .title(this.getName())
-                    .message("Inicializada")
-                    .build()
-            );
-        } else {
-            Logger.log(this.getName() + " desativada");
-            
-            this.log(
-                ModuloLogMessage.builder()
-                    .title(this.getName())
-                    .message("Desativada")
-                    .build()
-            );
-        }
     }
 }

@@ -73,40 +73,8 @@ public class BlockDiscoveryService extends AppModule {
     }
 
     @Override
-    public void updateSettings(SettingsManager subject) {
-        this.setSettingsManager(subject);
-
+    public void onUpdateSettings(SettingsManager subject) {
         this.stopThreads();
-
-        this.log(
-            ModuloLogMessage.builder()
-                .title("Configurações alteradas")
-                .message("Clique para ver as configurações atuais")
-                .extra(subject.getSettings())
-                .build()
-        );
-
-        Logger.log("Configurações alteradas | " + JacksonUtil.toString(subject.getSettings()));
-
-        if (subject.getBoolean("active")) {
-            Logger.log(this.getName() + " inicializada");
-
-            this.log(
-                ModuloLogMessage.builder()
-                    .title(this.getName())
-                    .message("Inicializada")
-                    .build()
-            );
-        } else {
-            Logger.log(this.getName() + " desativada");
-
-            this.log(
-                ModuloLogMessage.builder()
-                    .title(this.getName())
-                    .message("Desativada")
-                    .build()
-            );
-        }
     }
 
     private void stopThreads() {
