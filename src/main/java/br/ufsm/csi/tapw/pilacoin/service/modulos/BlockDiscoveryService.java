@@ -1,6 +1,7 @@
 package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
 import br.ufsm.csi.tapw.pilacoin.impl.BooleanSetting;
+import br.ufsm.csi.tapw.pilacoin.impl.RangeSetting;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
@@ -25,7 +26,8 @@ public class BlockDiscoveryService extends AppModule {
 
     public BlockDiscoveryService(QueueService queueService, SharedUtil sharedUtil) {
         super("Descobridor de Bloco", new SettingsManager(
-            new BooleanSetting("active", false)
+            new BooleanSetting("active", false),
+            new RangeSetting("maxThreads", 4, 0, Runtime.getRuntime().availableProcessors())
         ));
         this.queueService = queueService;
         this.sharedUtil = sharedUtil;
@@ -43,7 +45,7 @@ public class BlockDiscoveryService extends AppModule {
             return;
         }
 
-        if (!this.getSettingsManager().getBoolean("active")) {
+        if (!this.getSettingsManager().getBoolean("active") || this.threads.size() >= this.getSettingsManager().getRangeValue("maxThreads")) {
             this.queueService.publishBlocoDescoberto(blocoJson);
 
             return;
@@ -126,6 +128,8 @@ public class BlockDiscoveryService extends AppModule {
             }
 
             if (this.stopped) {
+                threads.remove(this);
+
                 return;
             }
 
