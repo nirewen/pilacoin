@@ -121,7 +121,7 @@ public class BlockDiscoveryService extends AppModule {
                 if (CryptoUtil.compareHash(minedJson, this.difficulty.getDificuldade())) {
                     queueService.publishBlocoMinerado(blocoJson);
 
-                    break;
+                    this.running = false;
                 }
             }
 
@@ -137,7 +137,6 @@ public class BlockDiscoveryService extends AppModule {
                     .extra(blocoJson)
                     .build()
             );
-            this.running = false;
         }
 
         public void stop() {
