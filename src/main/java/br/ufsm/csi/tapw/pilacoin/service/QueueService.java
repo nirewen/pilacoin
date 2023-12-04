@@ -43,7 +43,7 @@ public class QueueService {
         int tries = 0;
 
         while (tries++ != 10) {
-            String responseJson = (String) this.rabbitTemplate.receiveAndConvert(queryJson.getNomeUsuario() + "-query");
+            String responseJson = this.receiveFromQueue(queryJson.getNomeUsuario() + "-query");
             QueryResponseJson response = JacksonUtil.convert(responseJson, QueryResponseJson.class);
 
             if (response == null) {
@@ -86,5 +86,9 @@ public class QueueService {
 
     private void publishToQueue(String queue, String message) {
         this.rabbitTemplate.convertAndSend(queue, message);
+    }
+
+    private String receiveFromQueue(String queue) {
+        return (String) this.rabbitTemplate.receiveAndConvert(queue);
     }
 }
