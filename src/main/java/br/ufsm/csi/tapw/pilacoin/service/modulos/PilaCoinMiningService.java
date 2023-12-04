@@ -105,8 +105,8 @@ public class PilaCoinMiningService extends AppModule {
                         Logger.log("PilaCoin minerado em " + count + " tentativas");
                         log(
                             ModuloLogMessage.builder()
-                                .title("PilaCoin minerado")
-                                .message("em " + count + " tentativas")
+                                .title(Thread.currentThread().getName())
+                                .message("PilaCoin minerado em " + count + " tentativas")
                                 .extra(pilaCoin)
                                 .build()
                         );
