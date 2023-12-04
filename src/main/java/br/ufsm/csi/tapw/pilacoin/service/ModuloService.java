@@ -6,6 +6,7 @@ import br.ufsm.csi.tapw.pilacoin.repository.ModuloRepository;
 import br.ufsm.csi.tapw.pilacoin.types.AbstractSetting;
 import br.ufsm.csi.tapw.pilacoin.types.AppModule;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
+import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,13 @@ public class ModuloService {
 
         if (modulo == null) {
             throw new ModuloNotFoundException();
+        }
+
+        String oldSettingsStr = JacksonUtil.toString(modulo.getSettings());
+        String newSettingsStr = JacksonUtil.toString(settings);
+
+        if (oldSettingsStr.equals(newSettingsStr)) {
+            return modulo;
         }
 
         modulo.setSettings(settings);

@@ -82,22 +82,23 @@
                 </button>
             </div>
             {#if open}
-                <div class="flex flex-col px-4 basis-full" transition:slide={{ duration: 200 }}>
+                <ul class="flex flex-col gap-1 basis-full" transition:slide={{ duration: 200 }}>
                     {#each modulo.settings as setting}
-                        <div class="flex items-center justify-between">
-                            <span class="capitalize">{setting.name}</span>
+                        <li class="flex items-center justify-between">
+                            <span class="text-sm font-bold">{setting.name}</span>
                             {#if setting.kind === 'BOOLEAN'}
                                 <Switch
                                     class="data-[checked]:dark:bg-green-500"
                                     bind:checked={setting.value}
                                     onCheckedChange={(value) => {
                                         setting.value = value;
+
                                         updateModulo(modulo.settings);
                                     }}
                                 />
                             {:else if setting.kind === 'RANGE'}
                                 <Slider
-                                    class="w-28"
+                                    class="mr-3 w-28"
                                     min={setting.min}
                                     max={setting.max}
                                     value={[setting.value]}
@@ -108,9 +109,9 @@
                                     }}
                                 />
                             {/if}
-                        </div>
+                        </li>
                     {/each}
-                </div>
+                </ul>
             {/if}
         </header>
     </svelte:fragment>
