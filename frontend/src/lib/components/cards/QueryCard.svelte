@@ -38,8 +38,11 @@
             <div class="p-1 aspect-square empty:hidden">
                 <slot name="icon" />
             </div>
-            <div class="flex-1">
-                <h2 class="text-xl font-bold text-capitalize">{title}</h2>
+            <div class="flex items-center flex-1 gap-4">
+                <h2 class="mr-auto text-xl font-bold text-capitalize">{title}</h2>
+                <span class="p-1 leading-4 rounded tabular-nums bg-neutral-800 pb-0.5 empty:hidden"
+                    >{$queryStore.data?.result.length}</span
+                >
             </div>
             <div class="flex items-center gap-2">
                 <button class="p-1 text-sm text-white rounded-sm bg-neutral-800" on:click={() => $queryStore.refetch()}>
