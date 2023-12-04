@@ -94,11 +94,24 @@ public class PilaCoinValidationService extends AppModule {
                 .build()
         );
 
+        Logger.log("Configurações alteradas | " + JacksonUtil.toString(subject.getSettings()));
+
         if (subject.getBoolean("active")) {
+            Logger.log(this.getName() + " inicializada");
+
             this.log(
                 ModuloLogMessage.builder()
-                    .title("Validador de PilaCoin")
+                    .title(this.getName())
                     .message("Inicializado")
+                    .build()
+            );
+        } else {
+            Logger.log(this.getName() + " desativada");
+            
+            this.log(
+                ModuloLogMessage.builder()
+                    .title(this.getName())
+                    .message("Desativada")
                     .build()
             );
         }

@@ -102,11 +102,14 @@
                             {:else if setting.kind === 'RANGE'}
                                 <Slider
                                     class="mr-3 w-28"
-                                    min={setting.min}
-                                    max={setting.max}
-                                    value={[setting.value]}
+                                    min={setting.value.min}
+                                    max={setting.value.max}
+                                    value={[setting.value.value]}
                                     onValueChange={(value) => {
-                                        setting.value = value[0];
+                                        setting.value = {
+                                            ...setting.value as any,
+                                            value: value[0],
+                                        };
 
                                         updateModulo(modulo.settings);
                                     }}

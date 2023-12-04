@@ -32,9 +32,11 @@ export type ModuloSettings =
     | {
           kind: 'RANGE';
           name: string;
-          value: number;
-          min: number;
-          max: number;
+          value: {
+              value: number;
+              min: number;
+              max: number;
+          };
       };
 
 export type Modulo = {

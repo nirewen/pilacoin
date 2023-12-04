@@ -8,6 +8,7 @@ import br.ufsm.csi.tapw.pilacoin.service.PilaCoinService;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
 import br.ufsm.csi.tapw.pilacoin.types.AppModule;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
+import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
 import lombok.SneakyThrows;
@@ -41,7 +42,7 @@ public class PilaCoinMiningService extends AppModule {
             return;
         }
 
-        IntStream.range(0, this.getSettingsManager().getInteger("miningThreads")).forEach((i) -> {
+        IntStream.range(0, this.getSettingsManager().getRangeValue("miningThreads")).forEach((i) -> {
             try {
                 PilaCoinMinerRunnable runnable = new PilaCoinMinerRunnable(subject);
                 Thread t = new Thread(runnable);
@@ -73,11 +74,24 @@ public class PilaCoinMiningService extends AppModule {
                 .build()
         );
 
+        Logger.log("Configurações alteradas | " + JacksonUtil.toString(subject.getSettings()));
+
         if (subject.getBoolean("active")) {
+            Logger.log(this.getName() + " inicializada");
+
             this.log(
                 ModuloLogMessage.builder()
-                    .title("Mineração iniciada")
-                    .message("Mineração iniciada")
+                    .title(this.getName())
+                    .message("Inicializada")
+                    .build()
+            );
+        } else {
+            Logger.log(this.getName() + " desativada");
+
+            this.log(
+                ModuloLogMessage.builder()
+                    .title(this.getName())
+                    .message("Desativada")
                     .build()
             );
         }
@@ -104,6 +118,7 @@ public class PilaCoinMiningService extends AppModule {
             log(
                 ModuloLogMessage.builder()
                     .title("Minerando...")
+                    .extra(difficulty)
                     .build()
             );
 

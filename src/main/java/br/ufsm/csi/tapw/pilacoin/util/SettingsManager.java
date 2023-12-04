@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Data
@@ -55,6 +56,16 @@ public class SettingsManager {
         }
 
         return setting.getValue();
+    }
+
+    public Integer getRangeValue(String name) {
+        AbstractSetting<LinkedHashMap<String, Integer>> setting = this.getSetting(name);
+
+        if (setting == null) {
+            throw new RuntimeException("Setting not found");
+        }
+
+        return setting.getValue().get("value");
     }
 
     public void setString(String name, String value) {

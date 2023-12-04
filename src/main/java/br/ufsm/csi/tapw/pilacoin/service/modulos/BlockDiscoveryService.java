@@ -86,11 +86,24 @@ public class BlockDiscoveryService extends AppModule {
                 .build()
         );
 
+        Logger.log("Configurações alteradas | " + JacksonUtil.toString(subject.getSettings()));
+
         if (subject.getBoolean("active")) {
+            Logger.log(this.getName() + " inicializada");
+
             this.log(
                 ModuloLogMessage.builder()
-                    .title("Descoberta de Bloco")
+                    .title(this.getName())
                     .message("Inicializada")
+                    .build()
+            );
+        } else {
+            Logger.log(this.getName() + " desativada");
+
+            this.log(
+                ModuloLogMessage.builder()
+                    .title(this.getName())
+                    .message("Desativada")
                     .build()
             );
         }
@@ -106,6 +119,7 @@ public class BlockDiscoveryService extends AppModule {
         private final BlocoJson blocoJson;
 
         private boolean running = true;
+        private boolean stopped = false;
 
         public BlockMinerRunnable(BlocoJson blocoJson, Difficulty difficulty) {
             this.difficulty = difficulty;
@@ -143,6 +157,10 @@ public class BlockDiscoveryService extends AppModule {
                 }
             }
 
+            if (this.stopped) {
+                return;
+            }
+
             Logger.log("Bloco minerado em " + count + " tentativas");
             log(
                 ModuloLogMessage.builder()
@@ -156,6 +174,7 @@ public class BlockDiscoveryService extends AppModule {
 
         public void stop() {
             this.running = false;
+            this.stopped = true;
         }
     }
 }
