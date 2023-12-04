@@ -43,7 +43,8 @@
 
 <Card>
     <svelte:fragment slot="header">
-        <header class="flex items-center">
+        <header class="flex items-center gap-2">
+            <slot name="icon" />
             <div class="flex-1">
                 <h2 class="text-xl font-bold text-capitalize">Transferir PilaCoin</h2>
             </div>

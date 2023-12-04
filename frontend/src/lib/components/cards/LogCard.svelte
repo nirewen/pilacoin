@@ -47,6 +47,7 @@
 >
     <svelte:fragment slot="header">
         <header class="flex flex-wrap items-center gap-2">
+            <slot name="icon" />
             <div class="flex-1">
                 <h2 class="text-xl font-bold">{modulo.name}</h2>
             </div>
@@ -72,14 +73,16 @@
                     </button>
                 {/if}
 
-                <button
-                    class="p-1 text-sm text-white rounded-sm bg-neutral-800"
-                    on:click={() => {
-                        open = !open;
-                    }}
-                >
-                    <IconSettings size={20} />
-                </button>
+                {#if modulo.settings.length}
+                    <button
+                        class="p-1 text-sm text-white rounded-sm bg-neutral-800"
+                        on:click={() => {
+                            open = !open;
+                        }}
+                    >
+                        <IconSettings size={20} />
+                    </button>
+                {/if}
             </div>
             {#if open}
                 <ul class="flex flex-col gap-1 basis-full" transition:slide={{ duration: 200 }}>
