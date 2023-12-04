@@ -22,24 +22,20 @@
     });
 </script>
 
-<div class="relative flex flex-wrap gap-2 overflow-hidden">
+<div class="flex flex-wrap gap-2 overflow-hidden">
     {#if $query.isLoading}
-        <div class="absolute inset-0 grid rounded-md place-items-center backdrop-blur-md">
+        <div
+            class="flex flex-col items-center justify-center flex-1 gap-2 border rounded-sm border-neutral-700 bg-neutral-950"
+        >
             <IconLoader class="animate-spin" size={36} />
         </div>
-        {#each { length: 4 } as item}
-            <div
-                class="flex flex-col gap-1 w-0 flex-1 basis-[24%] p-2 h-full order-2 border rounded-md border-neutral-700"
-            />
-        {/each}
     {:else if $query.isError}
-        {#each { length: 4 } as item}
-            <div
-                class="w-0 flex-1 basis-[24%] p-2 h-full order-2 border rounded-md border-neutral-700 grid place-items-center"
-            >
-                Não foi possível carregar esse módulo.
-            </div>
-        {/each}
+        <div
+            class="flex flex-col items-center justify-center flex-1 gap-2 border rounded-md border-neutral-700 bg-neutral-950"
+        >
+            <span>Não foi possível carregar os módulos</span>
+            <small>Tente novamente mais tarde</small>
+        </div>
     {:else if $query.isSuccess}
         {#each $query.data as modulo}
             <LogCard {modulo} />

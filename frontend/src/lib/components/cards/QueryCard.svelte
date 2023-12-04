@@ -35,7 +35,9 @@
 <Card loading={$queryStore.isLoading}>
     <svelte:fragment slot="header">
         <header class="flex items-center gap-2">
-            <slot name="icon" />
+            <div class="p-1 aspect-square empty:hidden">
+                <slot name="icon" />
+            </div>
             <div class="flex-1">
                 <h2 class="text-xl font-bold text-capitalize">{title}</h2>
             </div>

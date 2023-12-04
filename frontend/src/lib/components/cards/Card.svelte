@@ -7,7 +7,7 @@
 
 <div
     class={cn(
-        'flex flex-col gap-1 w-0 flex-1 basis-[24%] p-2 h-full order-2 border rounded-md border-neutral-800',
+        'flex flex-col gap-1 w-0 flex-1 basis-[24%] p-2 h-full order-2 border rounded-md border-neutral-800 bg-neutral-950',
         $$props.class,
     )}
 >

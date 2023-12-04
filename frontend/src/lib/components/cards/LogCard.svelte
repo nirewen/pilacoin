@@ -51,7 +51,9 @@
 >
     <svelte:fragment slot="header">
         <header class="flex flex-wrap items-center gap-2">
-            <slot name="icon" />
+            <div class="p-1 aspect-square empty:hidden">
+                <slot name="icon" />
+            </div>
             <div class="flex-1">
                 <h2 class="text-xl font-bold">{modulo.name}</h2>
             </div>

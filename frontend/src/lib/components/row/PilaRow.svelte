@@ -59,7 +59,7 @@
         <span class="overflow-hidden font-mono text-sm leading-4 text-ellipsis">{pilacoin.nonce}</span>
     </div>
     <div class="flex items-center h-full gap-1">
-        <div class="flex flex-col items-end h-full gap-1">
+        <div class="flex flex-col items-end justify-between h-full gap-1">
             {@render formatStatus(pilacoin)}
             <time
                 class="px-1 overflow-hidden text-sm leading-4 rounded-sm text-ellipsis whitespace-nowrap bg-neutral-700"
