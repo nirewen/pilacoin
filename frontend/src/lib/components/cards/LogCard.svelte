@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { LogMessage, Modulo, ModuloSettings } from '$lib';
+    import type { BooleanSetting, LogMessage, Modulo, ModuloSettings, RangeSetting } from '$lib';
     import { IconMaximize, IconMinimize, IconSettings, IconTrash } from '$lib/icons';
     import { cn, debounced } from '$lib/utils';
 
@@ -18,6 +18,10 @@
     let messages: LogMessage[] = [];
 
     const updateModulo = debounced((settings: ModuloSettings[]) => {
+        if (JSON.stringify(modulo.settings) === JSON.stringify(settings)) {
+            return;
+        }
+
         fetch(`/api/modulo/${modulo.topic}`, {
             method: 'PATCH',
             headers: {
@@ -88,30 +92,49 @@
                 <ul class="flex flex-col gap-1 basis-full" transition:slide={{ duration: 200 }}>
                     {#each modulo.settings as setting}
                         <li class="flex items-center justify-between">
-                            <span class="text-sm font-bold">{setting.name}</span>
+                            <div class="flex-1">
+                                <span class="p-1 font-mono text-sm bg-neutral-900">{setting.name}</span>
+                            </div>
                             {#if setting.kind === 'BOOLEAN'}
                                 <Switch
                                     class="data-[checked]:dark:bg-green-500"
-                                    bind:checked={setting.value}
+                                    checked={setting.value}
                                     onCheckedChange={(value) => {
-                                        setting.value = value;
+                                        updateModulo(modulo.settings.map(s => {
+                                            if (s.name === setting.name) {
+                                                return {
+                                                    ...s,
+                                                    value,
+                                                } as BooleanSetting;
+                                            }
 
-                                        updateModulo(modulo.settings);
+                                            return s;
+                                        }));
                                     }}
                                 />
                             {:else if setting.kind === 'RANGE'}
+                                <span class="p-1 pb-[2px] mr-4 font-mono leading-4 rounded-sm bg-neutral-800">
+                                    {setting.value.value}
+                                </span>
                                 <Slider
-                                    class="mr-3 w-28"
+                                    class="mr-3 w-[50%]"
                                     min={setting.value.min}
                                     max={setting.value.max}
                                     value={[setting.value.value]}
                                     onValueChange={(value) => {
-                                        setting.value = {
-                                            ...setting.value as any,
-                                            value: value[0],
-                                        };
+                                        updateModulo(modulo.settings.map(s => {
+                                            if (s.name === setting.name) {
+                                                return {
+                                                    ...s,
+                                                    value: {
+                                                        ...(s as RangeSetting).value,
+                                                        value: value[0],
+                                                    },
+                                                } as RangeSetting;
+                                            }
 
-                                        updateModulo(modulo.settings);
+                                            return s;
+                                        }));
                                     }}
                                 />
                             {/if}

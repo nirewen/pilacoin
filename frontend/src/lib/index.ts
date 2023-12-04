@@ -13,31 +13,35 @@ export const queryClient = new QueryClient({
     },
 });
 
-export type ModuloSettings =
-    | {
-          kind: 'BOOLEAN';
-          name: string;
-          value: boolean;
-      }
-    | {
-          kind: 'CONSTANT';
-          name: string;
-          value: number;
-      }
-    | {
-          kind: 'STRING';
-          name: string;
-          value: string;
-      }
-    | {
-          kind: 'RANGE';
-          name: string;
-          value: {
-              value: number;
-              min: number;
-              max: number;
-          };
-      };
+export type StringSetting = {
+    kind: 'STRING';
+    name: string;
+    value: string;
+};
+
+export type BooleanSetting = {
+    kind: 'BOOLEAN';
+    name: string;
+    value: boolean;
+};
+
+export type NumberSetting = {
+    kind: 'NUMBER';
+    name: string;
+    value: number;
+};
+
+export type RangeSetting = {
+    kind: 'RANGE';
+    name: string;
+    value: {
+        value: number;
+        min: number;
+        max: number;
+    };
+};
+
+export type ModuloSettings = StringSetting | BooleanSetting | NumberSetting | RangeSetting;
 
 export type Modulo = {
     id: number;
