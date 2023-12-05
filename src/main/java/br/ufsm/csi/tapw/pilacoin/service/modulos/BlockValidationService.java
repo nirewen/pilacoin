@@ -17,11 +17,13 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Stack;
 
 @Service
 public class BlockValidationService extends AppModule {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
+    private final Stack<String> blockBlacklist = new Stack<>();
 
     private Difficulty difficulty;
 
@@ -46,11 +48,13 @@ public class BlockValidationService extends AppModule {
             return;
         }
 
-        if (!this.getSettingsManager().getBoolean("active")) {
+        if (!this.getSettingsManager().getBoolean("active") || this.blockBlacklist.contains(blocoJson.getNonce())) {
             this.queueService.publishBlocoMinerado(blocoJson);
 
             return;
         }
+
+        this.blockBlacklist.push(blocoJson.getNonce());
 
         boolean valid = CryptoUtil.compareHash(json, this.difficulty.getDificuldade());
 

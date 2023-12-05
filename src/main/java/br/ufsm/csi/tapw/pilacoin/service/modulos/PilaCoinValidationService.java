@@ -17,11 +17,14 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Stack;
 
 @Service
 public class PilaCoinValidationService extends AppModule {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
+    private final Stack<String> pilaBlacklist = new Stack<>();
+
     private Difficulty difficulty;
 
     public PilaCoinValidationService(QueueService queueService, SharedUtil sharedUtil) {
@@ -45,11 +48,13 @@ public class PilaCoinValidationService extends AppModule {
             return;
         }
 
-        if (!this.getSettingsManager().getBoolean("active")) {
+        if (!this.getSettingsManager().getBoolean("active") || this.pilaBlacklist.contains(pilaCoinJson.getNonce())) {
             this.queueService.publishPilaCoinMinerado(pilaCoinJson);
 
             return;
         }
+
+        this.pilaBlacklist.push(pilaCoinJson.getNonce());
 
         boolean valid = CryptoUtil.compareHash(json, this.difficulty.getDificuldade());
 
@@ -88,6 +93,6 @@ public class PilaCoinValidationService extends AppModule {
 
     @Override
     public void onUpdateSettings(SettingsManager subject) {
-        this.setSettingsManager(subject);
+
     }
 }
