@@ -1,12 +1,13 @@
 package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
 import br.ufsm.csi.tapw.pilacoin.impl.BooleanSetting;
+import br.ufsm.csi.tapw.pilacoin.impl.ConstantSetting;
 import br.ufsm.csi.tapw.pilacoin.impl.RangeSetting;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AppModule;
+import br.ufsm.csi.tapw.pilacoin.model.internal.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.AppModule;
-import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
@@ -30,6 +31,7 @@ public class BlockDiscoveryService extends AppModule {
 
     public BlockDiscoveryService(QueueService queueService, SharedUtil sharedUtil) {
         super("Descobridor de Bloco", new SettingsManager(
+            new ConstantSetting("order", 3),
             new BooleanSetting("active", false),
             new RangeSetting("maxThreads", 4, 0, Runtime.getRuntime().availableProcessors())
         ));
@@ -85,7 +87,7 @@ public class BlockDiscoveryService extends AppModule {
     }
 
     @Override
-    public void updateDifficulty(Difficulty subject) {
+    public void update(Difficulty subject) {
         this.difficulty = subject;
 
         this.stopThreads();

@@ -1,4 +1,4 @@
-package br.ufsm.csi.tapw.pilacoin.types;
+package br.ufsm.csi.tapw.pilacoin.model.internal;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

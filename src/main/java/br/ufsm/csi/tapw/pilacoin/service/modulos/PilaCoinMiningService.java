@@ -1,13 +1,14 @@
 package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
 import br.ufsm.csi.tapw.pilacoin.impl.BooleanSetting;
+import br.ufsm.csi.tapw.pilacoin.impl.ConstantSetting;
 import br.ufsm.csi.tapw.pilacoin.impl.RangeSetting;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AppModule;
+import br.ufsm.csi.tapw.pilacoin.model.internal.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.service.PilaCoinService;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.AppModule;
-import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
 import lombok.SneakyThrows;
@@ -25,6 +26,7 @@ public class PilaCoinMiningService extends AppModule {
 
     public PilaCoinMiningService(QueueService queueService, PilaCoinService pilaCoinService) {
         super("Minerador de PilaCoin", new SettingsManager(
+            new ConstantSetting("order", 1),
             new BooleanSetting("active", false),
             new RangeSetting("miningThreads", 8, 0, Runtime.getRuntime().availableProcessors())
         ));
@@ -34,7 +36,7 @@ public class PilaCoinMiningService extends AppModule {
     }
 
     @Override
-    public void updateDifficulty(Difficulty subject) {
+    public void update(Difficulty subject) {
         this.stopThreads();
 
         if (!this.getSettingsManager().getBoolean("active") || subject == null) {

@@ -1,9 +1,9 @@
 package br.ufsm.csi.tapw.pilacoin.controller;
 
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AbstractSetting;
+import br.ufsm.csi.tapw.pilacoin.model.internal.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.service.ModuloService;
-import br.ufsm.csi.tapw.pilacoin.types.AbstractSetting;
-import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;

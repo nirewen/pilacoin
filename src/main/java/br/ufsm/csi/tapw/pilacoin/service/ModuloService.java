@@ -2,10 +2,10 @@ package br.ufsm.csi.tapw.pilacoin.service;
 
 import br.ufsm.csi.tapw.pilacoin.exception.ModuloNotFoundException;
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AbstractSetting;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AppModule;
+import br.ufsm.csi.tapw.pilacoin.model.internal.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.repository.ModuloRepository;
-import br.ufsm.csi.tapw.pilacoin.types.AbstractSetting;
-import br.ufsm.csi.tapw.pilacoin.types.AppModule;
-import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
 import br.ufsm.csi.tapw.pilacoin.util.jackson.JacksonUtil;
@@ -67,7 +67,7 @@ public class ModuloService {
         appModulo.setModulo(modulo);
         appModulo.setSettingsManager(manager);
         appModulo.onUpdateSettings(manager);
-        appModulo.updateDifficulty(this.difficultyService.getDifficulty());
+        appModulo.update(this.difficultyService.getDifficulty());
 
         this.log(
             ModuloLogMessage.builder()

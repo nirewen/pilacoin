@@ -1,6 +1,6 @@
 package br.ufsm.csi.tapw.pilacoin.model;
 
-import br.ufsm.csi.tapw.pilacoin.types.AbstractSetting;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AbstractSetting;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
