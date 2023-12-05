@@ -18,10 +18,6 @@
     let messages: LogMessage[] = [];
 
     const updateModulo = debounced((settings: ModuloSettings[]) => {
-        if (JSON.stringify(modulo.settings) === JSON.stringify(settings)) {
-            return;
-        }
-
         fetch(`/api/modulo/${modulo.topic}`, {
             method: 'PATCH',
             headers: {
@@ -103,7 +99,7 @@
                                     class="data-[checked]:dark:bg-green-500"
                                     checked={setting.value}
                                     onCheckedChange={(value) => {
-                                        updateModulo(modulo.settings.map(s => {
+                                        modulo.settings = modulo.settings.map(s => {
                                             if (s.name === setting.name) {
                                                 return {
                                                     ...s,
@@ -112,7 +108,9 @@
                                             }
 
                                             return s;
-                                        }));
+                                        });
+                                        
+                                        updateModulo(modulo.settings);
                                     }}
                                 />
                             {:else if setting.kind === 'RANGE'}
@@ -125,7 +123,7 @@
                                     max={setting.value.max}
                                     value={[setting.value.value]}
                                     onValueChange={(value) => {
-                                        updateModulo(modulo.settings.map(s => {
+                                        modulo.settings = modulo.settings.map(s => {
                                             if (s.name === setting.name) {
                                                 return {
                                                     ...s,
@@ -137,14 +135,16 @@
                                             }
 
                                             return s;
-                                        }));
+                                        });
+
+                                        updateModulo(modulo.settings);
                                     }}
                                 />
                             {:else if setting.kind === 'CONSTANT'}
                                 <button
                                     class="px-2 bg-neutral-800 rounded-s-sm"
                                     on:click={() => {
-                                    updateModulo(modulo.settings.map(s => {
+                                        modulo.settings = modulo.settings.map(s => {
                                             if (s.name === setting.name) {
                                                 return {
                                                     ...s,
@@ -153,17 +153,20 @@
                                             }
 
                                             return s;
-                                        }));
+                                        });
+
+                                        updateModulo(modulo.settings);
                                 }}
-                                    >&minus;</button
                                 >
+                                    &minus;
+                                </button>
                                 <span class="p-1 pb-[3px] leading-[17px] bg-neutral-800">
                                     {setting.value}
                                 </span>
                                 <button
                                     class="px-2 bg-neutral-800 rounded-e-sm"
                                     on:click={() => {
-                                    updateModulo(modulo.settings.map(s => {
+                                        modulo.settings = modulo.settings.map(s => {
                                             if (s.name === setting.name) {
                                                 return {
                                                     ...s,
@@ -172,10 +175,13 @@
                                             }
 
                                             return s;
-                                        }));
+                                        });
+                                        
+                                        updateModulo(modulo.settings);
                                 }}
-                                    >&plus;</button
                                 >
+                                    &plus;
+                                </button>
                             {/if}
                         </li>
                     {/each}

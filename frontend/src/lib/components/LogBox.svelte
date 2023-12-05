@@ -10,7 +10,7 @@
 
     onMount(() => {
         const handler = (event: MessageEvent<any>) => {
-            messages = [...messages, { ...JSON.parse(event.data), expanded: false }];
+            messages = [...messages, { ...JSON.parse(event.data), expanded: false }].slice(-100);
         };
 
         logEventSource.addEventListener(topic, handler);

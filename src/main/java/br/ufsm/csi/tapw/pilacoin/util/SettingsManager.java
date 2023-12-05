@@ -1,11 +1,11 @@
 package br.ufsm.csi.tapw.pilacoin.util;
 
 import br.ufsm.csi.tapw.pilacoin.model.internal.AbstractSetting;
-import br.ufsm.csi.tapw.pilacoin.model.internal.Range;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Data
@@ -53,7 +53,7 @@ public class SettingsManager {
     }
 
     public Integer getRangeValue(String name) {
-        AbstractSetting<Range> setting = this.getSetting(name);
+        AbstractSetting<LinkedHashMap<String, Integer>> setting = this.getSetting(name);
 
         return setting.getValue().get("value");
     }
