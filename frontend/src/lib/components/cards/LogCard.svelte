@@ -46,8 +46,9 @@
 
 <Card
     class={cn({
-        'basis-full order-1': expanded,
+        'basis-full order-0': expanded,
     })}
+    style="order: {modulo.settings.find((s) => s.name === 'order')?.value}"
 >
     <svelte:fragment slot="header">
         <header class="flex flex-wrap items-center gap-2">
@@ -94,14 +95,15 @@
                 <ul class="flex flex-col gap-1 basis-full" transition:slide={{ duration: 200 }}>
                     {#each modulo.settings as setting}
                         <li class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <span class="p-1 font-mono text-sm bg-neutral-900">{setting.name}</span>
-                            </div>
-                            {#if setting.kind === 'BOOLEAN'}
-                                <Switch
-                                    class="data-[checked]:dark:bg-green-500"
-                                    checked={setting.value}
-                                    onCheckedChange={(value) => {
+                            {#if setting.name !== 'order'}
+                                <div class="flex-1">
+                                    <span class="p-1 font-mono text-sm bg-neutral-900">{setting.name}</span>
+                                </div>
+                                {#if setting.kind === 'BOOLEAN'}
+                                    <Switch
+                                        class="data-[checked]:dark:bg-green-500"
+                                        checked={setting.value}
+                                        onCheckedChange={(value) => {
                                         updateModulo(modulo.settings.map(s => {
                                             if (s.name === setting.name) {
                                                 return {
@@ -113,17 +115,17 @@
                                             return s;
                                         }));
                                     }}
-                                />
-                            {:else if setting.kind === 'RANGE'}
-                                <span class="p-1 pb-[2px] mr-4 font-mono leading-4 rounded-sm bg-neutral-800">
-                                    {setting.value.value}
-                                </span>
-                                <Slider
-                                    class="mr-3 w-[50%]"
-                                    min={setting.value.min}
-                                    max={setting.value.max}
-                                    value={[setting.value.value]}
-                                    onValueChange={(value) => {
+                                    />
+                                {:else if setting.kind === 'RANGE'}
+                                    <span class="p-1 pb-[2px] mr-4 font-mono leading-4 rounded-sm bg-neutral-800">
+                                        {setting.value.value}
+                                    </span>
+                                    <Slider
+                                        class="mr-3 w-[50%]"
+                                        min={setting.value.min}
+                                        max={setting.value.max}
+                                        value={[setting.value.value]}
+                                        onValueChange={(value) => {
                                         updateModulo(modulo.settings.map(s => {
                                             if (s.name === setting.name) {
                                                 return {
@@ -138,7 +140,8 @@
                                             return s;
                                         }));
                                     }}
-                                />
+                                    />
+                                {/if}
                             {/if}
                         </li>
                     {/each}

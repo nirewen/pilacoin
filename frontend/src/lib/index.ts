@@ -25,8 +25,8 @@ export type BooleanSetting = {
     value: boolean;
 };
 
-export type NumberSetting = {
-    kind: 'NUMBER';
+export type ConstantSetting = {
+    kind: 'CONSTANT';
     name: string;
     value: number;
 };
@@ -41,7 +41,7 @@ export type RangeSetting = {
     };
 };
 
-export type ModuloSettings = StringSetting | BooleanSetting | NumberSetting | RangeSetting;
+export type ModuloSettings = StringSetting | BooleanSetting | ConstantSetting | RangeSetting;
 
 export type Modulo = {
     id: number;
