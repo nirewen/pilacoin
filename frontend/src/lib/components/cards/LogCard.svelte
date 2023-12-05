@@ -42,9 +42,9 @@
 
 <Card
     class={cn({
-        'basis-full order-0': expanded,
+        'basis-full': expanded,
     })}
-    style="order: {modulo.settings.find((s) => s.name === 'order')?.value}"
+    style="order: {expanded ? 0 : modulo.settings.find((s) => s.name === 'order')?.value}"
 >
     <svelte:fragment slot="header">
         <header class="flex flex-wrap items-center gap-2">
