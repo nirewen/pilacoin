@@ -7,7 +7,11 @@ import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
 import br.ufsm.csi.tapw.pilacoin.types.AppModule;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
-import br.ufsm.csi.tapw.pilacoin.util.*;
+import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
+import br.ufsm.csi.tapw.pilacoin.util.Logger;
+import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
+import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
+import br.ufsm.csi.tapw.pilacoin.util.jackson.JacksonUtil;
 import lombok.SneakyThrows;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -139,7 +143,7 @@ public class BlockDiscoveryService extends AppModule {
                     this.running = false;
                 }
             }
-            
+
             threads.remove(this);
 
             if (!stopped) {

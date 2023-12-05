@@ -1,4 +1,4 @@
-package br.ufsm.csi.tapw.pilacoin.util;
+package br.ufsm.csi.tapw.pilacoin.util.jackson;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

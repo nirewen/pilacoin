@@ -8,7 +8,7 @@ import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.model.json.QueryJson;
 import br.ufsm.csi.tapw.pilacoin.model.json.QueryResponseJson;
-import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
+import br.ufsm.csi.tapw.pilacoin.util.jackson.JacksonUtil;
 import lombok.SneakyThrows;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;

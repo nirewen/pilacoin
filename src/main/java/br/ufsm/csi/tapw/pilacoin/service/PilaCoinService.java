@@ -5,8 +5,8 @@ import br.ufsm.csi.tapw.pilacoin.model.PilaCoin;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.repository.PilaCoinRepository;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
-import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
+import br.ufsm.csi.tapw.pilacoin.util.jackson.JacksonUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

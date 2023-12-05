@@ -1,7 +1,9 @@
 package br.ufsm.csi.tapw.pilacoin.model;
 
-import br.ufsm.csi.tapw.pilacoin.util.DifficultyDeserializer;
+import br.ufsm.csi.tapw.pilacoin.util.jackson.DifficultyDeserializer;
+import br.ufsm.csi.tapw.pilacoin.util.jackson.DifficultySerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +17,11 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Difficulty {
-    @JsonDeserialize(using = DifficultyDeserializer.class)
-    BigInteger dificuldade;
     Date inicio;
     Date validadeFinal;
+    
+    @JsonDeserialize(using = DifficultyDeserializer.class)
+    @JsonSerialize(using = DifficultySerializer.class)
+    BigInteger dificuldade;
+
 }

@@ -5,9 +5,9 @@ import br.ufsm.csi.tapw.pilacoin.model.json.MessageJson;
 import br.ufsm.csi.tapw.pilacoin.model.json.ReportJson;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage.LogLevel;
-import br.ufsm.csi.tapw.pilacoin.util.JacksonUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SharedUtil;
+import br.ufsm.csi.tapw.pilacoin.util.jackson.JacksonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
@@ -119,6 +119,7 @@ public class UserQueueService {
                 .topic("UserMessage")
                 .title(message.getQueue())
                 .message(message.getErro())
+                .extra(message.getNonce())
                 .level(LogLevel.ERROR)
                 .build()
         );

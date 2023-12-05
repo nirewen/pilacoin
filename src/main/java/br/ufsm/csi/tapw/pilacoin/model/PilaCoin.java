@@ -16,7 +16,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonPropertyOrder({"dataCriacao", "chaveCriador", "nomeCriador", "nonce"})
+@JsonPropertyOrder(alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PilaCoin implements Cloneable {
     @Id
