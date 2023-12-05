@@ -2,15 +2,11 @@
     import { cn } from '$lib/utils';
 
     export let size = 24;
-
-    let className: string | undefined = undefined;
-
-    export { className as class };
 </script>
 
 <svg
     xmlns="http://www.w3.org/2000/svg"
-    class={cn('icon icon-tabler icon-tabler-loader-2', className)}
+    class={cn('icon icon-tabler icon-tabler-loader-2', $$props.class)}
     width={size}
     height={size}
     viewBox="0 0 24 24"

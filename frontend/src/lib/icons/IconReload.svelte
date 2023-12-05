@@ -1,10 +1,12 @@
 <script lang="ts">
+    import { cn } from '$lib/utils';
+
     export let size: number = 24;
 </script>
 
 <svg
     xmlns="http://www.w3.org/2000/svg"
-    class="icon icon-tabler icon-tabler-reload"
+    class={cn('icon icon-tabler icon-tabler-reload', $$props.class)}
     width={size}
     height={size}
     viewBox="0 0 24 24"

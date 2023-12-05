@@ -5,6 +5,7 @@
 
     import { IconReload } from '$lib/icons';
 
+    import { cn } from '$lib/utils';
     import Card from './Card.svelte';
 
     export let query: string;
@@ -46,7 +47,12 @@
             </div>
             <div class="flex items-center gap-2">
                 <button class="p-1 text-sm text-white rounded-sm bg-neutral-800" on:click={() => $queryStore.refetch()}>
-                    <IconReload size={20} />
+                    <IconReload
+                        size={20}
+                        class={cn({
+                            'animate-spin': $queryStore.isFetching,
+                        })}
+                    />
                 </button>
             </div>
         </header>
