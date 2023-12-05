@@ -57,14 +57,12 @@
             </div>
         </header>
     </svelte:fragment>
-    <div class="relative flex flex-col h-full overflow-x-hidden overflow-y-auto rounded-sm bg-neutral-800">
+    <div class="flex flex-col rounded-sm bg-neutral-800">
         {#if $queryStore.isError}
             <p>Não foi possível carregar os dados</p>
         {:else if $queryStore.isSuccess}
             {#if $queryStore.data.idQuery}
-                <div class="flex flex-col">
-                    <slot data={$store} />
-                </div>
+                <slot data={$store} />
             {:else}
                 <div class="flex flex-col items-center justify-center flex-1">
                     <h3 class="text-xl font-bold">Nenhum resultado</h3>

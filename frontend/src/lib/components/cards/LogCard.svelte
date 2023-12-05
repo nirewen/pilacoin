@@ -148,9 +148,7 @@
     </svelte:fragment>
     <svelte:fragment>
         {#if ativo !== undefined && !ativo}
-            <div
-                class="absolute inset-0 z-10 flex flex-col items-center justify-center h-full select-none backdrop-blur-sm"
-            >
+            <div class="absolute inset-0 z-10 flex flex-col items-center justify-center select-none backdrop-blur-sm">
                 <span class="font-bold">Módulo desativado</span>
                 <small>Ative o módulo para ver os logs</small>
             </div>
