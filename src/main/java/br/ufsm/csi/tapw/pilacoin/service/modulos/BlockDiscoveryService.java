@@ -31,9 +31,9 @@ public class BlockDiscoveryService extends AppModule {
 
     public BlockDiscoveryService(QueueService queueService, SharedUtil sharedUtil) {
         super("Descobridor de Bloco", new SettingsManager(
-            new ConstantSetting("order", 3),
             new BooleanSetting("active", false),
-            new RangeSetting("maxThreads", 4, 0, Runtime.getRuntime().availableProcessors())
+            new RangeSetting("maxThreads", 4, 0, Runtime.getRuntime().availableProcessors()),
+            new ConstantSetting("order", 3)
         ));
         this.queueService = queueService;
         this.sharedUtil = sharedUtil;
