@@ -6,10 +6,11 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 @Data
 @Component
@@ -25,12 +26,33 @@ public class SharedUtil {
     @SneakyThrows
     @PostConstruct
     private void loadKeypair() {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(1024);
+        Path privateKeyPath = this.properties.getHomePath().resolve("private.key");
+        Path publicKeyPath = this.properties.getHomePath().resolve("public.key");
 
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        if (Files.exists(privateKeyPath) && Files.exists(publicKeyPath)) {
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            byte[] privateKeyBytes = Files.readAllBytes(privateKeyPath);
+            byte[] publicKeyBytes = Files.readAllBytes(publicKeyPath);
 
-        this.publicKey = keyPair.getPublic();
-        this.privateKey = keyPair.getPrivate();
+            PKCS8EncodedKeySpec privateSpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+            X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(publicKeyBytes);
+
+            this.privateKey = kf.generatePrivate(privateSpec);
+            this.publicKey = kf.generatePublic(publicSpec);
+        } else {
+            Files.createDirectories(this.properties.getHomePath());
+
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(2048);
+
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+            this.publicKey = keyPair.getPublic();
+            this.privateKey = keyPair.getPrivate();
+
+            Files.write(privateKeyPath, this.privateKey.getEncoded());
+            Files.write(publicKeyPath, this.publicKey.getEncoded());
+        }
+
     }
 }

@@ -16,16 +16,20 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonPropertyOrder({ "dataCriacao", "chaveCriador", "nomeCriador", "nonce" })
+@JsonPropertyOrder(alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PilaCoin implements Cloneable {
-    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
     private Date dataCriacao;
     private byte[] chaveCriador;
     private String nomeCriador;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+    @Column(unique = true)
     private String nonce;
 
     @Override
@@ -33,7 +37,15 @@ public class PilaCoin implements Cloneable {
         try {
             return (PilaCoin) super.clone();
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError() ;
+            throw new AssertionError();
         }
+    }
+
+    public enum Status {
+        AG_VALIDACAO,
+        AG_BLOCO,
+        BLOCO_EM_VALIDACAO,
+        VALIDO,
+        INVALIDO
     }
 }

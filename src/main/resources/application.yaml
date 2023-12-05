@@ -11,13 +11,21 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
 
 queue:
-  minerado: pila-minerado
+  pila:
+    minerado: pila-minerado
+    validado: pila-validado
+    transferir: transferir-pila
+  bloco:
+    descobre: descobre-bloco
+    minerado: bloco-minerado
+    validado: bloco-validado
   msgs: clients-msgs
   errors: clients-errors
   dificuldade: dificuldade
 
 pilacoin:
-  username: londeroedu
+  home: ../pilacoin
+  username: londero.edu
