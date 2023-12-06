@@ -26,7 +26,7 @@ import java.util.Stack;
 public class BlockDiscoveryService extends AppModule {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
-    private final Stack<String> blockBlacklist = new Stack<>();
+    private final Stack<Long> blockBlacklist = new Stack<>();
     private final List<BlockMinerRunnable> threads = new ArrayList<>();
 
     private Difficulty difficulty;
@@ -53,16 +53,16 @@ public class BlockDiscoveryService extends AppModule {
             return;
         }
 
-        if (!this.getSettingsManager().getBoolean("active") || this.blockBlacklist.contains(blocoJson.getNonce())) {
+        if (!this.getSettingsManager().getBoolean("active")) {
             this.queueService.publishBlocoDescoberto(blocoJson);
 
             return;
         }
 
         if (this.threads.size() >= this.getSettingsManager().getRangeValue("maxThreads")) {
-            this.blockBlacklist.push(blocoJson.getNonce());
+            this.blockBlacklist.push(blocoJson.getNumeroBloco());
             this.queueService.publishBlocoDescoberto(blocoJson);
-            
+
             Logger.log("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco());
             this.log(
                 ModuloLogMessage.builder()
@@ -81,7 +81,15 @@ public class BlockDiscoveryService extends AppModule {
             return;
         }
 
-        this.blockBlacklist.remove(blocoJson.getNonce());
+        if (blocoJson.getNumeroBloco() != null) {
+            if (this.blockBlacklist.contains(blocoJson.getNumeroBloco())) {
+                this.queueService.publishBlocoDescoberto(blocoJson);
+
+                return;
+            } else {
+                this.blockBlacklist.remove(blocoJson.getNumeroBloco());
+            }
+        }
 
         blocoJson.setNonceBlocoAnterior(blocoJson.getNonce());
 
