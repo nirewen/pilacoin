@@ -2,7 +2,6 @@ package br.ufsm.csi.tapw.pilacoin.controller;
 
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
 import br.ufsm.csi.tapw.pilacoin.model.internal.AbstractSetting;
-import br.ufsm.csi.tapw.pilacoin.model.internal.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.service.ModuloService;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
@@ -33,26 +32,7 @@ public class ModuloController {
     @SneakyThrows
     @GetMapping(value = "/logs", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter getLogs() {
-        final SseEmitter sseEmitter = new SseEmitter(-1L);
-
-        sseEmitter.onCompletion(() -> {
-            synchronized (moduloService.sseEmitters) {
-                moduloService.sseEmitters.remove(sseEmitter);
-            }
-        });
-        sseEmitter.onTimeout(sseEmitter::complete);
-
-        moduloService.sseEmitters.add(sseEmitter);
-
-        moduloService.log(
-            ModuloLogMessage.builder()
-                .topic("UserMessage")
-                .title("Conectado")
-                .message("Conectado ao servidor de logs")
-                .build()
-        );
-
-        return sseEmitter;
+        return this.moduloService.onConnect();
     }
 
     @PatchMapping("/{nome}")

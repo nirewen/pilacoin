@@ -8,6 +8,7 @@ import br.ufsm.csi.tapw.pilacoin.model.internal.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.repository.ModuloRepository;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
+import br.ufsm.csi.tapw.pilacoin.util.SizedStack;
 import br.ufsm.csi.tapw.pilacoin.util.jackson.JacksonUtil;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class ModuloService {
     private final ModuloRepository moduloRepository;
     private final DifficultyService difficultyService;
     private final Map<String, AppModule> modulos = new HashMap<>();
+    private final Stack<ModuloLogMessage> logMessages = new SizedStack<>(1000);
 
     public ModuloService(
         ModuloRepository moduloRepository,
@@ -137,8 +139,47 @@ public class ModuloService {
         return moduloRepository.save(moduloEntity);
     }
 
+    public SseEmitter onConnect() {
+        final SseEmitter sseEmitter = new SseEmitter(-1L);
+
+        sseEmitter.onCompletion(() -> {
+            synchronized (this.sseEmitters) {
+                this.sseEmitters.remove(sseEmitter);
+            }
+        });
+        sseEmitter.onTimeout(sseEmitter::complete);
+
+        this.sseEmitters.add(sseEmitter);
+
+        this.logMessages.forEach(message -> {
+            try {
+                sseEmitter.send(
+                    SseEmitter.event()
+                        .id("0")
+                        .name(message.getTopic())
+                        .data(message)
+                        .reconnectTime(10000)
+                );
+            } catch (Exception e) {
+                sseEmitter.complete();
+            }
+        });
+
+        this.log(
+            ModuloLogMessage.builder()
+                .topic("UserMessage")
+                .title("Conectado")
+                .message("Conectado ao servidor de logs")
+                .build()
+        );
+
+        return sseEmitter;
+    }
+
     @SneakyThrows
     public void log(ModuloLogMessage message) {
+        this.logMessages.push(message);
+
         if (this.sseEmitters.isEmpty()) {
             return;
         }
