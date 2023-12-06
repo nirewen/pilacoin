@@ -28,7 +28,7 @@ public class PilaCoinMiningService extends AppModule {
         super("Minerador de PilaCoin", new SettingsManager(
             new BooleanSetting("active", false),
             new RangeSetting("miningThreads", 8, 0, Runtime.getRuntime().availableProcessors()),
-            new ConstantSetting("order", 1)
+            new ConstantSetting("order", 1).nonCritical()
         ));
 
         this.queueService = queueService;

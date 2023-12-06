@@ -52,52 +52,60 @@ public class ModuloService {
 
     public Modulo updateSettings(String nome, List<AbstractSetting<?>> settings) {
         Modulo modulo = this.getModuloEntity(nome);
+        AppModule appModulo = this.getModulo(nome);
 
         if (modulo == null) {
             throw new ModuloNotFoundException();
         }
 
-        modulo.setSettings(settings);
+        SettingsManager newManager = new SettingsManager(settings);
+        SettingsManager oldManager = new SettingsManager(modulo.getSettings());
+        SettingsManager difference = newManager.difference(oldManager);
 
-        moduloRepository.save(modulo);
+        if (!difference.getSettings().isEmpty()) {
+            modulo.setSettings(settings);
 
-        AppModule appModulo = this.getModulo(nome);
-        SettingsManager manager = new SettingsManager(modulo.getSettings());
+            moduloRepository.save(modulo);
 
-        appModulo.setModulo(modulo);
-        appModulo.setSettingsManager(manager);
-        appModulo.onUpdateSettings(manager);
-        appModulo.update(this.difficultyService.getDifficulty());
+            appModulo.setModulo(modulo);
+            appModulo.setSettingsManager(newManager);
 
-        this.log(
-            ModuloLogMessage.builder()
-                .title("Configurações alteradas")
-                .message("Clique para ver as configurações atuais")
-                .extra(manager.getSettings())
-                .build()
-        );
-
-        Logger.log("Configurações alteradas | " + JacksonUtil.toString(manager.getSettings()));
-
-        if (manager.getBoolean("active")) {
-            Logger.log(appModulo.getName() + " inicializada");
-
-            appModulo.log(
+            this.log(
                 ModuloLogMessage.builder()
-                    .title(appModulo.getName())
-                    .message("Inicializado")
+                    .title("Configurações alteradas")
+                    .message("Clique para ver as configurações atuais")
+                    .extra(newManager.getSettings())
                     .build()
             );
-        } else {
-            Logger.log("Módulo " + appModulo.getName() + " desativado");
 
-            appModulo.log(
-                ModuloLogMessage.builder()
-                    .title(appModulo.getName())
-                    .message("Desativado")
-                    .build()
-            );
+            Logger.log("Configurações alteradas | " + JacksonUtil.toString(newManager.getSettings()));
+
+            if (newManager.difference(oldManager).containsCritical()) {
+                appModulo.onUpdateSettings(newManager);
+                appModulo.update(this.difficultyService.getDifficulty());
+
+                if (newManager.getBoolean("active")) {
+                    Logger.log(appModulo.getName() + " inicializada");
+
+                    appModulo.log(
+                        ModuloLogMessage.builder()
+                            .title(appModulo.getName())
+                            .message("Inicializado")
+                            .build()
+                    );
+                } else {
+                    Logger.log("Módulo " + appModulo.getName() + " desativado");
+
+                    appModulo.log(
+                        ModuloLogMessage.builder()
+                            .title(appModulo.getName())
+                            .message("Desativado")
+                            .build()
+                    );
+                }
+            }
         }
+
 
         return modulo;
     }

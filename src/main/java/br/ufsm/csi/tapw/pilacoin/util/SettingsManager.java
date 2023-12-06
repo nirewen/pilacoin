@@ -75,4 +75,26 @@ public class SettingsManager {
 
         setting.setValue(value);
     }
+
+    public boolean containsCritical() {
+        return this.settings.stream().anyMatch(AbstractSetting::isCritical);
+    }
+
+    public SettingsManager difference(SettingsManager other) {
+        List<AbstractSetting<?>> difference = new ArrayList<>();
+
+        for (AbstractSetting<?> setting : this.settings) {
+            try {
+                AbstractSetting<?> otherSetting = other.getSetting(setting.getName());
+
+                if (!setting.getValue().equals(otherSetting.getValue())) {
+                    difference.add(setting);
+                }
+            } catch (Exception ignored) {
+                difference.add(setting);
+            }
+        }
+
+        return new SettingsManager(difference);
+    }
 }

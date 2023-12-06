@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 public abstract class AppModule implements Observer<Difficulty>, SettingsUpdateListener {
     @Getter
@@ -19,9 +18,6 @@ public abstract class AppModule implements Observer<Difficulty>, SettingsUpdateL
     private final String topic = this.getClass().getSimpleName().replaceAll("Service", "");
     @Getter @Setter
     public Modulo modulo;
-    @Setter
-    @JsonIgnore
-    public SseEmitter logEmitter;
     @Setter
     @JsonIgnore
     private ModuloService moduloService;

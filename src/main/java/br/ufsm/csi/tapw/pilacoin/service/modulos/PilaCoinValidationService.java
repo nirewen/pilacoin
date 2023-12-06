@@ -31,7 +31,7 @@ public class PilaCoinValidationService extends AppModule {
     public PilaCoinValidationService(QueueService queueService, SharedUtil sharedUtil) {
         super("Validador de PilaCoin", new SettingsManager(
             new BooleanSetting("active", false),
-            new ConstantSetting("order", 2)
+            new ConstantSetting("order", 2).nonCritical()
         ));
 
         this.queueService = queueService;

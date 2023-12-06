@@ -31,7 +31,7 @@ public class BlockValidationService extends AppModule {
     public BlockValidationService(QueueService queueService, SharedUtil sharedUtil) {
         super("Validador de Bloco", new SettingsManager(
             new BooleanSetting("active", false),
-            new ConstantSetting("order", 4)
+            new ConstantSetting("order", 4).nonCritical()
         ));
 
         this.queueService = queueService;
