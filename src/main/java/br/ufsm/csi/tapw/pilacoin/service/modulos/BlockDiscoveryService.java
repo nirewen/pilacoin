@@ -20,11 +20,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 @Service
 public class BlockDiscoveryService extends AppModule {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
+    private final Stack<String> blockBlacklist = new Stack<>();
     private final List<BlockMinerRunnable> threads = new ArrayList<>();
 
     private Difficulty difficulty;
@@ -51,7 +53,16 @@ public class BlockDiscoveryService extends AppModule {
             return;
         }
 
+        if (!this.getSettingsManager().getBoolean("active") || this.blockBlacklist.contains(blocoJson.getNonce())) {
+            this.queueService.publishBlocoDescoberto(blocoJson);
+
+            return;
+        }
+
         if (this.threads.size() >= this.getSettingsManager().getRangeValue("maxThreads")) {
+            this.blockBlacklist.push(blocoJson.getNonce());
+            this.queueService.publishBlocoDescoberto(blocoJson);
+            
             Logger.log("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco());
             this.log(
                 ModuloLogMessage.builder()
@@ -64,17 +75,13 @@ public class BlockDiscoveryService extends AppModule {
             return;
         }
 
-        if (!this.getSettingsManager().getBoolean("active")) {
-            this.queueService.publishBlocoDescoberto(blocoJson);
-
-            return;
-        }
-
         if (blocoJson.getNomeUsuarioMinerador() != null &&
             blocoJson.getNomeUsuarioMinerador().equals(sharedUtil.getProperties().getUsername())
         ) {
             return;
         }
+
+        this.blockBlacklist.remove(blocoJson.getNonce());
 
         blocoJson.setNonceBlocoAnterior(blocoJson.getNonce());
 
