@@ -19,14 +19,15 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Stack;
+import java.util.Set;
 
 @Service
 public class BlockDiscoveryService extends AppModule {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
-    private final Stack<Long> blockBlacklist = new Stack<>();
+    private final Set<Long> blockBlacklist = new HashSet<>();
     private final List<BlockMinerRunnable> threads = new ArrayList<>();
 
     private Difficulty difficulty;
@@ -60,17 +61,20 @@ public class BlockDiscoveryService extends AppModule {
         }
 
         if (this.threads.size() >= this.getSettingsManager().getRangeValue("maxThreads")) {
-            this.blockBlacklist.push(blocoJson.getNumeroBloco());
-            this.queueService.publishBlocoDescoberto(blocoJson);
+            if (!this.blockBlacklist.contains(blocoJson.getNumeroBloco())) {
+                this.blockBlacklist.add(blocoJson.getNumeroBloco());
 
-            Logger.log("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco());
-            this.log(
-                ModuloLogMessage.builder()
-                    .title(this.getName())
-                    .message("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco())
-                    .extra(blocoJson)
-                    .build()
-            );
+                Logger.log("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco());
+                this.log(
+                    ModuloLogMessage.builder()
+                        .title(this.getName())
+                        .message("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco())
+                        .extra(blocoJson)
+                        .build()
+                );
+            }
+
+            this.queueService.publishBlocoDescoberto(blocoJson);
 
             return;
         }
@@ -81,16 +85,6 @@ public class BlockDiscoveryService extends AppModule {
             return;
         }
 
-        if (blocoJson.getNumeroBloco() != null) {
-            if (this.blockBlacklist.contains(blocoJson.getNumeroBloco())) {
-                this.queueService.publishBlocoDescoberto(blocoJson);
-
-                return;
-            } else {
-                this.blockBlacklist.remove(blocoJson.getNumeroBloco());
-            }
-        }
-
         blocoJson.setNonceBlocoAnterior(blocoJson.getNonce());
 
         BlockMinerRunnable runnable = new BlockMinerRunnable(blocoJson, this.difficulty);
@@ -99,6 +93,8 @@ public class BlockDiscoveryService extends AppModule {
         t.start();
 
         this.threads.add(runnable);
+
+        this.blockBlacklist.remove(blocoJson.getNumeroBloco());
     }
 
     @Override
