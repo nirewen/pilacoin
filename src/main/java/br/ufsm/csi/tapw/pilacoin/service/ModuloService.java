@@ -80,13 +80,13 @@ public class ModuloService {
                     .build()
             );
 
-            Logger.log("Configurações alteradas | " + JacksonUtil.toString(newManager.getSettings()));
+            Logger.log(STR."Configurações alteradas | \{JacksonUtil.toString(newManager.getSettings())}");
 
             if (newManager.difference(oldManager).containsCritical()) {
                 appModulo.onRestart();
 
                 if (newManager.getBoolean("active")) {
-                    Logger.log(appModulo.getName() + " inicializada");
+                    Logger.log(STR."\{appModulo.getName()} inicializada");
 
                     appModulo.log(
                         ModuloLogMessage.builder()
@@ -95,7 +95,7 @@ public class ModuloService {
                             .build()
                     );
                 } else {
-                    Logger.log("Módulo " + appModulo.getName() + " desativado");
+                    Logger.log(STR."Módulo \{appModulo.getName()} desativado");
 
                     appModulo.log(
                         ModuloLogMessage.builder()

@@ -24,6 +24,8 @@ public class PilaCoinMiningService extends AppModule {
     private final PilaCoinService pilaCoinService;
     private final List<PilaCoinMinerRunnable> threads = new ArrayList<>();
 
+    private Difficulty difficulty;
+
     public PilaCoinMiningService(QueueService queueService, PilaCoinService pilaCoinService) {
         super("Minerador de PilaCoin", new SettingsManager(
             new BooleanSetting("active", false),
@@ -37,13 +39,28 @@ public class PilaCoinMiningService extends AppModule {
 
     @Override
     public void update(Difficulty subject) {
-        if (!this.getSettingsManager().getBoolean("active") || subject == null) {
+        this.difficulty = subject;
+
+        this.onRestart();
+    }
+
+    @Override
+    public void onUpdateSettings(SettingsManager subject) {
+        this.setSettingsManager(subject);
+    }
+
+    @Override
+    public void onRestart() {
+        this.threads.forEach(PilaCoinMinerRunnable::stop);
+        this.threads.clear();
+
+        if (!this.getSettingsManager().getBoolean("active") || this.difficulty == null) {
             return;
         }
 
         IntStream.range(0, this.getSettingsManager().getRangeValue("miningThreads")).forEach((i) -> {
             try {
-                PilaCoinMinerRunnable runnable = new PilaCoinMinerRunnable(subject);
+                PilaCoinMinerRunnable runnable = new PilaCoinMinerRunnable(this.difficulty);
                 Thread t = new Thread(runnable);
 
                 t.setName(STR."MiningThread \{i}");
@@ -57,17 +74,6 @@ public class PilaCoinMiningService extends AppModule {
                 throw new RuntimeException(e);
             }
         });
-    }
-
-    @Override
-    public void onUpdateSettings(SettingsManager subject) {
-        this.setSettingsManager(subject);
-    }
-
-    @Override
-    public void onRestart() {
-        this.threads.forEach(PilaCoinMinerRunnable::stop);
-        this.threads.clear();
     }
 
     public class PilaCoinMinerRunnable implements Runnable {
