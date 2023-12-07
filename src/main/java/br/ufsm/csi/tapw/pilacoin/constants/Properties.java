@@ -16,15 +16,9 @@ public class Properties {
     @Value("${pilacoin.home}")
     private String home;
     private Path homePath;
-    @Value("${pilacoin.mining-threads:#{null}}")
-    private Integer miningThreads;
 
     @PostConstruct
     public void init() {
         this.homePath = Paths.get(this.home).toAbsolutePath();
-
-        if (this.miningThreads == null) {
-            this.miningThreads = Runtime.getRuntime().availableProcessors();
-        }
     }
 }

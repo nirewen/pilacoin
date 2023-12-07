@@ -41,7 +41,7 @@ public class DifficultyService implements Observable<Difficulty> {
     }
 
     private void updateDifficulty(Difficulty diff) {
-        Logger.log("Dificuldade alterada para " + diff.getDificuldade());
+        Logger.log(STR."Dificuldade alterada para \{diff.getDificuldade()}");
 
         this.difficulty = diff;
 

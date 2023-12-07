@@ -70,7 +70,7 @@ public class ModuloService {
             moduloRepository.save(modulo);
 
             appModulo.setModulo(modulo);
-            appModulo.setSettingsManager(newManager);
+            appModulo.onUpdateSettings(newManager);
 
             this.log(
                 ModuloLogMessage.builder()
@@ -83,8 +83,7 @@ public class ModuloService {
             Logger.log("Configurações alteradas | " + JacksonUtil.toString(newManager.getSettings()));
 
             if (newManager.difference(oldManager).containsCritical()) {
-                appModulo.onUpdateSettings(newManager);
-                appModulo.update(this.difficultyService.getDifficulty());
+                appModulo.onRestart();
 
                 if (newManager.getBoolean("active")) {
                     Logger.log(appModulo.getName() + " inicializada");

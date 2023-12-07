@@ -43,7 +43,7 @@ public class QueueService {
         int tries = 0;
 
         while (tries++ != 10) {
-            String responseJson = this.receiveFromQueue(queryJson.getNomeUsuario() + "-query");
+            String responseJson = this.receiveFromQueue(STR."\{queryJson.getNomeUsuario()}-query");
             QueryResponseJson response = JacksonUtil.convert(responseJson, QueryResponseJson.class);
 
             if (response == null) {

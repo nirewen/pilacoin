@@ -37,8 +37,6 @@ public class PilaCoinMiningService extends AppModule {
 
     @Override
     public void update(Difficulty subject) {
-        this.stopThreads();
-
         if (!this.getSettingsManager().getBoolean("active") || subject == null) {
             return;
         }
@@ -48,7 +46,7 @@ public class PilaCoinMiningService extends AppModule {
                 PilaCoinMinerRunnable runnable = new PilaCoinMinerRunnable(subject);
                 Thread t = new Thread(runnable);
 
-                t.setName("MiningThread " + i);
+                t.setName(STR."MiningThread \{i}");
 
                 Thread.sleep(100);
 
@@ -63,10 +61,11 @@ public class PilaCoinMiningService extends AppModule {
 
     @Override
     public void onUpdateSettings(SettingsManager subject) {
-        this.stopThreads();
+        this.setSettingsManager(subject);
     }
 
-    private void stopThreads() {
+    @Override
+    public void onRestart() {
         this.threads.forEach(PilaCoinMinerRunnable::stop);
         this.threads.clear();
     }
@@ -104,11 +103,11 @@ public class PilaCoinMiningService extends AppModule {
                     PilaCoinJson pilaCoin = pilaCoinService.generatePilaCoin(this.difficulty);
 
                     if (pilaCoin != null) {
-                        Logger.log("PilaCoin minerado em " + count + " tentativas");
+                        Logger.log(STR."PilaCoin minerado em \{count} tentativas");
                         log(
                             ModuloLogMessage.builder()
                                 .title(Thread.currentThread().getName())
-                                .message("PilaCoin minerado em " + count + " tentativas")
+                                .message(STR."PilaCoin minerado em \{count} tentativas")
                                 .extra(pilaCoin)
                                 .build()
                         );

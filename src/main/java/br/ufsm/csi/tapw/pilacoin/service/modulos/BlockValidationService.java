@@ -75,11 +75,11 @@ public class BlockValidationService extends AppModule {
 
         this.queueService.publishBlocoValidado(blocoValidado);
 
-        Logger.log("Bloco de " + blocoJson.getNomeUsuarioMinerador() + " validado.");
+        Logger.log(STR."Bloco de \{blocoJson.getNomeUsuarioMinerador()} validado.");
         this.log(
             ModuloLogMessage.builder()
                 .title("Bloco validado")
-                .message("Bloco de " + blocoJson.getNomeUsuarioMinerador() + " validado.")
+                .message(STR."Bloco de \{blocoJson.getNomeUsuarioMinerador()} validado.")
                 .extra(Map.of(
                     "bloco", blocoJson,
                     "blocoValidado", blocoValidado
@@ -95,6 +95,11 @@ public class BlockValidationService extends AppModule {
 
     @Override
     public void onUpdateSettings(SettingsManager subject) {
+        this.setSettingsManager(subject);
+    }
 
+    @Override
+    public void onRestart() {
+        this.blockBlacklist.clear();
     }
 }

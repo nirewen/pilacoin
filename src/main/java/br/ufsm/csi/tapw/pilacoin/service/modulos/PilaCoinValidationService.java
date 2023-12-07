@@ -75,11 +75,11 @@ public class PilaCoinValidationService extends AppModule {
 
         this.queueService.publishPilaCoinValidado(pilaCoinValidado);
 
-        Logger.log("PilaCoin de " + pilaCoinJson.getNomeCriador() + " validado.");
+        Logger.log(STR."PilaCoin de \{pilaCoinJson.getNomeCriador()} validado.");
         this.log(
             ModuloLogMessage.builder()
                 .title("PilaCoin validado")
-                .message("PilaCoin de " + pilaCoinJson.getNomeCriador() + " validado.")
+                .message(STR."PilaCoin de \{pilaCoinJson.getNomeCriador()} validado.")
                 .extra(Map.of(
                     "pilaCoin", pilaCoinJson,
                     "pilaValidado", pilaCoinValidado
@@ -95,6 +95,11 @@ public class PilaCoinValidationService extends AppModule {
 
     @Override
     public void onUpdateSettings(SettingsManager subject) {
+        this.setSettingsManager(subject);
+    }
 
+    @Override
+    public void onRestart() {
+        this.pilaBlacklist.clear();
     }
 }

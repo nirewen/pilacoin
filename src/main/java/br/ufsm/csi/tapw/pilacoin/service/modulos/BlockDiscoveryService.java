@@ -64,11 +64,11 @@ public class BlockDiscoveryService extends AppModule {
             if (!this.blockBlacklist.contains(blocoJson.getNumeroBloco())) {
                 this.blockBlacklist.add(blocoJson.getNumeroBloco());
 
-                Logger.log("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco());
+                Logger.log(STR."Não há threads disponíveis para minerar o bloco nº \{blocoJson.getNumeroBloco()}");
                 this.log(
                     ModuloLogMessage.builder()
                         .title(this.getName())
-                        .message("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco())
+                        .message(STR."Não há threads disponíveis para minerar o bloco nº \{blocoJson.getNumeroBloco()}")
                         .extra(blocoJson)
                         .build()
                 );
@@ -100,16 +100,15 @@ public class BlockDiscoveryService extends AppModule {
     @Override
     public void update(Difficulty subject) {
         this.difficulty = subject;
-
-        this.stopThreads();
     }
 
     @Override
     public void onUpdateSettings(SettingsManager subject) {
-        this.stopThreads();
+        this.setSettingsManager(subject);
     }
 
-    private void stopThreads() {
+    @Override
+    public void onRestart() {
         this.threads.forEach(BlockMinerRunnable::stop);
         this.threads.clear();
     }
@@ -131,11 +130,11 @@ public class BlockDiscoveryService extends AppModule {
         public void run() {
             int count = 0;
 
-            Logger.log("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
+            Logger.log(STR."Minerando bloco... | \{JacksonUtil.toString(blocoJson)}");
             log(
                 ModuloLogMessage.builder()
-                    .title(Thread.currentThread().getName() + " " + Thread.currentThread().threadId())
-                    .message("Minerando bloco nº " + blocoJson.getNumeroBloco())
+                    .title(STR."\{Thread.currentThread().getName()} \{Thread.currentThread().threadId()}")
+                    .message(STR."Minerando bloco nº \{blocoJson.getNumeroBloco()}")
                     .extra(blocoJson)
                     .build()
             );
@@ -160,11 +159,11 @@ public class BlockDiscoveryService extends AppModule {
             threads.remove(this);
 
             if (!stopped) {
-                Logger.log("Bloco nº " + blocoJson.getNumeroBloco() + " minerado em " + count + " tentativas");
+                Logger.log(STR."Bloco nº \{blocoJson.getNumeroBloco()} minerado em \{count} tentativas");
                 log(
                     ModuloLogMessage.builder()
-                        .title(Thread.currentThread().getName() + " " + Thread.currentThread().threadId())
-                        .message("Bloco nº " + blocoJson.getNumeroBloco() + " minerado em " + count + " tentativas")
+                        .title(STR."\{Thread.currentThread().getName()} \{Thread.currentThread().threadId()}")
+                        .message(STR."Bloco nº \{blocoJson.getNumeroBloco()} minerado em \{count} tentativas")
                         .extra(blocoJson)
                         .build()
                 );
