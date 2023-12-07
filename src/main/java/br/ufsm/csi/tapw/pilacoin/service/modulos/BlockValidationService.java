@@ -1,12 +1,13 @@
 package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
 import br.ufsm.csi.tapw.pilacoin.impl.BooleanSetting;
+import br.ufsm.csi.tapw.pilacoin.impl.ConstantSetting;
 import br.ufsm.csi.tapw.pilacoin.model.BlocoValidado;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AppModule;
+import br.ufsm.csi.tapw.pilacoin.model.internal.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.AppModule;
-import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
@@ -17,17 +18,20 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Stack;
 
 @Service
 public class BlockValidationService extends AppModule {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
+    private final Stack<String> blockBlacklist = new Stack<>();
 
     private Difficulty difficulty;
 
     public BlockValidationService(QueueService queueService, SharedUtil sharedUtil) {
         super("Validador de Bloco", new SettingsManager(
-            new BooleanSetting("active", false)
+            new BooleanSetting("active", false),
+            new ConstantSetting("order", 4).nonCritical()
         ));
 
         this.queueService = queueService;
@@ -46,11 +50,13 @@ public class BlockValidationService extends AppModule {
             return;
         }
 
-        if (!this.getSettingsManager().getBoolean("active")) {
+        if (!this.getSettingsManager().getBoolean("active") || this.blockBlacklist.contains(blocoJson.getNonce())) {
             this.queueService.publishBlocoMinerado(blocoJson);
 
             return;
         }
+
+        this.blockBlacklist.push(blocoJson.getNonce());
 
         boolean valid = CryptoUtil.compareHash(json, this.difficulty.getDificuldade());
 
@@ -69,11 +75,11 @@ public class BlockValidationService extends AppModule {
 
         this.queueService.publishBlocoValidado(blocoValidado);
 
-        Logger.log("Bloco de " + blocoJson.getNomeUsuarioMinerador() + " validado.");
+        Logger.log(STR."Bloco de \{blocoJson.getNomeUsuarioMinerador()} validado.");
         this.log(
             ModuloLogMessage.builder()
                 .title("Bloco validado")
-                .message("Bloco de " + blocoJson.getNomeUsuarioMinerador() + " validado.")
+                .message(STR."Bloco de \{blocoJson.getNomeUsuarioMinerador()} validado.")
                 .extra(Map.of(
                     "bloco", blocoJson,
                     "blocoValidado", blocoValidado
@@ -83,12 +89,17 @@ public class BlockValidationService extends AppModule {
     }
 
     @Override
-    public void updateDifficulty(Difficulty subject) {
+    public void update(Difficulty subject) {
         this.difficulty = subject;
     }
 
     @Override
     public void onUpdateSettings(SettingsManager subject) {
+        this.setSettingsManager(subject);
+    }
 
+    @Override
+    public void onRestart() {
+        this.blockBlacklist.clear();
     }
 }

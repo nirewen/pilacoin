@@ -22,7 +22,7 @@
     });
 </script>
 
-<div class="flex flex-wrap gap-2 overflow-hidden">
+<div class="flex flex-wrap min-h-[46px] gap-2 overflow-auto resize-y h-80">
     {#if $query.isLoading}
         <div
             class="flex flex-col items-center justify-center flex-1 gap-2 border rounded-sm border-neutral-700 bg-neutral-950"
@@ -43,7 +43,7 @@
     {/if}
 </div>
 
-<div class="flex flex-wrap gap-2">
+<div class="flex flex-wrap flex-1 gap-2 overflow-hidden">
     <LogCard modulo={{ id: 0, name: 'Caixa de Entrada', topic: 'UserMessage', settings: [] }}>
         <IconInbox size={20} slot="icon" />
     </LogCard>

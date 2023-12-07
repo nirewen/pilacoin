@@ -2,12 +2,13 @@ package br.ufsm.csi.tapw.pilacoin.service;
 
 import br.ufsm.csi.tapw.pilacoin.exception.ModuloNotFoundException;
 import br.ufsm.csi.tapw.pilacoin.model.Modulo;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AbstractSetting;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AppModule;
+import br.ufsm.csi.tapw.pilacoin.model.internal.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.repository.ModuloRepository;
-import br.ufsm.csi.tapw.pilacoin.types.AbstractSetting;
-import br.ufsm.csi.tapw.pilacoin.types.AppModule;
-import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
+import br.ufsm.csi.tapw.pilacoin.util.SizedStack;
 import br.ufsm.csi.tapw.pilacoin.util.jackson.JacksonUtil;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class ModuloService {
     private final ModuloRepository moduloRepository;
     private final DifficultyService difficultyService;
     private final Map<String, AppModule> modulos = new HashMap<>();
+    private final Stack<ModuloLogMessage> logMessages = new SizedStack<>(1000);
 
     public ModuloService(
         ModuloRepository moduloRepository,
@@ -52,52 +54,59 @@ public class ModuloService {
 
     public Modulo updateSettings(String nome, List<AbstractSetting<?>> settings) {
         Modulo modulo = this.getModuloEntity(nome);
+        AppModule appModulo = this.getModulo(nome);
 
         if (modulo == null) {
             throw new ModuloNotFoundException();
         }
 
-        modulo.setSettings(settings);
+        SettingsManager newManager = new SettingsManager(settings);
+        SettingsManager oldManager = new SettingsManager(modulo.getSettings());
+        SettingsManager difference = newManager.difference(oldManager);
 
-        moduloRepository.save(modulo);
+        if (!difference.getSettings().isEmpty()) {
+            modulo.setSettings(settings);
 
-        AppModule appModulo = this.getModulo(nome);
-        SettingsManager manager = new SettingsManager(modulo.getSettings());
+            moduloRepository.save(modulo);
 
-        appModulo.setModulo(modulo);
-        appModulo.setSettingsManager(manager);
-        appModulo.onUpdateSettings(manager);
-        appModulo.updateDifficulty(this.difficultyService.getDifficulty());
+            appModulo.setModulo(modulo);
+            appModulo.onUpdateSettings(newManager);
 
-        this.log(
-            ModuloLogMessage.builder()
-                .title("Configurações alteradas")
-                .message("Clique para ver as configurações atuais")
-                .extra(manager.getSettings())
-                .build()
-        );
-
-        Logger.log("Configurações alteradas | " + JacksonUtil.toString(manager.getSettings()));
-
-        if (manager.getBoolean("active")) {
-            Logger.log(appModulo.getName() + " inicializada");
-
-            appModulo.log(
+            this.log(
                 ModuloLogMessage.builder()
-                    .title(appModulo.getName())
-                    .message("Inicializado")
+                    .title("Configurações alteradas")
+                    .message("Clique para ver as configurações atuais")
+                    .extra(newManager.getSettings())
                     .build()
             );
-        } else {
-            Logger.log("Módulo " + appModulo.getName() + " desativado");
 
-            appModulo.log(
-                ModuloLogMessage.builder()
-                    .title(appModulo.getName())
-                    .message("Desativado")
-                    .build()
-            );
+            Logger.log(STR."Configurações alteradas | \{JacksonUtil.toString(newManager.getSettings())}");
+
+            if (newManager.difference(oldManager).containsCritical()) {
+                appModulo.onRestart();
+
+                if (newManager.getBoolean("active")) {
+                    Logger.log(STR."\{appModulo.getName()} inicializada");
+
+                    appModulo.log(
+                        ModuloLogMessage.builder()
+                            .title(appModulo.getName())
+                            .message("Inicializado")
+                            .build()
+                    );
+                } else {
+                    Logger.log(STR."Módulo \{appModulo.getName()} desativado");
+
+                    appModulo.log(
+                        ModuloLogMessage.builder()
+                            .title(appModulo.getName())
+                            .message("Desativado")
+                            .build()
+                    );
+                }
+            }
         }
+
 
         return modulo;
     }
@@ -129,8 +138,47 @@ public class ModuloService {
         return moduloRepository.save(moduloEntity);
     }
 
+    public SseEmitter onConnect() {
+        final SseEmitter sseEmitter = new SseEmitter(-1L);
+
+        sseEmitter.onCompletion(() -> {
+            synchronized (this.sseEmitters) {
+                this.sseEmitters.remove(sseEmitter);
+            }
+        });
+        sseEmitter.onTimeout(sseEmitter::complete);
+
+        this.sseEmitters.add(sseEmitter);
+
+        this.logMessages.forEach(message -> {
+            try {
+                sseEmitter.send(
+                    SseEmitter.event()
+                        .id("0")
+                        .name(message.getTopic())
+                        .data(message)
+                        .reconnectTime(10000)
+                );
+            } catch (Exception e) {
+                sseEmitter.complete();
+            }
+        });
+
+        this.log(
+            ModuloLogMessage.builder()
+                .topic("UserMessage")
+                .title("Conectado")
+                .message("Conectado ao servidor de logs")
+                .build()
+        );
+
+        return sseEmitter;
+    }
+
     @SneakyThrows
     public void log(ModuloLogMessage message) {
+        this.logMessages.push(message);
+
         if (this.sseEmitters.isEmpty()) {
             return;
         }

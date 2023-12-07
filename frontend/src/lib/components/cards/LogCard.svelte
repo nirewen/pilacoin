@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { BooleanSetting, LogMessage, Modulo, ModuloSettings, RangeSetting } from '$lib';
+    import type { BooleanSetting, ConstantSetting, LogMessage, Modulo, ModuloSettings, RangeSetting } from '$lib';
     import { IconMaximize, IconMinimize, IconSettings, IconTrash } from '$lib/icons';
     import { cn, debounced } from '$lib/utils';
 
@@ -18,10 +18,6 @@
     let messages: LogMessage[] = [];
 
     const updateModulo = debounced((settings: ModuloSettings[]) => {
-        if (JSON.stringify(modulo.settings) === JSON.stringify(settings)) {
-            return;
-        }
-
         fetch(`/api/modulo/${modulo.topic}`, {
             method: 'PATCH',
             headers: {
@@ -46,8 +42,9 @@
 
 <Card
     class={cn({
-        'basis-full order-1': expanded,
+        'basis-full': expanded,
     })}
+    style="order: {expanded ? 0 : modulo.settings.find((s) => s.name === 'order')?.value}"
 >
     <svelte:fragment slot="header">
         <header class="flex flex-wrap items-center gap-2">
@@ -102,7 +99,7 @@
                                     class="data-[checked]:dark:bg-green-500"
                                     checked={setting.value}
                                     onCheckedChange={(value) => {
-                                        updateModulo(modulo.settings.map(s => {
+                                        modulo.settings = modulo.settings.map(s => {
                                             if (s.name === setting.name) {
                                                 return {
                                                     ...s,
@@ -111,7 +108,9 @@
                                             }
 
                                             return s;
-                                        }));
+                                        });
+                                        
+                                        updateModulo(modulo.settings);
                                     }}
                                 />
                             {:else if setting.kind === 'RANGE'}
@@ -124,7 +123,7 @@
                                     max={setting.value.max}
                                     value={[setting.value.value]}
                                     onValueChange={(value) => {
-                                        updateModulo(modulo.settings.map(s => {
+                                        modulo.settings = modulo.settings.map(s => {
                                             if (s.name === setting.name) {
                                                 return {
                                                     ...s,
@@ -136,9 +135,53 @@
                                             }
 
                                             return s;
-                                        }));
+                                        });
+
+                                        updateModulo(modulo.settings);
                                     }}
                                 />
+                            {:else if setting.kind === 'CONSTANT'}
+                                <button
+                                    class="px-2 bg-neutral-800 rounded-s-sm"
+                                    on:click={() => {
+                                        modulo.settings = modulo.settings.map(s => {
+                                            if (s.name === setting.name) {
+                                                return {
+                                                    ...s,
+                                                    value: (setting as ConstantSetting).value - 1,
+                                                } as ConstantSetting;
+                                            }
+
+                                            return s;
+                                        });
+
+                                        updateModulo(modulo.settings);
+                                }}
+                                >
+                                    &minus;
+                                </button>
+                                <span class="p-1 pb-[3px] leading-[17px] bg-neutral-800">
+                                    {setting.value}
+                                </span>
+                                <button
+                                    class="px-2 bg-neutral-800 rounded-e-sm"
+                                    on:click={() => {
+                                        modulo.settings = modulo.settings.map(s => {
+                                            if (s.name === setting.name) {
+                                                return {
+                                                    ...s,
+                                                    value: (setting as ConstantSetting).value + 1,
+                                                } as ConstantSetting;
+                                            }
+
+                                            return s;
+                                        });
+                                        
+                                        updateModulo(modulo.settings);
+                                }}
+                                >
+                                    &plus;
+                                </button>
                             {/if}
                         </li>
                     {/each}
@@ -148,9 +191,7 @@
     </svelte:fragment>
     <svelte:fragment>
         {#if ativo !== undefined && !ativo}
-            <div
-                class="absolute inset-0 z-10 flex flex-col items-center justify-center h-full select-none backdrop-blur-sm"
-            >
+            <div class="absolute inset-0 z-10 flex flex-col items-center justify-center select-none backdrop-blur-sm">
                 <span class="font-bold">Módulo desativado</span>
                 <small>Ative o módulo para ver os logs</small>
             </div>

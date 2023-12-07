@@ -1,12 +1,13 @@
 package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
 import br.ufsm.csi.tapw.pilacoin.impl.BooleanSetting;
+import br.ufsm.csi.tapw.pilacoin.impl.ConstantSetting;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
 import br.ufsm.csi.tapw.pilacoin.model.PilaCoinValidado;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AppModule;
+import br.ufsm.csi.tapw.pilacoin.model.internal.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.model.json.PilaCoinJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.AppModule;
-import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
@@ -17,16 +18,20 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Stack;
 
 @Service
 public class PilaCoinValidationService extends AppModule {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
+    private final Stack<String> pilaBlacklist = new Stack<>();
+
     private Difficulty difficulty;
 
     public PilaCoinValidationService(QueueService queueService, SharedUtil sharedUtil) {
         super("Validador de PilaCoin", new SettingsManager(
-            new BooleanSetting("active", false)
+            new BooleanSetting("active", false),
+            new ConstantSetting("order", 2).nonCritical()
         ));
 
         this.queueService = queueService;
@@ -45,11 +50,13 @@ public class PilaCoinValidationService extends AppModule {
             return;
         }
 
-        if (!this.getSettingsManager().getBoolean("active")) {
+        if (!this.getSettingsManager().getBoolean("active") || this.pilaBlacklist.contains(pilaCoinJson.getNonce())) {
             this.queueService.publishPilaCoinMinerado(pilaCoinJson);
 
             return;
         }
+
+        this.pilaBlacklist.push(pilaCoinJson.getNonce());
 
         boolean valid = CryptoUtil.compareHash(json, this.difficulty.getDificuldade());
 
@@ -68,11 +75,11 @@ public class PilaCoinValidationService extends AppModule {
 
         this.queueService.publishPilaCoinValidado(pilaCoinValidado);
 
-        Logger.log("PilaCoin de " + pilaCoinJson.getNomeCriador() + " validado.");
+        Logger.log(STR."PilaCoin de \{pilaCoinJson.getNomeCriador()} validado.");
         this.log(
             ModuloLogMessage.builder()
                 .title("PilaCoin validado")
-                .message("PilaCoin de " + pilaCoinJson.getNomeCriador() + " validado.")
+                .message(STR."PilaCoin de \{pilaCoinJson.getNomeCriador()} validado.")
                 .extra(Map.of(
                     "pilaCoin", pilaCoinJson,
                     "pilaValidado", pilaCoinValidado
@@ -82,12 +89,17 @@ public class PilaCoinValidationService extends AppModule {
     }
 
     @Override
-    public void updateDifficulty(Difficulty subject) {
+    public void update(Difficulty subject) {
         this.difficulty = subject;
     }
 
     @Override
     public void onUpdateSettings(SettingsManager subject) {
         this.setSettingsManager(subject);
+    }
+
+    @Override
+    public void onRestart() {
+        this.pilaBlacklist.clear();
     }
 }

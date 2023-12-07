@@ -1,7 +1,7 @@
 package br.ufsm.csi.tapw.pilacoin.impl;
 
-import br.ufsm.csi.tapw.pilacoin.types.AbstractSetting;
-import br.ufsm.csi.tapw.pilacoin.types.Range;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AbstractSetting;
+import br.ufsm.csi.tapw.pilacoin.model.internal.Range;
 import lombok.Getter;
 import lombok.Setter;
 

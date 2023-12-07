@@ -1,6 +1,6 @@
 package br.ufsm.csi.tapw.pilacoin.util;
 
-import br.ufsm.csi.tapw.pilacoin.types.AbstractSetting;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AbstractSetting;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -21,19 +21,21 @@ public class SettingsManager {
     }
 
     public <T> AbstractSetting<T> getSetting(String name) {
-        return (AbstractSetting<T>) this.settings
+        AbstractSetting<T> setting = (AbstractSetting<T>) this.settings
             .stream()
             .filter(s -> s.getName().equals(name))
             .findFirst()
             .orElse(null);
-    }
-
-    public String getString(String name) {
-        AbstractSetting<String> setting = this.getSetting(name);
 
         if (setting == null) {
             throw new RuntimeException("Setting not found");
         }
+
+        return setting;
+    }
+
+    public String getString(String name) {
+        AbstractSetting<String> setting = this.getSetting(name);
 
         return setting.getValue();
     }
@@ -41,19 +43,11 @@ public class SettingsManager {
     public Boolean getBoolean(String name) {
         AbstractSetting<Boolean> setting = this.getSetting(name);
 
-        if (setting == null) {
-            throw new RuntimeException("Setting not found");
-        }
-
         return setting.getValue();
     }
 
     public Integer getInteger(String name) {
         AbstractSetting<Integer> setting = this.getSetting(name);
-
-        if (setting == null) {
-            throw new RuntimeException("Setting not found");
-        }
 
         return setting.getValue();
     }
@@ -61,19 +55,11 @@ public class SettingsManager {
     public Integer getRangeValue(String name) {
         AbstractSetting<LinkedHashMap<String, Integer>> setting = this.getSetting(name);
 
-        if (setting == null) {
-            throw new RuntimeException("Setting not found");
-        }
-
         return setting.getValue().get("value");
     }
 
     public void setString(String name, String value) {
         AbstractSetting<String> setting = this.getSetting(name);
-
-        if (setting == null) {
-            throw new RuntimeException("Setting not found");
-        }
 
         setting.setValue(value);
     }
@@ -81,20 +67,34 @@ public class SettingsManager {
     public void setBoolean(String name, Boolean value) {
         AbstractSetting<Boolean> setting = this.getSetting(name);
 
-        if (setting == null) {
-            throw new RuntimeException("Setting not found");
-        }
-
         setting.setValue(value);
     }
 
     public void setInteger(String name, Integer value) {
         AbstractSetting<Integer> setting = this.getSetting(name);
 
-        if (setting == null) {
-            throw new RuntimeException("Setting not found");
+        setting.setValue(value);
+    }
+
+    public boolean containsCritical() {
+        return this.settings.stream().anyMatch(AbstractSetting::isCritical);
+    }
+
+    public SettingsManager difference(SettingsManager other) {
+        List<AbstractSetting<?>> difference = new ArrayList<>();
+
+        for (AbstractSetting<?> setting : this.settings) {
+            try {
+                AbstractSetting<?> otherSetting = other.getSetting(setting.getName());
+
+                if (!setting.getValue().equals(otherSetting.getValue())) {
+                    difference.add(setting);
+                }
+            } catch (Exception ignored) {
+                difference.add(setting);
+            }
         }
 
-        setting.setValue(value);
+        return new SettingsManager(difference);
     }
 }

@@ -7,9 +7,10 @@
 
 <div
     class={cn(
-        'flex flex-col gap-1 w-0 flex-1 basis-[24%] p-2 h-full order-2 border rounded-md border-neutral-800 bg-neutral-950',
+        'flex flex-col gap-1 w-0 flex-1 basis-[24%] p-2 order-2 border rounded-md border-neutral-800 bg-neutral-950 overflow-hidden h-full transition-all duration-300 ease-in-out',
         $$props.class,
     )}
+    style={$$props.style}
 >
     <div class="flex flex-col">
         <slot name="header" />

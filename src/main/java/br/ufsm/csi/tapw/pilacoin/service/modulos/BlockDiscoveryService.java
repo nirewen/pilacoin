@@ -1,12 +1,13 @@
 package br.ufsm.csi.tapw.pilacoin.service.modulos;
 
 import br.ufsm.csi.tapw.pilacoin.impl.BooleanSetting;
+import br.ufsm.csi.tapw.pilacoin.impl.ConstantSetting;
 import br.ufsm.csi.tapw.pilacoin.impl.RangeSetting;
 import br.ufsm.csi.tapw.pilacoin.model.Difficulty;
+import br.ufsm.csi.tapw.pilacoin.model.internal.AppModule;
+import br.ufsm.csi.tapw.pilacoin.model.internal.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.model.json.BlocoJson;
 import br.ufsm.csi.tapw.pilacoin.service.QueueService;
-import br.ufsm.csi.tapw.pilacoin.types.AppModule;
-import br.ufsm.csi.tapw.pilacoin.types.ModuloLogMessage;
 import br.ufsm.csi.tapw.pilacoin.util.CryptoUtil;
 import br.ufsm.csi.tapw.pilacoin.util.Logger;
 import br.ufsm.csi.tapw.pilacoin.util.SettingsManager;
@@ -18,12 +19,15 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class BlockDiscoveryService extends AppModule {
     private final QueueService queueService;
     private final SharedUtil sharedUtil;
+    private final Set<Long> blockBlacklist = new HashSet<>();
     private final List<BlockMinerRunnable> threads = new ArrayList<>();
 
     private Difficulty difficulty;
@@ -31,7 +35,8 @@ public class BlockDiscoveryService extends AppModule {
     public BlockDiscoveryService(QueueService queueService, SharedUtil sharedUtil) {
         super("Descobridor de Bloco", new SettingsManager(
             new BooleanSetting("active", false),
-            new RangeSetting("maxThreads", 4, 0, Runtime.getRuntime().availableProcessors())
+            new RangeSetting("maxThreads", 4, 0, Runtime.getRuntime().availableProcessors()),
+            new ConstantSetting("order", 3).nonCritical()
         ));
         this.queueService = queueService;
         this.sharedUtil = sharedUtil;
@@ -49,20 +54,26 @@ public class BlockDiscoveryService extends AppModule {
             return;
         }
 
-        if (this.threads.size() >= this.getSettingsManager().getRangeValue("maxThreads")) {
-            Logger.log("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco());
-            this.log(
-                ModuloLogMessage.builder()
-                    .title(this.getName())
-                    .message("Não há threads disponíveis para minerar o bloco nº " + blocoJson.getNumeroBloco())
-                    .extra(blocoJson)
-                    .build()
-            );
+        if (!this.getSettingsManager().getBoolean("active")) {
+            this.queueService.publishBlocoDescoberto(blocoJson);
 
             return;
         }
 
-        if (!this.getSettingsManager().getBoolean("active")) {
+        if (this.threads.size() >= this.getSettingsManager().getRangeValue("maxThreads")) {
+            if (!this.blockBlacklist.contains(blocoJson.getNumeroBloco())) {
+                this.blockBlacklist.add(blocoJson.getNumeroBloco());
+
+                Logger.log(STR."Não há threads disponíveis para minerar o bloco nº \{blocoJson.getNumeroBloco()}");
+                this.log(
+                    ModuloLogMessage.builder()
+                        .title(this.getName())
+                        .message(STR."Não há threads disponíveis para minerar o bloco nº \{blocoJson.getNumeroBloco()}")
+                        .extra(blocoJson)
+                        .build()
+                );
+            }
+
             this.queueService.publishBlocoDescoberto(blocoJson);
 
             return;
@@ -82,21 +93,22 @@ public class BlockDiscoveryService extends AppModule {
         t.start();
 
         this.threads.add(runnable);
+
+        this.blockBlacklist.remove(blocoJson.getNumeroBloco());
     }
 
     @Override
-    public void updateDifficulty(Difficulty subject) {
+    public void update(Difficulty subject) {
         this.difficulty = subject;
-
-        this.stopThreads();
     }
 
     @Override
     public void onUpdateSettings(SettingsManager subject) {
-        this.stopThreads();
+        this.setSettingsManager(subject);
     }
 
-    private void stopThreads() {
+    @Override
+    public void onRestart() {
         this.threads.forEach(BlockMinerRunnable::stop);
         this.threads.clear();
     }
@@ -118,11 +130,11 @@ public class BlockDiscoveryService extends AppModule {
         public void run() {
             int count = 0;
 
-            Logger.log("Minerando bloco... | " + JacksonUtil.toString(blocoJson));
+            Logger.log(STR."Minerando bloco... | \{JacksonUtil.toString(blocoJson)}");
             log(
                 ModuloLogMessage.builder()
-                    .title(Thread.currentThread().getName() + " " + Thread.currentThread().threadId())
-                    .message("Minerando bloco nº " + blocoJson.getNumeroBloco())
+                    .title(STR."\{Thread.currentThread().getName()} \{Thread.currentThread().threadId()}")
+                    .message(STR."Minerando bloco nº \{blocoJson.getNumeroBloco()}")
                     .extra(blocoJson)
                     .build()
             );
@@ -147,11 +159,11 @@ public class BlockDiscoveryService extends AppModule {
             threads.remove(this);
 
             if (!stopped) {
-                Logger.log("Bloco nº " + blocoJson.getNumeroBloco() + " minerado em " + count + " tentativas");
+                Logger.log(STR."Bloco nº \{blocoJson.getNumeroBloco()} minerado em \{count} tentativas");
                 log(
                     ModuloLogMessage.builder()
-                        .title(Thread.currentThread().getName() + " " + Thread.currentThread().threadId())
-                        .message("Bloco nº " + blocoJson.getNumeroBloco() + " minerado em " + count + " tentativas")
+                        .title(STR."\{Thread.currentThread().getName()} \{Thread.currentThread().threadId()}")
+                        .message(STR."Bloco nº \{blocoJson.getNumeroBloco()} minerado em \{count} tentativas")
                         .extra(blocoJson)
                         .build()
                 );
