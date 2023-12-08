@@ -72,7 +72,7 @@ public class ModuloService {
             appModulo.setModulo(modulo);
             appModulo.onUpdateSettings(newManager);
 
-            this.log(
+            appModulo.log(
                 ModuloLogMessage.builder()
                     .title("Configurações alteradas")
                     .message("Clique para ver as configurações atuais")
